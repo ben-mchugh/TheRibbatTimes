@@ -27,13 +27,25 @@ export default function Header() {
         title: 'Signed in successfully',
         description: 'Welcome to The Ribbat Times!',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign in error:', error);
-      toast({
-        title: 'Sign in failed',
-        description: 'Unable to sign in with Google. Please try again.',
-        variant: 'destructive',
-      });
+      
+      if (error?.code === 'auth/unauthorized-domain') {
+        // Show more helpful message for unauthorized domain error
+        const domain = error?.domain || window.location.origin;
+        toast({
+          title: 'Firebase Domain Error',
+          description: `${domain} needs to be added to Firebase authorized domains. Please check the Firebase console.`,
+          variant: 'destructive',
+          duration: 10000, // Show longer to give user time to read
+        });
+      } else {
+        toast({
+          title: 'Sign in failed',
+          description: 'Unable to sign in with Google. Please try again.',
+          variant: 'destructive',
+        });
+      }
     }
   };
 

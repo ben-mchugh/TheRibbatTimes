@@ -81,14 +81,25 @@ export const signInWithGoogle = async () => {
       const user = result.user;
       await sendUserToBackend(user);
       return user;
-    } catch (popupError) {
+    } catch (popupError: any) {
       console.log("Popup signin failed, trying redirect...", popupError);
-      // If popup fails (e.g., on mobile or blocked), try redirect
+      
+      // Check for unauthorized domain error
+      if (popupError?.code === 'auth/unauthorized-domain') {
+        const currentDomain = window.location.origin;
+        throw {
+          code: 'auth/unauthorized-domain',
+          message: `Your Replit domain "${currentDomain}" needs to be added to Firebase authorized domains. Please go to the Firebase console > Authentication > Sign-in methods > Authorized domains and add this domain.`,
+          domain: currentDomain
+        };
+      }
+      
+      // If popup fails for other reasons (e.g., on mobile or blocked), try redirect
       await signInWithRedirect(auth, googleProvider);
       // User will be redirected away, result handled in checkRedirectResult
       return null;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error signing in with Google", error);
     throw error;
   }

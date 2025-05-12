@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Comment } from '@/lib/types';
 import { apiRequest } from '@/lib/queryClient';

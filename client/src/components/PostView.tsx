@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Post, Comment } from '@/lib/types';
@@ -87,44 +87,85 @@ const PostView = ({ postId }: PostViewProps) => {
 
   const formattedDate = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
 
-  // Function to render margin comments next to the content
-  const renderMarginComments = () => {
-    if (!comments) return null;
+  // State to track positions of margin comments
+  const [marginComments, setMarginComments] = useState<Array<{
+    id: number;
+    top: number;
+    comment: Comment;
+  }>>([]);
+  
+  // Function to update margin comment positions
+  const updateMarginCommentPositions = () => {
+    if (!comments) return;
     
     const inlineComments = comments.filter(comment => comment.elementId);
+    const commentPositions: Array<{id: number; top: number; comment: Comment}> = [];
     
-    return inlineComments.map(comment => {
+    for (const comment of inlineComments) {
       const targetElement = document.getElementById(comment.elementId);
-      if (!targetElement) return null;
+      if (!targetElement) continue;
       
       const rect = targetElement.getBoundingClientRect();
       const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
       
-      if (!containerRect) return null;
+      if (!containerRect) continue;
       
       const topPosition = rect.top - containerRect.top;
       
-      return (
-        <div 
-          key={comment.id} 
-          className="margin-comment" 
-          style={{ top: `${topPosition}px` }}
-        >
-          <div className="flex items-start">
-            <Avatar className="h-6 w-6">
-              <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
-              <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="ml-2 flex-1">
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-medium">{comment.author.displayName}</span>
-              </div>
-              <p className="text-xs mt-1">{comment.content}</p>
+      commentPositions.push({
+        id: comment.id,
+        top: topPosition,
+        comment
+      });
+    }
+    
+    setMarginComments(commentPositions);
+  };
+  
+  // Update comment positions when comments change or on scroll
+  useEffect(() => {
+    if (comments?.length) {
+      updateMarginCommentPositions();
+      
+      const contentContainer = document.querySelector('.post-content-container');
+      if (contentContainer) {
+        const handleScroll = () => updateMarginCommentPositions();
+        contentContainer.addEventListener('scroll', handleScroll);
+        window.addEventListener('resize', handleScroll);
+        
+        // Initial position calculation after a small delay to ensure DOM is ready
+        setTimeout(updateMarginCommentPositions, 200);
+        
+        return () => {
+          contentContainer.removeEventListener('scroll', handleScroll);
+          window.removeEventListener('resize', handleScroll);
+        };
+      }
+    }
+  }, [comments]);
+  
+  // Function to render margin comments next to the content
+  const renderMarginComments = () => {
+    return marginComments.map(({ id, top, comment }) => (
+      <div 
+        key={id} 
+        className="margin-comment" 
+        style={{ top: `${top}px` }}
+      >
+        <div className="flex items-start">
+          <Avatar className="h-6 w-6">
+            <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
+            <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="ml-2 flex-1">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-medium">{comment.author.displayName}</span>
             </div>
+            <p className="text-xs mt-1">{comment.content}</p>
           </div>
         </div>
-      );
-    }).filter(Boolean);
+      </div>
+    ));
   };
 
   // Process the HTML content to add IDs to paragraphs for targeting comments
