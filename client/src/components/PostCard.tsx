@@ -8,9 +8,10 @@ import { formatDate } from '@/lib/dateUtils';
 
 interface PostCardProps {
   post: Post;
+  profile?: any; // Optional profile to use if post.author is missing
 }
 
-const PostCard = ({ post }: PostCardProps) => {
+const PostCard = ({ post, profile }: PostCardProps) => {
   const formattedDate = formatDate(post.createdAt);
 
   return (
@@ -21,10 +22,17 @@ const PostCard = ({ post }: PostCardProps) => {
             <h2 className="text-xl font-heading font-bold" style={{ color: "#161718" }}>{post.title}</h2>
             <div className="mt-1 flex items-center">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
-                <AvatarFallback>{post.author.displayName.charAt(0)}</AvatarFallback>
+                <AvatarImage 
+                  src={post.author?.photoURL || profile?.photoURL || ''} 
+                  alt={post.author?.displayName || profile?.displayName || 'User'} 
+                />
+                <AvatarFallback>
+                  {(post.author?.displayName || profile?.displayName || 'U').charAt(0)}
+                </AvatarFallback>
               </Avatar>
-              <span className="ml-2 text-sm" style={{ color: "#161718" }}>{post.author.displayName}</span>
+              <span className="ml-2 text-sm" style={{ color: "#161718" }}>
+                {post.author?.displayName || profile?.displayName || 'User'}
+              </span>
               <span className="mx-2" style={{ color: "#a67a48" }}>•</span>
               <span className="text-sm" style={{ color: "#161718" }}>{formattedDate}</span>
             </div>

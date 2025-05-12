@@ -15,25 +15,49 @@ export default function Profile() {
   const { currentUser } = useAuth();
   const [match, params] = useRoute('/profile/:userId');
   
-  // Determine if we're viewing our own profile or someone else's
-  const isOwnProfile = !params?.userId || (currentUser && params.userId === currentUser.id.toString());
+  // Debugging output to console
+  console.log('currentUser:', currentUser);
+  console.log('params:', params);
   
-  // Get the user ID to fetch
+  // We need to fetch the user info from the backend first since Firebase user doesn't have our DB ID
+  const { data: userInfo } = useQuery<User>({
+    queryKey: ['/api/profile'],
+    enabled: !!currentUser,
+  });
+  
+  console.log('User info from API:', userInfo);
+  
+  // Determine if we're viewing our own profile or someone else's
+  const isOwnProfile = !params?.userId || (userInfo && params.userId === userInfo.id.toString());
+  
+  // Get the user ID to fetch - ensure we have a valid ID
   const userId = isOwnProfile 
-    ? (currentUser?.id || 0) 
+    ? (userInfo?.id || 0) 
     : (params?.userId ? parseInt(params.userId) : 0);
+    
+  console.log('isOwnProfile:', isOwnProfile);
+  console.log('userId for queries:', userId);
 
-  // Get profile information - use different endpoints based on whose profile it is
-  const { data: profile, isLoading: profileLoading } = useQuery<User>({
-    queryKey: [isOwnProfile ? '/api/profile' : `/api/users/${userId}`],
-    enabled: !!userId && (isOwnProfile ? !!currentUser : true),
+  // For non-own profiles, we need to fetch the user profile separately
+  const { data: otherUserProfile, isLoading: otherProfileLoading } = useQuery<User>({
+    queryKey: [!isOwnProfile ? `/api/users/${userId}` : null],
+    enabled: !isOwnProfile && !!userId,
   });
+  
+  // Use the appropriate profile data based on whose profile we're viewing
+  const profile = isOwnProfile ? userInfo : otherUserProfile;
+  const profileLoading = isOwnProfile ? !userInfo : otherProfileLoading;
+  
+  console.log('Profile data:', profile);
 
-  // Get user's posts
-  const { data: userPosts = [], isLoading: postsLoading } = useQuery<Post[]>({
+  // Get user's posts with the apiRequest utility to ensure proper fetching
+  const { data: userPosts = [], isLoading: postsLoading, error } = useQuery<Post[]>({
     queryKey: [`/api/users/${userId}/posts`],
-    enabled: !!userId,
+    enabled: !!userId && !!profile,
   });
+  
+  console.log('User posts:', userPosts);
+  if (error) console.error('Error fetching posts:', error);
 
   // Group posts by month and year
   const groupedPosts = userPosts.reduce((groups, post) => {
@@ -128,7 +152,11 @@ export default function Profile() {
                   </h2>
                   <div className="space-y-4">
                     {groupedPosts[monthYear].map((post) => (
-                      <PostCard key={post.id} post={post} />
+                      <PostCard 
+                        key={post.id} 
+                        post={post} 
+                        profile={profile}
+                      />
                     ))}
                   </div>
                 </div>
