@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams } from 'wouter';
+import { Link, useRoute } from 'wouter';
 import { Post, User } from '@/lib/types';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,15 +13,20 @@ import { format } from 'date-fns';
 
 export default function Profile() {
   const { currentUser } = useAuth();
-  const [params] = useParams();
+  const [match, params] = useRoute('/profile/:userId');
   
-  // If no userId is provided, use the current user's ID
-  const userId = params?.userId ? parseInt(params.userId) : (currentUser?.id || 0);
+  // Determine if we're viewing our own profile or someone else's
+  const isOwnProfile = !params?.userId || (currentUser && params.userId === currentUser.id.toString());
+  
+  // Get the user ID to fetch
+  const userId = isOwnProfile 
+    ? (currentUser?.id || 0) 
+    : (params?.userId ? parseInt(params.userId) : 0);
 
-  // Get profile information
+  // Get profile information - use different endpoints based on whose profile it is
   const { data: profile, isLoading: profileLoading } = useQuery<User>({
-    queryKey: [userId === currentUser?.id ? '/api/profile' : `/api/users/${userId}`],
-    enabled: !!userId,
+    queryKey: [isOwnProfile ? '/api/profile' : `/api/users/${userId}`],
+    enabled: !!userId && (isOwnProfile ? !!currentUser : true),
   });
 
   // Get user's posts
@@ -78,10 +83,10 @@ export default function Profile() {
           <AvatarFallback>{profile?.displayName?.charAt(0) || 'U'}</AvatarFallback>
         </Avatar>
         <h1 className="text-2xl font-bold">{profile?.displayName || 'User Profile'}</h1>
-        <p className="text-gray-500">{profile?.email || ''}</p>
+        <p className="text-gray-500">{isOwnProfile ? profile?.email || '' : ''}</p>
         
-        {currentUser?.id === userId && (
-          <Link href="/new-post">
+        {isOwnProfile && (
+          <Link href="/new">
             <Button style={{ backgroundColor: '#43ac78' }} className="font-medium">
               Create New Post
             </Button>
@@ -108,8 +113,8 @@ export default function Profile() {
           ) : userPosts.length === 0 ? (
             <Card className="p-8 text-center">
               <p className="text-lg mb-4">No posts yet</p>
-              {currentUser?.id === userId && (
-                <Link href="/new-post">
+              {isOwnProfile && (
+                <Link href="/new">
                   <Button style={{ backgroundColor: '#43ac78' }}>Create Your First Post</Button>
                 </Link>
               )}
@@ -118,7 +123,7 @@ export default function Profile() {
             <div className="space-y-8">
               {sortedMonths.map((monthYear) => (
                 <div key={monthYear}>
-                  <h2 className="text-xl font-heading mb-4 pb-2 border-b monthly-header">
+                  <h2 className="text-xl font-heading mb-4 pb-2 border-b monthly-header" style={{ color: "#a67a48" }}>
                     {monthYear}
                   </h2>
                   <div className="space-y-4">

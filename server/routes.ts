@@ -215,6 +215,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get user by ID (for public profiles)
+  app.get('/api/users/:userId', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Don't expose sensitive information in public user profiles
+      res.json({
+        id: user.id,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      });
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({ message: 'Failed to retrieve user' });
+    }
+  });
+  
   // Get posts by a specific author
   app.get('/api/users/:userId/posts', async (req, res) => {
     try {
@@ -226,7 +248,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const posts = await storage.getPostsByAuthor(userId);
-      res.json(posts);
+      
+      // Get author details and comment counts for each post
+      const postsWithAuthors = await Promise.all(posts.map(async (post) => {
+        const comments = await storage.getCommentsByPostId(post.id);
+        
+        return {
+          ...post,
+          author: {
+            id: user.id,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            email: user.email,
+            uid: user.uid
+          },
+          commentCount: comments.length
+        };
+      }));
+      
+      res.json(postsWithAuthors);
     } catch (error) {
       console.error('Get user posts error:', error);
       res.status(500).json({ message: 'Failed to retrieve user posts' });
