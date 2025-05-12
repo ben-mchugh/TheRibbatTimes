@@ -1,10 +1,33 @@
-import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import PostCard from './PostCard';
 import { Post } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, parseISO } from 'date-fns';
+
+// Helper function to group posts by month
+const groupPostsByMonth = (posts: Post[]) => {
+  const groups: Record<string, Post[]> = {};
+  
+  posts.forEach(post => {
+    const date = parseISO(post.createdAt);
+    const monthYear = format(date, 'MMMM yyyy');
+    
+    if (!groups[monthYear]) {
+      groups[monthYear] = [];
+    }
+    
+    groups[monthYear].push(post);
+  });
+  
+  // Sort the monthYear keys in reverse chronological order
+  return Object.entries(groups)
+    .sort((a, b) => {
+      const dateA = new Date(a[0]);
+      const dateB = new Date(b[0]);
+      return dateB.getTime() - dateA.getTime();
+    });
+};
 
 const PostList = () => {
   const { data: posts, isLoading, error } = useQuery<Post[]>({
@@ -71,35 +94,14 @@ const PostList = () => {
     );
   }
   
-  // Group posts by month and year
-  const groupedPosts = useMemo(() => {
-    const groups: Record<string, Post[]> = {};
-    
-    posts.forEach(post => {
-      const date = parseISO(post.createdAt);
-      const monthYear = format(date, 'MMMM yyyy');
-      
-      if (!groups[monthYear]) {
-        groups[monthYear] = [];
-      }
-      
-      groups[monthYear].push(post);
-    });
-    
-    // Sort the monthYear keys in reverse chronological order
-    return Object.entries(groups)
-      .sort((a, b) => {
-        const dateA = new Date(a[0]);
-        const dateB = new Date(b[0]);
-        return dateB.getTime() - dateA.getTime();
-      });
-  }, [posts]);
+  // Generate grouped posts
+  const groupedPosts = groupPostsByMonth(posts);
 
   return (
     <div className="space-y-12">
       {groupedPosts.map(([monthYear, monthPosts]) => (
         <div key={monthYear} className="space-y-6">
-          <h2 className="monthly-header">{monthYear}</h2>
+          <h2 className="text-2xl font-serif font-bold border-b border-neutral-300 pb-2 text-amber-800">{monthYear}</h2>
           <div className="space-y-8">
             {monthPosts.map((post) => (
               <PostCard key={post.id} post={post} />
