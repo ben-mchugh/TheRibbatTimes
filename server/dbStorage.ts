@@ -20,6 +20,23 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
+    // Find the user first to make sure it exists
+    const existingUser = await this.getUser(id);
+    if (!existingUser) {
+      return undefined;
+    }
+    
+    // Update the user in the database
+    const [updatedUser] = await db
+      .update(users)
+      .set(userData)
+      .where(eq(users.id, id))
+      .returning();
+      
+    return updatedUser;
+  }
+
   // Post operations
   async getPost(id: number): Promise<Post | undefined> {
     const [post] = await db

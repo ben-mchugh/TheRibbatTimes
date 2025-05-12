@@ -144,9 +144,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (updatedData.displayName !== user.displayName || 
             updatedData.email !== user.email || 
             updatedData.photoURL !== user.photoURL) {
-          // We would need a storage.updateUser method, which we don't have yet
-          // For now, we'll just log this
-          console.log('User profile information updated from Google');
+          // Update the user with the latest Google profile information
+          user = await storage.updateUser(user.id, updatedData) || user;
+          console.log('User profile information updated from Google:', user.displayName, user.photoURL);
         }
       }
       
