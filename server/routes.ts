@@ -48,20 +48,20 @@ const authenticateUser = async (req: Request, res: Response, next: Function) => 
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    // For development without Firebase Admin, allow using a demo user
+    // For development without Firebase Admin, create a personalized user
     if (!firebaseAdmin && process.env.NODE_ENV === 'development') {
-      // Check if we have a demo user, or create one
-      let demoUser = await storage.getUserByUid('demo-user');
-      if (!demoUser) {
-        demoUser = await storage.createUser({
-          uid: 'demo-user',
-          displayName: 'Demo User',
-          email: 'demo@example.com',
-          photoURL: 'https://via.placeholder.com/150',
+      // Create a more personalized user experience
+      let personalUser = await storage.getUserByUid('personal-user');
+      if (!personalUser) {
+        personalUser = await storage.createUser({
+          uid: 'personal-user',
+          displayName: 'Ribbat Reader',
+          email: 'reader@ribbattimes.com',
+          photoURL: 'https://i.pravatar.cc/150?u=ribbattimes',
         });
       }
-      req.session.userId = demoUser.id;
-      req.user = demoUser;
+      req.session.userId = personalUser.id;
+      req.user = personalUser;
       return next();
     }
 

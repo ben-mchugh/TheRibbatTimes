@@ -86,7 +86,8 @@ export default function EditPost() {
         title: 'Post created',
         description: 'Your post has been published successfully.',
       });
-      setLocation(`/post/${data.id}`);
+      // Redirect to home page after creating a post
+      setLocation('/');
     },
     onError: (error) => {
       console.error('Error creating post:', error);
