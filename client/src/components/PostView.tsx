@@ -223,7 +223,7 @@ const PostView = ({ postId }: PostViewProps) => {
           
           <div className="px-6 pt-12 pb-8 md:p-12 flex flex-col md:flex-row">
             <div className="w-full md:w-3/4 pr-0 md:pr-8 relative post-content-container">
-              <h1 className="text-2xl md:text-3xl font-heading font-bold text-[#161718]">{post.title}</h1>
+              <h1 className="text-2xl md:text-3xl font-heading font-bold text-[#161718] mb-4">{post.title}</h1>
               <div className="mt-2 mb-6 flex items-center">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
@@ -237,8 +237,8 @@ const PostView = ({ postId }: PostViewProps) => {
               <div className="prose prose-lg max-w-none relative text-[#161718]">
                 <div 
                   dangerouslySetInnerHTML={{ __html: processContent(post.content) }} 
+                  className="post-main-content"
                 />
-                {renderMarginComments()}
               </div>
               
               {currentUser && post.authorId === parseInt(currentUser.uid) && (
@@ -255,13 +255,26 @@ const PostView = ({ postId }: PostViewProps) => {
               )}
             </div>
             
-            <CommentSection 
-              postId={post.id} 
-              comments={comments} 
-              isLoading={commentsLoading} 
-              showComments={showComments} 
-              setShowComments={setShowComments} 
-            />
+            <div className="w-full md:w-1/4 mt-8 md:mt-0">
+              <div className="sticky top-8">
+                <h3 className="text-lg font-bold mb-4 text-[#a67a48]">Annotations</h3>
+                <div className="annotations-container">
+                  {marginComments.length > 0 ? (
+                    renderMarginComments()
+                  ) : (
+                    <p className="text-sm text-[#161718] italic">No annotations yet. Select text to add comments.</p>
+                  )}
+                </div>
+                
+                <CommentSection 
+                  postId={post.id} 
+                  comments={comments} 
+                  isLoading={commentsLoading} 
+                  showComments={showComments} 
+                  setShowComments={setShowComments} 
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -124,23 +124,23 @@ export class MemStorage implements IStorage {
     };
     this.postsData.set(samplePost2.id, samplePost2);
     
-    // Add your test post with matching title and details
+    // Add a more consistent test post
     const userPost: Post = {
       id: this.postId++,
-      title: "May 12, 2025Title test",
-      content: "<p>Test <strong>text <em>dfdsaf</em></strong>f sda dafd</p>",
+      title: "The Future of Artificial Intelligence in Everyday Life",
+      content: "<h2>From Science Fiction to Reality</h2><p>Artificial Intelligence has rapidly evolved from a distant science fiction concept to an integral part of our daily lives. Smart assistants, recommendation algorithms, and automated systems now blend seamlessly into our routines, often without us even noticing their presence.</p><p>As we look toward the future, the integration of AI into everyday objects and services will only deepen, changing how we interact with technology and each other.</p><h2>Ethics and Boundaries</h2><p>The rapid advancement of AI technology brings important ethical considerations to the forefront. Questions about privacy, bias in algorithms, and the appropriate limits of automation require thoughtful discussion and careful regulation.</p><p>Finding the right balance between innovation and ethical constraints will be one of the defining challenges of the coming decade.</p>",
       authorId: 2,
       author: {
         id: 2,
         uid: "personal-user",
-        displayName: "Ribbat Reader", 
+        displayName: "Mikhail Dvorsky", 
         email: "reader@ribbattimes.com",
         photoURL: "https://i.pravatar.cc/150?u=ribbattimes",
         createdAt: new Date().toISOString()
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      tags: ["Tag"],
+      tags: ["Technology", "Ethics", "Future"],
       commentCount: 0
     };
     this.postsData.set(userPost.id, userPost);
