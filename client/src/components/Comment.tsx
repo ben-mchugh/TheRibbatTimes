@@ -26,22 +26,22 @@ const CommentItem = ({ comment }: CommentProps) => {
 
   return (
     <div 
-      className={`bg-neutral-50 p-3 rounded-lg ${comment.elementId ? 'cursor-pointer hover:bg-neutral-100' : ''}`}
+      className={`bg-[#f5f0e0] p-4 rounded-lg mb-4 ${comment.elementId ? 'cursor-pointer hover:bg-[#ebddbe]' : ''}`}
       onClick={comment.elementId ? handleCommentClick : undefined}
     >
       <div className="flex items-start">
-        <Avatar className="h-8 w-8">
+        <Avatar className="h-10 w-10">
           <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
           <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
         </Avatar>
-        <div className="ml-2 flex-1">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-neutral-900">{comment.author.displayName}</span>
-            <span className="text-xs text-neutral-500">{formattedDate}</span>
+        <div className="ml-3 flex-1">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+            <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
+            <span className="text-xs text-[#a67a48] mt-1 sm:mt-0">{formattedDate}</span>
           </div>
-          <p className="text-sm text-neutral-700 mt-1">{comment.content}</p>
+          <p className="text-sm text-[#161718] mt-2 whitespace-pre-wrap break-words">{comment.content}</p>
           {comment.elementId && (
-            <div className="mt-1 text-xs text-primary-dark italic">
+            <div className="mt-2 text-xs text-[#a67a48] italic">
               Comment on selected text
             </div>
           )}

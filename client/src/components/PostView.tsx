@@ -116,19 +116,21 @@ const PostView = ({ postId }: PostViewProps) => {
     return marginComments.map(({ id, top, comment }) => (
       <div 
         key={id} 
-        className="margin-comment" 
-        style={{ top: `${top}px` }}
+        className="margin-comment mb-3 last:mb-0 p-3 border-l-2 border-[#a67a48] bg-[#f9f6ea] rounded" 
       >
         <div className="flex items-start">
-          <Avatar className="h-6 w-6">
+          <Avatar className="h-8 w-8">
             <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
             <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
           <div className="ml-2 flex-1">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-medium">{comment.author?.displayName || 'Anonymous'}</span>
+              <span className="text-sm font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
             </div>
-            <p className="text-xs mt-1">{comment.content}</p>
+            <p className="text-sm mt-1 text-[#161718]">{comment.content}</p>
+            <div className="text-xs text-[#a67a48] mt-1 italic">
+              On selected text
+            </div>
           </div>
         </div>
       </div>
@@ -224,9 +226,9 @@ const PostView = ({ postId }: PostViewProps) => {
           </Link>
           
           <div className="px-6 pt-12 pb-8 md:p-12 flex flex-col md:flex-row">
-            <div className="w-full md:w-3/4 pr-0 md:pr-8 relative post-content-container">
+            <div className="w-full md:w-2/3 pr-0 md:pr-8 relative post-content-container">
               <h1 className="text-2xl md:text-3xl font-heading font-bold text-[#161718] mb-4">{post.title}</h1>
-              <div className="mt-2 mb-6 flex items-center">
+              <div className="mt-2 mb-6 flex flex-wrap items-center">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
                   <AvatarFallback>{post.author.displayName.charAt(0)}</AvatarFallback>
@@ -257,16 +259,16 @@ const PostView = ({ postId }: PostViewProps) => {
               )}
             </div>
             
-            <div className="w-full md:w-1/4 mt-8 md:mt-0">
+            <div className="w-full md:w-1/3 mt-8 md:mt-0 md:pl-8">
               <div className="sticky top-8">
-                <h3 className="text-lg font-bold mb-4 text-[#a67a48]">Annotations</h3>
-                <div className="annotations-container">
-                  {marginComments.length > 0 ? (
-                    renderMarginComments()
-                  ) : (
-                    <p className="text-sm text-[#161718] italic">No annotations yet. Select text to add comments.</p>
-                  )}
-                </div>
+                {marginComments.length > 0 && (
+                  <>
+                    <h3 className="text-lg font-bold mb-4 text-[#a67a48]">Annotations</h3>
+                    <div className="annotations-container mb-6 bg-[#f5f0e0] p-4 rounded-lg">
+                      {renderMarginComments()}
+                    </div>
+                  </>
+                )}
                 
                 <CommentSection 
                   postId={post.id} 

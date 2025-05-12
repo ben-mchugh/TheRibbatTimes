@@ -113,14 +113,14 @@ const CommentSection = ({
   };
 
   return (
-    <div className={`w-full md:w-1/4 mt-8 md:mt-0 border-t md:border-t-0 md:border-l border-neutral-200 pt-8 md:pt-0 md:pl-8 ${showComments ? 'block' : 'hidden md:block'}`}>
+    <div className={`w-full mt-8 pt-4 border-t border-[#a67a48] ${showComments ? 'block' : 'hidden md:block'}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-heading font-semibold text-lg">Comments</h3>
+        <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={() => setShowComments(false)} 
-          className="md:hidden text-neutral-500 hover:text-neutral-700"
+          className="md:hidden text-[#161718] hover:text-[#a67a48]"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -129,7 +129,7 @@ const CommentSection = ({
             variant="ghost" 
             size="sm" 
             onClick={() => setShowComments(true)} 
-            className="hidden md:inline-block cursor-pointer text-primary hover:text-primary-dark text-sm"
+            className="hidden md:inline-block cursor-pointer text-[#a67a48] hover:text-[#161718] text-sm"
           >
             Show Comments
           </Button>
@@ -137,9 +137,9 @@ const CommentSection = ({
       </div>
       
       {isLoading ? (
-        <div className="space-y-4 max-h-[calc(90vh-200px)] overflow-y-auto">
+        <div className="space-y-4 overflow-y-auto">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-neutral-50 p-3 rounded-lg">
+            <div key={i} className="bg-[#f5f0e0] p-4 rounded-lg">
               <div className="flex items-start">
                 <Skeleton className="h-8 w-8 rounded-full" />
                 <div className="ml-2 flex-1">
@@ -155,49 +155,49 @@ const CommentSection = ({
           ))}
         </div>
       ) : (
-        <div className="space-y-4 max-h-[calc(90vh-200px)] overflow-y-auto">
+        <div className="space-y-4 overflow-y-auto">
           {comments && comments.length > 0 ? (
             comments.map((comment) => (
               <CommentItem key={comment.id} comment={comment} />
             ))
           ) : (
-            <div className="bg-neutral-50 p-3 rounded-lg text-center py-6">
-              <p className="text-neutral-600 text-sm">No comments yet.</p>
-              <p className="text-neutral-500 text-xs mt-1">Be the first to start the conversation!</p>
+            <div className="bg-[#f5f0e0] p-4 rounded-lg text-center py-6">
+              <p className="text-[#161718] text-sm">No comments yet.</p>
+              <p className="text-[#a67a48] text-xs mt-1">Be the first to start the conversation!</p>
             </div>
           )}
         </div>
       )}
       
-      <div className="mt-4 pt-4 border-t border-neutral-200">
-        <h4 className="text-sm font-medium text-neutral-900 mb-2">Add Comment</h4>
+      <div className="mt-6 pt-4 border-t border-[#a67a48]">
+        <h4 className="text-sm font-medium text-[#a67a48] mb-2">Add Comment</h4>
         <form onSubmit={handleSubmitComment}>
           <Textarea
             rows={3}
-            className="w-full px-3 py-2 text-sm border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+            className="w-full px-3 py-2 text-sm border border-[#a67a48] bg-[#f5f0e0] rounded-md focus:outline-none focus:ring-2 focus:ring-[#a67a48] focus:border-[#a67a48] placeholder:text-[#a67a48]/50"
             placeholder="Share your thoughts..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             disabled={addCommentMutation.isPending || !currentUser}
           />
           {selectedElementId && (
-            <div className="mt-1 text-xs text-primary">
+            <div className="mt-2 text-xs text-[#a67a48]">
               Commenting on selected text
               <Button 
                 variant="link" 
                 size="sm" 
-                className="px-1 h-auto text-xs"
+                className="px-1 h-auto text-xs text-[#a67a48] hover:text-[#161718]"
                 onClick={() => setSelectedElementId(null)}
               >
                 (clear)
               </Button>
             </div>
           )}
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-end mt-3">
             <Button 
               type="submit" 
               disabled={addCommentMutation.isPending || !currentUser}
-              className="inline-flex items-center px-3 py-1.5 text-sm"
+              className="inline-flex items-center px-4 py-2 text-sm bg-[#a67a48] hover:bg-[#8a5d2e] text-[#e0d3af]"
             >
               {addCommentMutation.isPending ? 'Posting...' : 'Post Comment'}
             </Button>
