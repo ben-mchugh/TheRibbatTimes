@@ -27,9 +27,28 @@ const PostView = ({ postId }: PostViewProps) => {
   // Auth hook  
   const { currentUser } = useAuth();
   
-  // Data fetching with additional console logging
+  // Data fetching with direct approach like we did for comments
   const { data: post, isLoading: postLoading, error: postError } = useQuery<Post>({
     queryKey: ['/api/posts', postId],
+    queryFn: async () => {
+      console.log(`Directly fetching post with ID ${postId}`);
+      const response = await fetch(`/api/posts/${postId}`, {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch post: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log(`Fetched post ${postId}:`, {
+        id: data.id,
+        title: data.title,
+        author: data.author?.displayName || 'Unknown',
+        createdAt: data.createdAt || 'Unknown date'
+      });
+      return data;
+    },
     refetchOnWindowFocus: true,
     staleTime: 5000, // Consider data stale after 5 seconds
   });

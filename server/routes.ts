@@ -301,9 +301,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const comments = await storage.getCommentsByPostId(postId);
       console.log(`Retrieved ${comments.length} comments for the post`);
       
+      // Make sure we have complete author data
+      let authorData;
+      if (author) {
+        authorData = {
+          id: author.id,
+          uid: author.uid,
+          displayName: author.displayName,
+          email: author.email,
+          photoURL: author.photoURL
+        };
+      } else {
+        authorData = { 
+          id: 0,
+          uid: '',
+          displayName: 'Unknown Author', 
+          email: '', 
+          photoURL: '' 
+        };
+      }
+      
       const responseData = {
         ...post,
-        author: author || { displayName: 'Unknown', email: '', photoURL: '' },
+        author: authorData,
         commentCount: comments.length
       };
       
@@ -311,6 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: responseData.id,
         title: responseData.title,
         authorName: responseData.author?.displayName,
+        createdAt: responseData.createdAt,
         contentLength: responseData.content?.length || 0
       });
       
