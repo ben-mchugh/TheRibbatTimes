@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { X } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatRelativeTime } from '@/lib/dateUtils';
 import CommentSection from './CommentSection';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -85,7 +85,8 @@ const PostView = ({ postId }: PostViewProps) => {
     );
   }
 
-  const formattedDate = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
+  // Using our safe date formatter utility
+  const formattedDate = formatRelativeTime(post.createdAt);
 
   // State to track positions of margin comments
   const [marginComments, setMarginComments] = useState<Array<{

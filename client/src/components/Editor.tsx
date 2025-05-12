@@ -66,9 +66,9 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     if (!editor) return;
     
     // Helper to throttle function calls for better performance
-    const throttle = (func, delay) => {
+    const throttle = (func: Function, delay: number) => {
       let lastCall = 0;
-      return function(...args) {
+      return function(...args: any[]) {
         const now = Date.now();
         if (now - lastCall >= delay) {
           lastCall = now;
