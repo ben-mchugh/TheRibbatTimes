@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useRoute } from 'wouter';
 import { Post, User } from '@/lib/types';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,18 +14,18 @@ import { format } from 'date-fns';
 export default function Profile() {
   const { currentUser } = useAuth();
   const [match, params] = useRoute('/profile/:userId');
+  const queryClient = useQueryClient();
   
-  // Debugging output to console
-  console.log('currentUser:', currentUser);
-  console.log('params:', params);
+  // Set longer cache time for profile data
+  const cacheTime = 1000 * 60 * 5; // 5 minutes
   
   // We need to fetch the user info from the backend first since Firebase user doesn't have our DB ID
-  const { data: userInfo } = useQuery<User>({
+  const { data: userInfo, isLoading: userInfoLoading } = useQuery<User>({
     queryKey: ['/api/profile'],
     enabled: !!currentUser,
+    staleTime: cacheTime,
+    gcTime: cacheTime,
   });
-  
-  console.log('User info from API:', userInfo);
   
   // Determine if we're viewing our own profile or someone else's
   const isOwnProfile = !params?.userId || (userInfo && params.userId === userInfo.id.toString());
@@ -34,51 +34,54 @@ export default function Profile() {
   const userId = isOwnProfile 
     ? (userInfo?.id || 0) 
     : (params?.userId ? parseInt(params.userId) : 0);
-    
-  console.log('isOwnProfile:', isOwnProfile);
-  console.log('userId for queries:', userId);
 
   // For non-own profiles, we need to fetch the user profile separately
   const { data: otherUserProfile, isLoading: otherProfileLoading } = useQuery<User>({
     queryKey: [!isOwnProfile ? `/api/users/${userId}` : null],
     enabled: !isOwnProfile && !!userId,
+    staleTime: cacheTime,
+    gcTime: cacheTime,
   });
   
   // Use the appropriate profile data based on whose profile we're viewing
   const profile = isOwnProfile ? userInfo : otherUserProfile;
-  const profileLoading = isOwnProfile ? !userInfo : otherProfileLoading;
-  
-  console.log('Profile data:', profile);
+  const profileLoading = isOwnProfile ? userInfoLoading : otherProfileLoading;
 
   // Get user's posts with the apiRequest utility to ensure proper fetching
   const { data: userPosts = [], isLoading: postsLoading, error } = useQuery<Post[]>({
     queryKey: [`/api/users/${userId}/posts`],
     enabled: !!userId && !!profile,
+    staleTime: cacheTime,
+    gcTime: cacheTime,
   });
   
-  console.log('User posts:', userPosts);
   if (error) console.error('Error fetching posts:', error);
 
-  // Group posts by month and year
-  const groupedPosts = userPosts.reduce((groups, post) => {
-    const date = new Date(post.createdAt);
-    const monthYear = format(date, 'MMMM yyyy');
-    
-    if (!groups[monthYear]) {
-      groups[monthYear] = [];
-    }
-    
-    groups[monthYear].push(post);
-    return groups;
-  }, {} as Record<string, Post[]>);
+  // Group posts by month and year - using useMemo to prevent recalculating on every render
+  const { groupedPosts, sortedMonths } = useMemo(() => {
+    const grouped = userPosts.reduce((groups, post) => {
+      const date = new Date(post.createdAt);
+      const monthYear = format(date, 'MMMM yyyy');
+      
+      if (!groups[monthYear]) {
+        groups[monthYear] = [];
+      }
+      
+      groups[monthYear].push(post);
+      return groups;
+    }, {} as Record<string, Post[]>);
 
-  // Sort by newest month first
-  const sortedMonths = Object.keys(groupedPosts).sort((a, b) => {
-    const dateA = new Date(a);
-    const dateB = new Date(b);
-    return dateB.getTime() - dateA.getTime();
-  });
+    // Sort by newest month first
+    const sorted = Object.keys(grouped).sort((a, b) => {
+      const dateA = new Date(a);
+      const dateB = new Date(b);
+      return dateB.getTime() - dateA.getTime();
+    });
+    
+    return { groupedPosts: grouped, sortedMonths: sorted };
+  }, [userPosts]);
 
+  // Show simple loading state initially
   if (profileLoading) {
     return (
       <div className="container mx-auto py-8 px-4">
@@ -89,10 +92,7 @@ export default function Profile() {
         </div>
         <div className="space-y-4">
           <Skeleton className="h-8 w-32" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Skeleton className="h-40 w-full" />
-            <Skeleton className="h-40 w-full" />
-          </div>
+          <Skeleton className="h-40 w-full" />
         </div>
       </div>
     );

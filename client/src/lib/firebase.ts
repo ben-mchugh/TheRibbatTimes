@@ -54,7 +54,7 @@ export const checkRedirectResult = async () => {
 // Helper to send user info to backend
 const sendUserToBackend = async (user: User) => {
   try {
-    await fetch('/api/auth/login', {
+    const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,9 +67,21 @@ const sendUserToBackend = async (user: User) => {
       }),
       credentials: 'include',
     });
+    
+    // Return the user data from our backend to cache it
+    if (response.ok) {
+      const result = await response.json();
+      // Pre-populate the profile query cache
+      const queryClient = window.___QUERY_CLIENT;
+      if (queryClient && result.user) {
+        queryClient.setQueryData(['/api/profile'], result.user);
+      }
+      return result.user;
+    }
   } catch (error) {
     console.error("Error sending user to backend", error);
   }
+  return null;
 };
 
 // Try popup first, fall back to redirect
