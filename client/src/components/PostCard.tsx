@@ -4,14 +4,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, ChevronRight } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatDate } from '@/lib/dateUtils';
 
 interface PostCardProps {
   post: Post;
 }
 
 const PostCard = ({ post }: PostCardProps) => {
-  const formattedDate = format(new Date(post.createdAt), 'MMMM d, yyyy');
+  const formattedDate = formatDate(post.createdAt);
 
   return (
     <Card className="post-card shadow overflow-hidden sm:rounded-lg">
