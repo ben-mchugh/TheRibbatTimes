@@ -11,9 +11,9 @@ export default function Home() {
     <div className="py-6">
       <div className="space-y-8">
         <div className="px-4 sm:px-0">
-          <h1 className="text-3xl font-heading font-bold text-neutral-900">Latest Posts</h1>
-          <p className="mt-2 text-lg text-neutral-700">
-            Join the conversation at The Ribbat Times. Share your thoughts on our latest articles and opinions.
+          <h1 className="text-3xl site-title">The Ribbat Times</h1>
+          <p className="mt-2 text-lg">
+            A monthly newsletter of thoughts, opinions, and news from our community.
           </p>
         </div>
         

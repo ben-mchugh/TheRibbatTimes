@@ -87,10 +87,71 @@ const PostView = ({ postId }: PostViewProps) => {
 
   const formattedDate = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
 
+  // Function to render margin comments next to the content
+  const renderMarginComments = () => {
+    if (!comments) return null;
+    
+    const inlineComments = comments.filter(comment => comment.elementId);
+    
+    return inlineComments.map(comment => {
+      const targetElement = document.getElementById(comment.elementId);
+      if (!targetElement) return null;
+      
+      const rect = targetElement.getBoundingClientRect();
+      const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
+      
+      if (!containerRect) return null;
+      
+      const topPosition = rect.top - containerRect.top;
+      
+      return (
+        <div 
+          key={comment.id} 
+          className="margin-comment" 
+          style={{ top: `${topPosition}px` }}
+        >
+          <div className="flex items-start">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
+              <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="ml-2 flex-1">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-medium">{comment.author.displayName}</span>
+              </div>
+              <p className="text-xs mt-1">{comment.content}</p>
+            </div>
+          </div>
+        </div>
+      );
+    }).filter(Boolean);
+  };
+
+  // Process the HTML content to add IDs to paragraphs for targeting comments
+  const processContent = (html: string) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    const elements = tempDiv.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote');
+    
+    elements.forEach((el, index) => {
+      if (!el.id) {
+        el.id = `content-element-${index}`;
+      }
+      
+      // Highlight text that has comments attached to it
+      if (comments?.some(comment => comment.elementId === el.id)) {
+        el.classList.add('comment-highlight');
+      }
+    });
+    
+    return tempDiv.innerHTML;
+  };
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
       <div className="flex items-center justify-center min-h-screen">
-        <div className="relative bg-white w-full max-w-5xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="relative post-card w-full max-w-5xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
           <Link href="/">
             <Button variant="ghost" className="absolute top-4 right-4 text-neutral-500 hover:text-neutral-700">
               <X className="h-6 w-6" />
@@ -98,20 +159,23 @@ const PostView = ({ postId }: PostViewProps) => {
           </Link>
           
           <div className="px-6 pt-12 pb-8 md:p-12 flex flex-col md:flex-row">
-            <div className="w-full md:w-3/4 pr-0 md:pr-8">
-              <h1 className="text-2xl md:text-3xl font-heading font-bold text-neutral-900">{post.title}</h1>
+            <div className="w-full md:w-3/4 pr-0 md:pr-8 relative post-content-container">
+              <h1 className="text-2xl md:text-3xl font-heading font-bold">{post.title}</h1>
               <div className="mt-2 mb-6 flex items-center">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
                   <AvatarFallback>{post.author.displayName.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <span className="ml-2 text-sm text-neutral-700">{post.author.displayName}</span>
+                <span className="ml-2 text-sm">{post.author.displayName}</span>
                 <span className="mx-2 text-neutral-300">•</span>
-                <span className="text-sm text-neutral-500">{formattedDate}</span>
+                <span className="text-sm">{formattedDate}</span>
               </div>
               
-              <div className="prose prose-green max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              <div className="prose prose-lg max-w-none relative">
+                <div 
+                  dangerouslySetInnerHTML={{ __html: processContent(post.content) }} 
+                />
+                {renderMarginComments()}
               </div>
               
               {currentUser && post.authorId === parseInt(currentUser.uid) && (

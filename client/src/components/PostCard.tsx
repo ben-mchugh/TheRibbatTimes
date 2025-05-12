@@ -14,11 +14,11 @@ const PostCard = ({ post }: PostCardProps) => {
   const formattedDate = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
 
   return (
-    <Card className="bg-white shadow overflow-hidden sm:rounded-lg">
+    <Card className="post-card shadow overflow-hidden sm:rounded-lg">
       <CardContent className="p-0">
         <div className="px-4 py-5 sm:px-6 flex justify-between">
           <div>
-            <h2 className="text-xl font-heading font-bold text-neutral-900">{post.title}</h2>
+            <h2 className="text-xl font-heading font-bold">{post.title}</h2>
             <div className="mt-1 flex items-center">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
@@ -37,7 +37,7 @@ const PostCard = ({ post }: PostCardProps) => {
           </Link>
         </div>
         <div className="px-4 py-4 sm:px-6 border-t border-neutral-200">
-          <p className="text-neutral-700 line-clamp-3">
+          <p className="line-clamp-3">
             {/* Display a plain text preview from the content (strip HTML) */}
             {post.content.replace(/<[^>]*>/g, '').substring(0, 250)}...
           </p>

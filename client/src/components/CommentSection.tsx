@@ -32,7 +32,7 @@ const CommentSection = ({
   const queryClient = useQueryClient();
 
   // Listen for text selection to create context-aware comments
-  useState(() => {
+  useEffect(() => {
     const handleTextSelection = () => {
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed) return;
