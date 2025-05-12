@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-      --background: 0 0% 100%;
---foreground: 20 14.3% 4.1%;
+      --background: 240 3% 9%; /* #161718 */
+--foreground: 0 0% 98%;
 --muted: 60 4.8% 95.9%;
 --muted-foreground: 25 5.3% 44.7%;
 --popover: 0 0% 100%;
 --popover-foreground: 20 14.3% 4.1%;
---card: 0 0% 100%;
+--card: 43 83% 78%; /* #f6dda7 */
 --card-foreground: 20 14.3% 4.1%;
 --border: 20 5.9% 90%;
 --input: 20 5.9% 90%;
@@ -25,14 +25,14 @@
 --radius: 0.5rem;
   }
   .dark {
-      --background: 240 10% 3.9%;
+      --background: 240 3% 9%; /* #161718 */
 --foreground: 0 0% 98%;
 --muted: 240 3.7% 15.9%;
 --muted-foreground: 240 5% 64.9%;
 --popover: 240 10% 3.9%;
 --popover-foreground: 0 0% 98%;
---card: 240 10% 3.9%;
---card-foreground: 0 0% 98%;
+--card: 43 83% 78%; /* #f6dda7 */
+--card-foreground: 0 0% 9%;
 --border: 240 3.7% 15.9%;
 --input: 240 3.7% 15.9%;
 --primary: 207 90% 54%;
@@ -94,7 +94,7 @@
   }
 
   .post-card {
-    background-color: rgba(249, 240, 219, 0.9); /* Sepia color for post backgrounds */
+    background-color: #f6dda7; /* Sepia color for post backgrounds */
     color: #2d2d2d;
   }
 
@@ -126,7 +126,7 @@
     right: -250px;
     width: 230px;
     padding: 8px;
-    background-color: rgba(249, 240, 219, 0.8);
+    background-color: rgba(246, 221, 167, 0.8); /* #f6dda7 with opacity */
     border-left: 3px solid #d1b280;
     font-size: 0.9rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
