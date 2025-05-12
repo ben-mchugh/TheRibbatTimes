@@ -1,0 +1,95 @@
+import { pgTable, text, serial, integer, timestamp, varchar } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { relations } from "drizzle-orm";
+import { z } from "zod";
+
+// Users table
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  uid: text("uid").notNull().unique(), // Firebase UID
+  displayName: text("display_name").notNull(),
+  email: text("email").notNull(),
+  photoURL: text("photo_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Define users relations
+export const usersRelations = relations(users, ({ many }) => ({
+  posts: many(posts),
+  comments: many(comments)
+}));
+
+// Posts table
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  authorId: integer("author_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  tags: text("tags").array(), // Array of tags
+  commentCount: integer("comment_count").default(0),
+});
+
+// Define posts relations
+export const postsRelations = relations(posts, ({ one, many }) => ({
+  author: one(users, {
+    fields: [posts.authorId],
+    references: [users.id]
+  }),
+  comments: many(comments)
+}));
+
+// Comments table
+export const comments = pgTable("comments", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  authorId: integer("author_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  postId: integer("post_id").references(() => posts.id, { onDelete: "cascade" }).notNull(),
+  elementId: text("element_id"), // The ID of the HTML element this comment is attached to
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Define comments relations
+export const commentsRelations = relations(comments, ({ one }) => ({
+  author: one(users, {
+    fields: [comments.authorId],
+    references: [users.id]
+  }),
+  post: one(posts, {
+    fields: [comments.postId],
+    references: [posts.id]
+  })
+}));
+
+// Zod schemas for validation and type safety
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
+export const insertPostSchema = createInsertSchema(posts).omit({
+  id: true,
+  authorId: true,
+  createdAt: true,
+  updatedAt: true,
+  commentCount: true
+});
+
+export const insertCommentSchema = createInsertSchema(comments).omit({
+  id: true,
+  authorId: true,
+  createdAt: true
+});
+
+// Types for use throughout the application
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type Post = typeof posts.$inferSelect;
+export type InsertPost = z.infer<typeof insertPostSchema>;
+
+export type Comment = typeof comments.$inferSelect;
+export type InsertComment = z.infer<typeof insertCommentSchema>;
