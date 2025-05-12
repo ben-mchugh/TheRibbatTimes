@@ -201,6 +201,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get current user profile information
+  app.get('/api/profile', authenticateUser, async (req, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      res.json(user);
+    } catch (error) {
+      console.error('Get profile error:', error);
+      res.status(500).json({ message: 'Failed to retrieve profile' });
+    }
+  });
+  
+  // Get posts by a specific author
+  app.get('/api/users/:userId/posts', async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const posts = await storage.getPostsByAuthor(userId);
+      res.json(posts);
+    } catch (error) {
+      console.error('Get user posts error:', error);
+      res.status(500).json({ message: 'Failed to retrieve user posts' });
+    }
+  });
+
   app.get('/api/posts/:id', async (req, res) => {
     try {
       const postId = parseInt(req.params.id);

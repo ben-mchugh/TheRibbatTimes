@@ -11,6 +11,7 @@ import EditPost from "@/pages/EditPost";
 import Communities from "@/pages/Communities";
 import Resources from "@/pages/Resources";
 import About from "@/pages/About";
+import Profile from "@/pages/Profile";
 import Header from "@/components/Header";
 
 function Router() {
@@ -20,6 +21,8 @@ function Router() {
       <Route path="/post/:id" component={ViewPost} />
       <Route path="/new" component={EditPost} />
       <Route path="/edit/:id" component={EditPost} />
+      <Route path="/profile" component={Profile} />
+      <Route path="/profile/:userId" component={Profile} />
       <Route path="/communities" component={Communities} />
       <Route path="/resources" component={Resources} />
       <Route path="/about" component={About} />
