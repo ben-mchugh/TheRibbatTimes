@@ -143,7 +143,7 @@ export default function Header() {
                   </DropdownMenu>
                   
                   <Link href="/new">
-                    <Button className="ml-3 flex items-center">
+                    <Button className="ml-3 flex items-center" style={{ backgroundColor: "#43ac78", color: "white" }}>
                       <PlusIcon className="h-5 w-5 mr-2" />
                       New Post
                     </Button>
@@ -286,7 +286,8 @@ export default function Header() {
                     </Button>
                     <Link href="/new">
                       <a 
-                        className="block px-4 py-2 text-base font-medium text-neutral-700 hover:bg-neutral-100 hover:text-primary flex items-center"
+                        className="block px-4 py-2 text-base font-medium flex items-center"
+                        style={{ backgroundColor: "#43ac78", color: "white", borderRadius: "0.25rem", margin: "0.5rem 1rem" }}
                         onClick={() => setMenuOpen(false)}
                       >
                         <PlusIcon className="h-5 w-5 mr-2" />

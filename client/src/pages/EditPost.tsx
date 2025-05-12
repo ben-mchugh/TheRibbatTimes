@@ -19,7 +19,17 @@ export default function EditPost() {
   const queryClient = useQueryClient();
   const isEditing = !!id;
 
-  const [title, setTitle] = useState('');
+  // Format date as "Month Day, Year"
+  const getFormattedDate = () => {
+    const date = new Date();
+    return date.toLocaleDateString('en-US', { 
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const [title, setTitle] = useState(isEditing ? '' : getFormattedDate());
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
 

@@ -50,7 +50,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     },
     editorProps: {
       attributes: {
-        class: 'border border-t-0 border-neutral-300 rounded-b-md p-4 min-h-[400px] focus:outline-none prose prose-green max-w-none',
+        class: 'border border-t-0 border-neutral-300 rounded-b-lg p-4 min-h-[400px] focus:outline-none prose prose-green max-w-none',
       },
     },
   });
