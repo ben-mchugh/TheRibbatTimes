@@ -286,21 +286,49 @@ export class MemStorage implements IStorage {
   }
 
   async getCommentsByPostId(postId: number): Promise<Comment[]> {
-    return Array.from(this.commentsData.values())
-      .filter(comment => comment.postId === postId)
+    // Log all comments for debugging
+    console.log(`All comments in storage:`, Array.from(this.commentsData.entries()).map(([id, c]) => 
+      ({ id, postId: c.postId, content: c.content.substring(0, 20) + '...' }))
+    );
+    
+    // Get comments only for this post
+    const filteredComments = Array.from(this.commentsData.values())
+      .filter(comment => {
+        const matches = comment.postId === postId;
+        console.log(`Comment ${comment.id} for post ${comment.postId} matches postId ${postId}? ${matches}`);
+        return matches;
+      })
       .sort((a, b) => {
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       });
+    
+    console.log(`Returning ${filteredComments.length} comments for post ${postId}`);
+    return filteredComments;
   }
 
   async createComment(commentData: InsertComment & { authorId: number }): Promise<Comment> {
     const id = this.commentId++;
+    
+    // Ensure the postId is properly set
+    if (!commentData.postId) {
+      throw new Error('Comment must have a postId');
+    }
+    
+    // Create the comment with all required fields
     const comment: Comment = {
       ...commentData,
       id,
       createdAt: new Date().toISOString()
     };
+    
+    console.log(`Creating new comment with ID: ${id}, postId: ${comment.postId}, content: "${comment.content.substring(0, 20)}..."`);
+    
+    // Store it in the map
     this.commentsData.set(id, comment);
+    
+    // Log the current state after adding
+    console.log(`Storage now has ${this.commentsData.size} total comments`);
+    
     return comment;
   }
 
