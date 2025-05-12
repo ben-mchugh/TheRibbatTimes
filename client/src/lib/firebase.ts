@@ -75,41 +75,6 @@ const sendUserToBackend = async (user: User) => {
 // Try popup first, fall back to redirect
 export const signInWithGoogle = async () => {
   try {
-    // For demo purposes, check for development or test environment to use mock user
-    if (import.meta.env.DEV || process.env.NODE_ENV === 'development') {
-      console.log("Using mock user for development");
-      
-      // Create a mock user for demo purposes
-      const mockUser = {
-        uid: "demo-user-123",
-        email: "demo@example.com",
-        displayName: "Demo User",
-        photoURL: "https://randomuser.me/api/portraits/men/42.jpg",
-        getIdToken: () => Promise.resolve("mock-id-token")
-      } as unknown as User;
-      
-      // Send mock user to backend
-      await sendUserToBackend(mockUser);
-      
-      // Use a timeout to simulate network request
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Manually trigger the onAuthStateChanged listener
-      setTimeout(() => {
-        const authStateObservers = (auth as any)._authStateObservers;
-        if (authStateObservers && authStateObservers.length > 0) {
-          authStateObservers.forEach((observer: any) => {
-            if (typeof observer === 'function') {
-              observer(mockUser);
-            }
-          });
-        }
-      }, 100);
-      
-      return mockUser;
-    }
-    
-    // Normal Firebase authentication flow for production
     try {
       // Try popup first (works better in most browsers)
       const result = await signInWithPopup(auth, googleProvider);
@@ -142,29 +107,6 @@ export const signInWithGoogle = async () => {
 
 export const signOutUser = async () => {
   try {
-    // For demo purposes, check for development or test environment
-    if (import.meta.env.DEV || process.env.NODE_ENV === 'development') {
-      console.log("Using mock signout for development");
-      
-      // Manually trigger the onAuthStateChanged listener with null to simulate logout
-      setTimeout(() => {
-        const authStateObservers = (auth as any)._authStateObservers;
-        if (authStateObservers && authStateObservers.length > 0) {
-          authStateObservers.forEach((observer: any) => {
-            if (typeof observer === 'function') {
-              observer(null);
-            }
-          });
-        }
-      }, 100);
-      
-      // Use a timeout to simulate network request
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      return;
-    }
-    
-    // Normal signout flow for production
     await signOut(auth);
     // Clear session on backend
     await fetch('/api/auth/logout', {
