@@ -2,14 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquare, X } from 'lucide-react';
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
 interface TextSelectionMenuProps {
@@ -19,6 +11,7 @@ interface TextSelectionMenuProps {
 const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [commentPosition, setCommentPosition] = useState({ top: 0, left: 0 });
   const [selectedText, setSelectedText] = useState('');
   const [commentText, setCommentText] = useState('');
   const [isCommentDialogOpen, setIsCommentDialogOpen] = useState(false);
@@ -85,7 +78,37 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
       const postContent = document.querySelector('.post-main-content');
       if (postContent && postContent.contains(target)) {
         e.preventDefault();
+        
+        // Get the range and compute a good position for both menu and dialog
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
+        // Position for the context menu
         setPosition({ top: e.clientY, left: e.clientX });
+        
+        // Position for the comment dialog
+        // Place it to the right of the selection, or below if there's not enough space
+        const viewportWidth = window.innerWidth;
+        const dialogWidth = 350; // Estimated width of our dialog
+        const dialogHeight = 300; // Estimated height of our dialog
+        
+        let commentLeft = rect.right + 20; // 20px offset from the selection
+        let commentTop = rect.top;
+        
+        // Check if dialog would go off-screen to the right
+        if (commentLeft + dialogWidth > viewportWidth - 20) {
+          // Position it below the selection instead
+          commentLeft = rect.left;
+          commentTop = rect.bottom + 10;
+        }
+        
+        // Ensure dialog stays within viewport vertically
+        const viewportHeight = window.innerHeight;
+        if (commentTop + dialogHeight > viewportHeight - 20) {
+          commentTop = Math.max(20, viewportHeight - dialogHeight - 20);
+        }
+        
+        setCommentPosition({ top: commentTop, left: commentLeft });
         setIsVisible(true);
         handleSelection();
       }
@@ -173,17 +196,36 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
         </div>
       )}
       
-      {/* Comment dialog */}
-      <Dialog open={isCommentDialogOpen} onOpenChange={setIsCommentDialogOpen}>
-        <DialogContent className="sm:max-w-md bg-[#f5f0e0] border-[#a67a48]">
-          <DialogHeader>
-            <DialogTitle className="text-[#161718]">Add Comment</DialogTitle>
-            <DialogDescription className="text-[#a67a48]">
+      {/* Floating comment box */}
+      {isCommentDialogOpen && (
+        <div 
+          className="fixed z-50 bg-[#f5f0e0] border border-[#a67a48] rounded-lg shadow-xl"
+          style={{
+            top: `${commentPosition.top}px`,
+            left: `${commentPosition.left}px`,
+            width: '350px',
+            maxHeight: '350px',
+          }}
+          ref={menuRef}
+        >
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-[#161718] font-semibold">Add Comment</h3>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 rounded-full text-[#161718] hover:bg-[#a67a48] hover:text-[#f5f0e0]"
+                onClick={() => setIsCommentDialogOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="text-[#a67a48] text-sm mb-3">
               Commenting on: <span className="italic">"{selectedText.substring(0, 60)}{selectedText.length > 60 ? '...' : ''}"</span>
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="py-4">
+            </div>
+            
             <Textarea
               className="w-full min-h-[120px] px-3 py-2 text-sm text-[#161718] border border-[#a67a48] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#a67a48] focus:border-[#a67a48]"
               placeholder="Write your comment here..."
@@ -191,27 +233,29 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
               onChange={(e) => setCommentText(e.target.value)}
               autoFocus
             />
+            
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-[#a67a48] text-[#a67a48] hover:bg-[#a67a48] hover:text-[#f5f0e0]"
+                onClick={() => setIsCommentDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="button"
+                size="sm"
+                className="bg-[#a67a48] text-[#f5f0e0] hover:bg-[#8a5d2e]"
+                onClick={handleSubmitComment}
+              >
+                Submit
+              </Button>
+            </div>
           </div>
-          
-          <DialogFooter className="sm:justify-between">
-            <Button
-              type="button"
-              variant="outline"
-              className="border-[#a67a48] text-[#a67a48] hover:bg-[#a67a48] hover:text-[#f5f0e0]"
-              onClick={() => setIsCommentDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="button"
-              className="bg-[#a67a48] text-[#f5f0e0] hover:bg-[#8a5d2e]"
-              onClick={handleSubmitComment}
-            >
-              Submit Comment
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </>
   );
 };
