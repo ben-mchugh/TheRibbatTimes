@@ -58,14 +58,16 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Old English BT', 'Libre Baskerville', serif;
+    font-family: 'Engravers Old English BT', 'Libre Baskerville', serif;
     color: #c0c0c0; /* Light gray for headings */
   }
 
   .font-heading {
-    font-family: 'Old English BT', 'Libre Baskerville', serif;
+    font-family: 'Engravers Old English BT', 'Libre Baskerville', serif;
     color: #c0c0c0;
   }
+  
+  /* Site title styles are defined below */
 
   /* Dark gray header and footer */
   header, footer {
@@ -89,14 +91,14 @@
   }
 
   .site-title {
-    font-family: 'Old English BT', 'Libre Baskerville', serif;
+    font-family: 'Engravers Old English BT', 'Libre Baskerville', serif;
     font-size: 2.5rem;
     letter-spacing: -0.02em;
     color: #c0c0c0;
   }
 
   .monthly-header {
-    font-family: 'Old English BT', 'Libre Baskerville', serif;
+    font-family: 'Engravers Old English BT', 'Libre Baskerville', serif;
     font-size: 1.75rem;
     border-bottom: 2px solid rgba(249, 240, 219, 0.6);
     margin-bottom: 1.5rem;
