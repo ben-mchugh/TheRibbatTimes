@@ -28,13 +28,17 @@ const PostView = ({ postId }: PostViewProps) => {
   
   // Data fetching
   const { data: post, isLoading: postLoading, error: postError } = useQuery<Post>({
-    queryKey: [`/api/posts/${postId}`],
+    queryKey: ['/api/posts', postId],
+    refetchOnWindowFocus: true,
+    staleTime: 5000, // Consider data stale after 5 seconds
   });
 
-  const { data: comments = [], isLoading: commentsLoading } = useQuery<Comment[]>({
-    queryKey: [`/api/posts/${postId}/comments`],
+  const { data: comments = [], isLoading: commentsLoading, refetch: refetchComments } = useQuery<Comment[]>({
+    queryKey: ['/api/posts', postId, 'comments'],
     // Only fetch comments if we have a post
     enabled: !!post,
+    refetchOnWindowFocus: true,
+    staleTime: 5000, // Consider data stale after 5 seconds
   });
 
   // Comment position calculation
@@ -275,7 +279,8 @@ const PostView = ({ postId }: PostViewProps) => {
                   comments={comments} 
                   isLoading={commentsLoading} 
                   showComments={showComments} 
-                  setShowComments={setShowComments} 
+                  setShowComments={setShowComments}
+                  refetchComments={refetchComments}
                 />
               </div>
             </div>

@@ -16,6 +16,7 @@ interface CommentSectionProps {
   isLoading: boolean;
   showComments: boolean;
   setShowComments: (show: boolean) => void;
+  refetchComments: () => void;
 }
 
 const CommentSection = ({ 
@@ -23,7 +24,8 @@ const CommentSection = ({
   comments, 
   isLoading, 
   showComments, 
-  setShowComments 
+  setShowComments,
+  refetchComments
 }: CommentSectionProps) => {
   const [newComment, setNewComment] = useState('');
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
@@ -62,9 +64,13 @@ const CommentSection = ({
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/posts', postId, 'comments'] });
+      // Instead of just invalidating, directly refetch comments to ensure immediate update
+      refetchComments();
+      
+      // Also invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      
       setNewComment('');
       toast({
         title: 'Comment added',
