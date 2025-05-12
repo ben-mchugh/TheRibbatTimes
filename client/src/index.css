@@ -73,6 +73,7 @@
   header, footer {
     background-color: #333333 !important;
     color: #c0c0c0;
+    padding: 0.5rem 0;
   }
 
   /* Custom button color */
@@ -93,8 +94,10 @@
   .site-title {
     font-family: 'Engravers Old English BT', 'Libre Baskerville', serif;
     font-size: 2.5rem;
-    letter-spacing: -0.02em;
-    color: #c0c0c0;
+    letter-spacing: 0.05em;
+    font-weight: normal;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   }
 
   .monthly-header {
