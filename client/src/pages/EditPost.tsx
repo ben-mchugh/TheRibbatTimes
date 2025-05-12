@@ -62,7 +62,7 @@ export default function EditPost() {
 
   // Set page title
   useEffect(() => {
-    document.title = isEditing ? 'Edit Post - EcoConnect' : 'Create New Post - EcoConnect';
+    document.title = isEditing ? 'Edit Post - The Ribbat Times' : 'Create New Post - The Ribbat Times';
   }, [isEditing]);
 
   const createPostMutation = useMutation({

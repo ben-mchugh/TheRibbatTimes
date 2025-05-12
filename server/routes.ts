@@ -104,7 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up session middleware
   const MemoryStoreSession = MemoryStore(session);
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'ecoconnect-secret',
+    secret: process.env.SESSION_SECRET || 'ribbattimes-secret',
     resave: false,
     saveUninitialized: false,
     store: new MemoryStoreSession({
