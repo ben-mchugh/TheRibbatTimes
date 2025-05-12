@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { X } from 'lucide-react';
-import { formatRelativeTime } from '@/lib/dateUtils';
+import { formatDate } from '@/lib/dateUtils';
 import CommentSection from './CommentSection';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -16,6 +16,12 @@ interface PostViewProps {
 
 const PostView = ({ postId }: PostViewProps) => {
   const [showComments, setShowComments] = useState(true);
+  // Initialize margin comments state early to maintain hook order
+  const [marginComments, setMarginComments] = useState<Array<{
+    id: number;
+    top: number;
+    comment: Comment;
+  }>>([]);
   const { currentUser } = useAuth();
   
   const { data: post, isLoading, error } = useQuery<Post>({
@@ -86,14 +92,7 @@ const PostView = ({ postId }: PostViewProps) => {
   }
 
   // Using our safe date formatter utility
-  const formattedDate = formatRelativeTime(post.createdAt);
-
-  // State to track positions of margin comments
-  const [marginComments, setMarginComments] = useState<Array<{
-    id: number;
-    top: number;
-    comment: Comment;
-  }>>([]);
+  const formattedDate = formatDate(post.createdAt);
   
   // Function to update margin comment positions
   const updateMarginCommentPositions = () => {
