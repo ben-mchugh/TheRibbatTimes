@@ -125,7 +125,8 @@ export default function EditPost() {
     onSuccess: (data) => {
       // Invalidate general posts queries
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/posts', data.id] });
+      queryClient.invalidateQueries({ queryKey: [`/api/posts/${data.id}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/posts/${data.id}/comments`] });
       
       // Invalidate user-specific posts queries
       if (data && data.authorId) {

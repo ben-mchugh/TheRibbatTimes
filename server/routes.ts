@@ -286,20 +286,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/posts/:id', async (req, res) => {
     try {
       const postId = parseInt(req.params.id);
+      console.log(`Fetching post with ID: ${postId}`);
+      
       const post = await storage.getPost(postId);
+      console.log('Post retrieved from storage:', post ? 'Found' : 'Not found');
       
       if (!post) {
         return res.status(404).json({ message: 'Post not found' });
       }
       
       const author = await storage.getUser(post.authorId);
-      const comments = await storage.getCommentsByPostId(postId);
+      console.log('Author retrieved:', author ? author.displayName : 'Not found');
       
-      res.json({
+      const comments = await storage.getCommentsByPostId(postId);
+      console.log(`Retrieved ${comments.length} comments for the post`);
+      
+      const responseData = {
         ...post,
         author: author || { displayName: 'Unknown', email: '', photoURL: '' },
         commentCount: comments.length
+      };
+      
+      console.log('Responding with post data:', {
+        id: responseData.id,
+        title: responseData.title,
+        authorName: responseData.author?.displayName,
+        contentLength: responseData.content?.length || 0
       });
+      
+      res.json(responseData);
     } catch (error) {
       console.error('Get post error:', error);
       res.status(500).json({ message: 'Failed to retrieve post' });

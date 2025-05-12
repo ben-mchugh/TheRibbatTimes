@@ -28,11 +28,13 @@ const PostView = ({ postId }: PostViewProps) => {
   
   // Data fetching
   const { data: post, isLoading: postLoading, error: postError } = useQuery<Post>({
-    queryKey: ['/api/posts', postId],
+    queryKey: [`/api/posts/${postId}`],
   });
 
   const { data: comments = [], isLoading: commentsLoading } = useQuery<Comment[]>({
-    queryKey: ['/api/posts', postId, 'comments'],
+    queryKey: [`/api/posts/${postId}/comments`],
+    // Only fetch comments if we have a post
+    enabled: !!post,
   });
 
   // Comment position calculation
