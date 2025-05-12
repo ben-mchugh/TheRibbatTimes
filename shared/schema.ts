@@ -43,6 +43,10 @@ export const comments = pgTable("comments", {
   postId: integer("post_id").references(() => posts.id).notNull(),
   elementId: text("element_id"), // The ID of the HTML element this comment is attached to
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  // New fields for Google Docs-style comments
+  selectedText: text("selected_text"), // The text that was selected when the comment was created
+  selectionStart: integer("selection_start"), // The start position of the selection in the content
+  selectionEnd: integer("selection_end"), // The end position of the selection in the content
 });
 
 export const insertCommentSchema = createInsertSchema(comments).omit({

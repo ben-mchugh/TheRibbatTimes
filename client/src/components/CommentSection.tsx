@@ -59,7 +59,13 @@ const CommentSection = ({
 
   // Add new comment with direct approach
   const addCommentMutation = useMutation({
-    mutationFn: async (comment: { content: string; elementId?: string }) => {
+    mutationFn: async (comment: { 
+      content: string; 
+      elementId?: string;
+      selectedText?: string;
+      selectionStart?: number;
+      selectionEnd?: number;
+    }) => {
       if (!postId) {
         console.error('PostID is undefined - cannot submit comment');
         throw new Error('Post ID is undefined');
