@@ -146,6 +146,48 @@ export class MemStorage implements IStorage {
       commentCount: 0
     };
     this.postsData.set(userPost.id, userPost);
+    
+    // Add April 14, 2025 post
+    const aprilPost: Post = {
+      id: this.postId++,
+      title: "April 14, 2025 - Spring Season Highlights",
+      content: "<h2>Spring Season Update</h2><p>As we move into mid-April, The Ribbat Times brings you the latest highlights of the season. This month has been particularly eventful with several key developments worth noting.</p><p>First, the annual spring festival saw record attendance this year, with over 5,000 participants joining from across the region. The community-led initiative featured local artists, musicians, and food vendors, creating a vibrant atmosphere that truly captured the essence of our town.</p><h3>Technology Developments</h3><p>In tech news, several startups in our area have secured significant funding this quarter. Most notably, GreenTech Solutions received a $2.3M investment to expand their sustainable energy projects. Their innovative approach to solar power integration has gained attention from industry leaders.</p><p>The local university has also launched a new research center dedicated to climate science, bringing together experts from various disciplines to address environmental challenges.</p><h3>Community Initiatives</h3><p>On the community front, the neighborhood beautification project has entered its second phase, with volunteers planting over 200 native trees and shrubs in public spaces. This initiative aims to enhance biodiversity and create more green spaces for residents to enjoy.</p><p>The city council has approved plans for a new community center that will provide resources for education, recreation, and social services. Construction is scheduled to begin next month.</p><p>Looking ahead to May, we have several exciting events planned that will bring our community together. Stay tuned for more updates in our next issue.</p>",
+      authorId: 2,
+      author: {
+        id: 2,
+        uid: "personal-user",
+        displayName: "Mikhail Dvorsky", 
+        email: "reader@ribbattimes.com",
+        photoURL: "https://i.pravatar.cc/150?u=ribbattimes",
+        createdAt: new Date().toISOString()
+      },
+      createdAt: "2025-04-14T10:00:00.000Z",
+      updatedAt: "2025-04-14T10:00:00.000Z",
+      tags: ["Spring", "Community", "Technology", "Local News"],
+      commentCount: 0
+    };
+    this.postsData.set(aprilPost.id, aprilPost);
+    
+    // Add June 15, 2025 post
+    const junePost: Post = {
+      id: this.postId++,
+      title: "June 15, 2025 - Summer Solstice Special Edition",
+      content: "<h2>Summer Solstice Special Edition</h2><p>Welcome to our summer solstice special edition of The Ribbat Times. As we approach the longest day of the year, we're celebrating with a roundup of summer activities, environmental updates, and community news.</p><h3>Summer Festival Series</h3><p>The city's Summer Festival Series kicks off next weekend with three consecutive weekends of music, art, and cultural celebrations. This year's theme, \"Unity in Diversity,\" highlights the rich multicultural heritage of our community.</p><p>The main stage will feature performances from local and international artists, while the community square will host workshops, food stalls, and interactive art installations. Don't miss the night market on Saturday evenings, offering handcrafted goods from local artisans.</p><h3>Environmental Update</h3><p>The conservation department reports a successful nesting season for the protected shore birds along our coastline. The population has seen a 15% increase compared to last year, thanks to community-led protection efforts and habitat restoration projects.</p><p>Citizens are reminded that the seasonal beach access restrictions remain in effect until July 30th to ensure the continued safety of these vulnerable ecosystems.</p><h3>Community Garden Expansion</h3><p>The downtown community garden project has received approval for expansion, with ten new plots being added next month. Applications for these plots are now open, with priority given to educational institutions and community groups.</p><p>The garden's education center has also announced a summer workshop series covering organic gardening techniques, composting, and sustainable urban agriculture.</p><p>We wish everyone a wonderful start to the summer season and look forward to seeing you at the upcoming community events!</p>",
+      authorId: 2,
+      author: {
+        id: 2,
+        uid: "personal-user",
+        displayName: "Mikhail Dvorsky", 
+        email: "reader@ribbattimes.com",
+        photoURL: "https://i.pravatar.cc/150?u=ribbattimes",
+        createdAt: new Date().toISOString()
+      },
+      createdAt: "2025-06-15T15:30:00.000Z",
+      updatedAt: "2025-06-15T15:30:00.000Z",
+      tags: ["Summer", "Solstice", "Festival", "Environment", "Community"],
+      commentCount: 0
+    };
+    this.postsData.set(junePost.id, junePost);
   }
 
   // User operations
