@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Post, Comment } from '@/lib/types';
@@ -15,15 +15,18 @@ interface PostViewProps {
 }
 
 const PostView = ({ postId }: PostViewProps) => {
+  // All state hooks must be defined at the top in the same order every render
   const [showComments, setShowComments] = useState(true);
-  // Initialize margin comments state early to maintain hook order
   const [marginComments, setMarginComments] = useState<Array<{
     id: number;
     top: number;
     comment: Comment;
   }>>([]);
+  
+  // Custom hooks
   const { currentUser } = useAuth();
   
+  // Queries
   const { data: post, isLoading, error } = useQuery<Post>({
     queryKey: ['/api/posts', postId],
   });
@@ -32,6 +35,105 @@ const PostView = ({ postId }: PostViewProps) => {
     queryKey: ['/api/posts', postId, 'comments'],
   });
 
+  // Memoized functions
+  const updateMarginCommentPositions = useCallback(() => {
+    if (!comments?.length) return;
+    
+    const inlineComments = comments.filter(comment => comment.elementId);
+    const commentPositions: Array<{id: number; top: number; comment: Comment}> = [];
+    
+    for (const comment of inlineComments) {
+      const targetElement = document.getElementById(comment.elementId);
+      if (!targetElement) continue;
+      
+      const rect = targetElement.getBoundingClientRect();
+      const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
+      
+      if (!containerRect) continue;
+      
+      const topPosition = rect.top - containerRect.top;
+      
+      commentPositions.push({
+        id: comment.id,
+        top: topPosition,
+        comment
+      });
+    }
+    
+    setMarginComments(commentPositions);
+  }, [comments]);
+  
+  // Process the HTML content to add IDs to paragraphs for targeting comments
+  const processContent = useCallback((html: string) => {
+    if (!html) return '';
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    const elements = tempDiv.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote');
+    
+    elements.forEach((el, index) => {
+      if (!el.id) {
+        el.id = `content-element-${index}`;
+      }
+      
+      // Highlight text that has comments attached to it
+      if (comments?.some(comment => comment.elementId === el.id)) {
+        el.classList.add('comment-highlight');
+      }
+    });
+    
+    return tempDiv.innerHTML;
+  }, [comments]);
+  
+  // Side effects
+  useEffect(() => {
+    if (comments?.length) {
+      updateMarginCommentPositions();
+      
+      const contentContainer = document.querySelector('.post-content-container');
+      if (contentContainer) {
+        const handleScroll = () => updateMarginCommentPositions();
+        contentContainer.addEventListener('scroll', handleScroll);
+        window.addEventListener('resize', handleScroll);
+        
+        // Initial position calculation after a small delay to ensure DOM is ready
+        const timeoutId = setTimeout(updateMarginCommentPositions, 200);
+        
+        return () => {
+          contentContainer.removeEventListener('scroll', handleScroll);
+          window.removeEventListener('resize', handleScroll);
+          clearTimeout(timeoutId);
+        };
+      }
+    }
+  }, [comments, updateMarginCommentPositions]);
+  
+  // Render functions - must be defined after all hooks
+  const renderMarginComments = () => {
+    return marginComments.map(({ id, top, comment }) => (
+      <div 
+        key={id} 
+        className="margin-comment" 
+        style={{ top: `${top}px` }}
+      >
+        <div className="flex items-start">
+          <Avatar className="h-6 w-6">
+            <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
+            <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="ml-2 flex-1">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-medium">{comment.author.displayName}</span>
+            </div>
+            <p className="text-xs mt-1">{comment.content}</p>
+          </div>
+        </div>
+      </div>
+    ));
+  };
+
+  // Loading state
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
@@ -68,6 +170,7 @@ const PostView = ({ postId }: PostViewProps) => {
     );
   }
 
+  // Error state
   if (error || !post) {
     return (
       <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
@@ -91,104 +194,34 @@ const PostView = ({ postId }: PostViewProps) => {
     );
   }
 
-  // Using our safe date formatter utility
+  // Format the date using our utility
   const formattedDate = formatDate(post.createdAt);
-  
-  // Function to update margin comment positions
-  const updateMarginCommentPositions = () => {
-    if (!comments) return;
-    
-    const inlineComments = comments.filter(comment => comment.elementId);
-    const commentPositions: Array<{id: number; top: number; comment: Comment}> = [];
-    
-    for (const comment of inlineComments) {
-      const targetElement = document.getElementById(comment.elementId);
-      if (!targetElement) continue;
-      
-      const rect = targetElement.getBoundingClientRect();
-      const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
-      
-      if (!containerRect) continue;
-      
-      const topPosition = rect.top - containerRect.top;
-      
-      commentPositions.push({
-        id: comment.id,
-        top: topPosition,
-        comment
-      });
-    }
-    
-    setMarginComments(commentPositions);
-  };
-  
-  // Update comment positions when comments change or on scroll
-  useEffect(() => {
-    if (comments?.length) {
-      updateMarginCommentPositions();
-      
-      const contentContainer = document.querySelector('.post-content-container');
-      if (contentContainer) {
-        const handleScroll = () => updateMarginCommentPositions();
-        contentContainer.addEventListener('scroll', handleScroll);
-        window.addEventListener('resize', handleScroll);
-        
-        // Initial position calculation after a small delay to ensure DOM is ready
-        setTimeout(updateMarginCommentPositions, 200);
-        
-        return () => {
-          contentContainer.removeEventListener('scroll', handleScroll);
-          window.removeEventListener('resize', handleScroll);
-        };
-      }
-    }
-  }, [comments]);
-  
-  // Function to render margin comments next to the content
-  const renderMarginComments = () => {
-    return marginComments.map(({ id, top, comment }) => (
-      <div 
-        key={id} 
-        className="margin-comment" 
-        style={{ top: `${top}px` }}
-      >
-        <div className="flex items-start">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
-            <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div className="ml-2 flex-1">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-medium">{comment.author.displayName}</span>
+
+  // Make sure author data is available to prevent crashes
+  if (!post.author) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="relative bg-white w-full max-w-5xl mx-auto rounded-lg shadow-xl p-12">
+            <Link href="/">
+              <Button variant="ghost" className="absolute top-4 right-4">
+                <X className="h-6 w-6" />
+              </Button>
+            </Link>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-amber-700 mb-4">Loading Post Details...</h2>
+              <p className="text-neutral-600 mb-6">Please wait while we load the complete post information.</p>
+              <Link href="/">
+                <Button>Return to Home</Button>
+              </Link>
             </div>
-            <p className="text-xs mt-1">{comment.content}</p>
           </div>
         </div>
       </div>
-    ));
-  };
+    );
+  }
 
-  // Process the HTML content to add IDs to paragraphs for targeting comments
-  const processContent = (html: string) => {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    
-    const elements = tempDiv.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote');
-    
-    elements.forEach((el, index) => {
-      if (!el.id) {
-        el.id = `content-element-${index}`;
-      }
-      
-      // Highlight text that has comments attached to it
-      if (comments?.some(comment => comment.elementId === el.id)) {
-        el.classList.add('comment-highlight');
-      }
-    });
-    
-    return tempDiv.innerHTML;
-  };
-
+  // Main render
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
       <div className="flex items-center justify-center min-h-screen">
