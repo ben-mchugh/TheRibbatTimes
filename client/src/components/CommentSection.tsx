@@ -60,8 +60,11 @@ const CommentSection = ({
   // Add new comment
   const addCommentMutation = useMutation({
     mutationFn: async (comment: { content: string; elementId?: string }) => {
+      console.log('Submitting comment:', comment);
       const response = await apiRequest('POST', `/api/posts/${postId}/comments`, comment);
-      return response.json();
+      const result = await response.json();
+      console.log('Comment creation response:', result);
+      return result;
     },
     onSuccess: () => {
       // Instead of just invalidating, directly refetch comments to ensure immediate update
