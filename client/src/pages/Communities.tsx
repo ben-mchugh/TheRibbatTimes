@@ -5,37 +5,37 @@ import { Button } from '@/components/ui/button';
 const communities = [
   {
     id: 1,
-    name: 'Urban Garden Network',
-    description: 'A coalition of 15 urban gardens sharing resources and knowledge.',
-    members: 48,
-    image: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
+    name: 'Politics & Current Events',
+    description: 'Discussing global politics, policy analysis, and current events.',
+    members: 372,
+    image: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
   },
   {
     id: 2,
-    name: 'Sustainable Eco Villages',
-    description: 'Connecting off-grid communities focused on regenerative living.',
-    members: 87,
-    image: 'https://images.unsplash.com/photo-1472653431158-6364773b2a56?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
+    name: 'Arts & Culture',
+    description: 'Exploring literature, film, music, and the evolving cultural landscape.',
+    members: 215,
+    image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
   },
   {
     id: 3,
-    name: 'City Sustainability Alliance',
-    description: 'Working with local government to implement green policies.',
-    members: 124,
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
+    name: 'Technology & Innovation',
+    description: 'Covering tech trends, digital transformation, and the future of work.',
+    members: 289,
+    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
   }
 ];
 
 export default function Communities() {
   // Set page title
   useEffect(() => {
-    document.title = 'Communities - EcoConnect';
+    document.title = 'Topic Groups - The Ribbat Times';
   }, []);
 
   return (
     <div className="py-6 px-4 sm:px-0">
-      <h1 className="text-3xl font-heading font-bold text-neutral-900 mb-4">Communities</h1>
-      <p className="text-lg text-neutral-700 mb-8">Connect with sustainable communities around the world.</p>
+      <h1 className="text-3xl font-heading font-bold text-neutral-900 mb-4">Topic Groups</h1>
+      <p className="text-lg text-neutral-700 mb-8">Join discussion groups focused on your interests and engage with like-minded readers.</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {communities.map((community) => (

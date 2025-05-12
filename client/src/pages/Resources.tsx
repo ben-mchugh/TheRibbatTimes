@@ -5,43 +5,43 @@ import { FileTextIcon, Calculator } from 'lucide-react';
 export default function Resources() {
   // Set page title
   useEffect(() => {
-    document.title = 'Resources - EcoConnect';
+    document.title = 'Resources - The Ribbat Times';
   }, []);
 
   return (
     <div className="py-6 px-4 sm:px-0">
       <h1 className="text-3xl font-heading font-bold text-neutral-900 mb-4">Resources</h1>
       <p className="text-lg text-neutral-700 mb-8">
-        Access guides, tools, and educational materials to support your sustainability journey.
+        Access guides, research materials, and tools to enhance your reading and discussion experience.
       </p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-5">
-            <h3 className="text-xl font-heading font-semibold">Guides & Tutorials</h3>
+            <h3 className="text-xl font-heading font-semibold">Guides & References</h3>
             <ul className="mt-4 space-y-3">
               <li className="flex">
                 <FileTextIcon className="h-6 w-6 text-primary" />
                 <a href="#" className="ml-2 text-neutral-700 hover:text-primary">
-                  Beginner's Guide to Community Composting
+                  Guide to Margin Commenting
                 </a>
               </li>
               <li className="flex">
                 <FileTextIcon className="h-6 w-6 text-primary" />
                 <a href="#" className="ml-2 text-neutral-700 hover:text-primary">
-                  DIY Rainwater Harvesting Systems
+                  Research Methodology Guidelines
                 </a>
               </li>
               <li className="flex">
                 <FileTextIcon className="h-6 w-6 text-primary" />
                 <a href="#" className="ml-2 text-neutral-700 hover:text-primary">
-                  Urban Gardening in Small Spaces
+                  Citation and Sourcing Standards
                 </a>
               </li>
               <li className="flex">
                 <FileTextIcon className="h-6 w-6 text-primary" />
                 <a href="#" className="ml-2 text-neutral-700 hover:text-primary">
-                  Community Resource Sharing Systems
+                  Community Discussion Guidelines
                 </a>
               </li>
             </ul>
@@ -50,30 +50,30 @@ export default function Resources() {
         
         <Card>
           <CardContent className="p-5">
-            <h3 className="text-xl font-heading font-semibold">Tools & Calculators</h3>
+            <h3 className="text-xl font-heading font-semibold">Tools & Resources</h3>
             <ul className="mt-4 space-y-3">
               <li className="flex">
                 <Calculator className="h-6 w-6 text-primary" />
                 <a href="#" className="ml-2 text-neutral-700 hover:text-primary">
-                  Carbon Footprint Calculator
+                  Topic Research Database
                 </a>
               </li>
               <li className="flex">
                 <Calculator className="h-6 w-6 text-primary" />
                 <a href="#" className="ml-2 text-neutral-700 hover:text-primary">
-                  Garden Planting Calendar
+                  Source Fact-Checking Tool
                 </a>
               </li>
               <li className="flex">
                 <Calculator className="h-6 w-6 text-primary" />
                 <a href="#" className="ml-2 text-neutral-700 hover:text-primary">
-                  Water Usage Tracker
+                  Article Readability Analyzer
                 </a>
               </li>
               <li className="flex">
                 <Calculator className="h-6 w-6 text-primary" />
                 <a href="#" className="ml-2 text-neutral-700 hover:text-primary">
-                  Community Project Budget Template
+                  Community Discussion Templates
                 </a>
               </li>
             </ul>
