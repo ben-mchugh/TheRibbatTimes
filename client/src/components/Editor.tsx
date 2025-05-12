@@ -149,7 +149,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
           editor?.chain().focus().setColor(value).run();
         }}
       >
-        <SelectTrigger className="w-[120px] h-8">
+        <SelectTrigger className="w-[120px] h-8" style={{ backgroundColor: "#161718", color: "#eeeeee", borderColor: "#666" }}>
           <SelectValue placeholder="Text Color" />
         </SelectTrigger>
         <SelectContent>
@@ -254,6 +254,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('bulletList') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    style={{ color: "#eeeeee" }}
                   >
                     <List className="h-4 w-4" />
                   </Button>
@@ -268,6 +269,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('orderedList') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    style={{ color: "#eeeeee" }}
                   >
                     <ListOrdered className="h-4 w-4" />
                   </Button>
@@ -282,6 +284,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('blockquote') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                    style={{ color: "#eeeeee" }}
                   >
                     <Quote className="h-4 w-4" />
                   </Button>
@@ -296,6 +299,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant="ghost"
                     size="icon"
                     onClick={addImage}
+                    style={{ color: "#eeeeee" }}
                   >
                     <ImageIcon className="h-4 w-4" />
                   </Button>
@@ -313,6 +317,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     size="icon"
                     onClick={() => editor.chain().focus().undo().run()}
                     disabled={!editor.can().undo()}
+                    style={{ color: "#eeeeee" }}
                   >
                     <Undo className="h-4 w-4" />
                   </Button>
@@ -328,6 +333,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     size="icon"
                     onClick={() => editor.chain().focus().redo().run()}
                     disabled={!editor.can().redo()}
+                    style={{ color: "#eeeeee" }}
                   >
                     <Redo className="h-4 w-4" />
                   </Button>
