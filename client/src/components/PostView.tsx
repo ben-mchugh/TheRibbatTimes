@@ -408,49 +408,84 @@ const PostView = ({ postId }: PostViewProps) => {
           </Link>
           
           <div className="px-6 pt-12 pb-8 md:p-12 flex flex-col md:flex-row">
-            <div className="w-full md:w-2/3 pr-0 md:pr-8 relative post-content-container">
-              <h1 className="text-2xl md:text-3xl font-heading font-bold text-[#161718] mb-4">{post.title}</h1>
-              <div className="mt-2 mb-6 flex flex-wrap items-center">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
-                  <AvatarFallback>{post.author.displayName.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <span className="ml-2 text-sm text-[#161718]">{post.author.displayName}</span>
-                <span className="mx-2 text-[#a67a48]">•</span>
-                <span className="text-sm text-[#161718]">{formattedDate}</span>
-              </div>
-              
-              <div className="prose prose-lg max-w-none relative text-[#161718]">
-                <div 
-                  dangerouslySetInnerHTML={{ __html: processContent(post.content) }} 
-                  className="post-main-content"
-                />
-              </div>
-              
-              {currentUser && post.authorId === parseInt(currentUser.uid) && (
-                <div className="mt-6 flex">
-                  <Link href={`/edit/${post.id}`}>
-                    <Button 
-                      variant="outline" 
-                      className="mr-2 border-[#a67a48] text-[#a67a48] hover:bg-[#a67a48] hover:text-[#e0d3af]"
-                    >
-                      Edit Post
-                    </Button>
-                  </Link>
+            <div className="w-full md:w-2/3 pr-0 md:pr-8 relative">
+              <div className="post-content-container relative">
+                <h1 className="text-2xl md:text-3xl font-heading font-bold text-[#161718] mb-4">{post.title}</h1>
+                <div className="mt-2 mb-6 flex flex-wrap items-center">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
+                    <AvatarFallback>{post.author.displayName.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <span className="ml-2 text-sm text-[#161718]">{post.author.displayName}</span>
+                  <span className="mx-2 text-[#a67a48]">•</span>
+                  <span className="text-sm text-[#161718]">{formattedDate}</span>
                 </div>
-              )}
+                
+                {/* Two-column layout for content and inline comments */}
+                <div className="flex relative">
+                  {/* Main content - takes 70% width */}
+                  <div className="w-[70%] pr-8">
+                    <div className="prose prose-lg max-w-none relative text-[#161718]">
+                      <div 
+                        dangerouslySetInnerHTML={{ __html: renderPostContentWithHighlights() }} 
+                        className="post-main-content"
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Inline comments appear next to the related text - takes 30% width */}
+                  <div className="w-[30%] relative">
+                    {marginComments.map(({ id, top, comment }) => (
+                      <div 
+                        key={id} 
+                        className="margin-comment mb-3 p-3 border-l-2 border-[#a67a48] bg-[#f9f6ea] rounded-r shadow-sm"
+                        style={{ 
+                          position: 'absolute',
+                          top: `${top}px`,
+                          left: 0,
+                          width: '100%',
+                          maxWidth: '100%',
+                        }}
+                      >
+                        <div className="flex items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center mb-1">
+                              <Avatar className="h-6 w-6 mr-2">
+                                <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
+                                <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                              </Avatar>
+                              <span className="text-xs font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
+                            </div>
+                            <p className="text-xs text-[#161718]">{comment.content}</p>
+                            {comment.selectedText && (
+                              <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-1 p-1 rounded italic">
+                                "{comment.selectedText}"
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {currentUser && post.authorId === parseInt(currentUser.uid) && (
+                  <div className="mt-6 flex">
+                    <Link href={`/edit/${post.id}`}>
+                      <Button 
+                        variant="outline" 
+                        className="mr-2 border-[#a67a48] text-[#a67a48] hover:bg-[#a67a48] hover:text-[#e0d3af]"
+                      >
+                        Edit Post
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="w-full md:w-1/3 mt-8 md:mt-0 md:pl-8">
               <div className="sticky top-8">
-                {marginComments.length > 0 && (
-                  <>
-                    <h3 className="text-lg font-bold mb-4 text-[#a67a48]">Annotations</h3>
-                    <div className="annotations-container mb-6 bg-[#f5f0e0] p-4 rounded-lg">
-                      {renderMarginComments()}
-                    </div>
-                  </>
-                )}
                 
                 <CommentSection 
                   postId={postId} // Use the prop directly instead of post.id, which might be undefined
