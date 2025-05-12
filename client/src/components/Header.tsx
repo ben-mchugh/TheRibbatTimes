@@ -82,28 +82,28 @@ export default function Header() {
             </div>
             <nav className="hidden sm:ml-8 sm:flex sm:space-x-5 sm:items-center">
               <Link href="/">
-                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
                   location === '/' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
                   Home
                 </a>
               </Link>
               <Link href="/communities">
-                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
                   location === '/communities' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
                   Communities
                 </a>
               </Link>
               <Link href="/resources">
-                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
                   location === '/resources' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
                   Resources
                 </a>
               </Link>
               <Link href="/about">
-                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
                   location === '/about' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
                   About

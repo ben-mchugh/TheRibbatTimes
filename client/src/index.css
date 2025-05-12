@@ -85,6 +85,13 @@
   .signin-button:hover {
     background-color: #d55822 !important;
   }
+  
+  .nav-link {
+    font-weight: 300;
+    letter-spacing: 0.025em;
+    border-bottom-width: 1px !important;
+    font-size: 0.9rem;
+  }
 
   .post-card {
     background-color: rgba(249, 240, 219, 0.9); /* Sepia color for post backgrounds */
