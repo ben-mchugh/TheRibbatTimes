@@ -10,7 +10,7 @@
 --popover: 0 0% 100%;
 --popover-foreground: 20 14.3% 4.1%;
 --card: 48 36% 78%; /* #e0d3af */
---card-foreground: 0 0% 75%; /* #c0c0c0 - same as header */
+--card-foreground: 240 3% 9%; /* #161718 - same as background */
 --border: 20 5.9% 90%;
 --input: 20 5.9% 90%;
 --primary: 207 90% 54%;
@@ -32,7 +32,7 @@
 --popover: 240 10% 3.9%;
 --popover-foreground: 0 0% 98%;
 --card: 48 36% 78%; /* #e0d3af */
---card-foreground: 0 0% 75%; /* #c0c0c0 - same as header */
+--card-foreground: 240 3% 9%; /* #161718 - same as background */
 --border: 240 3.7% 15.9%;
 --input: 240 3.7% 15.9%;
 --primary: 207 90% 54%;
@@ -95,7 +95,7 @@
 
   .post-card {
     background-color: #e0d3af; /* Sepia color for post backgrounds */
-    color: #c0c0c0; /* Light gray for text, matching header */
+    color: #161718; /* Dark color matching the site background */
   }
 
   .site-title {
@@ -129,7 +129,7 @@
     background-color: rgba(224, 211, 175, 0.8); /* #e0d3af with opacity */
     border-left: 3px solid #d1b280;
     font-size: 0.9rem;
-    color: #c0c0c0; /* Light gray text matching header */
+    color: #161718; /* Dark color matching the site background */
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 }
