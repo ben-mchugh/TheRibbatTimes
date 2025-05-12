@@ -87,9 +87,17 @@ const PostView = ({ postId }: PostViewProps) => {
   const updateCommentPositions = useCallback(() => {
     if (!comments.length) return;
     
-    const inlineComments = comments.filter(comment => comment.elementId);
+    // Check for comments with selection information (not just elementId)
+    const selectionComments = comments.filter(comment => 
+      comment.selectionStart !== null && 
+      comment.selectionEnd !== null && 
+      comment.selectedText
+    );
+    
     const positions: Array<{id: number; top: number; comment: Comment}> = [];
     
+    // First handle standard element-based comments (legacy)
+    const inlineComments = comments.filter(comment => comment.elementId);
     for (const comment of inlineComments) {
       const targetElement = document.getElementById(comment.elementId);
       if (!targetElement) continue;
@@ -106,6 +114,28 @@ const PostView = ({ postId }: PostViewProps) => {
         top: topPosition,
         comment
       });
+    }
+    
+    // Then handle selection-based comments (align with the actual text)
+    for (const comment of selectionComments) {
+      // Find the highlighted span with this comment's selection
+      const highlightSpan = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`);
+      
+      if (highlightSpan) {
+        const rect = highlightSpan.getBoundingClientRect();
+        const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
+        
+        if (!containerRect) continue;
+        
+        // Position comment aligned with the highlighted text
+        const topPosition = rect.top - containerRect.top;
+        
+        positions.push({
+          id: comment.id,
+          top: topPosition,
+          comment
+        });
+      }
     }
     
     setMarginComments(positions);
@@ -258,6 +288,13 @@ const PostView = ({ postId }: PostViewProps) => {
       <div 
         key={id} 
         className="margin-comment mb-3 last:mb-0 p-3 border-l-2 border-[#a67a48] bg-[#f9f6ea] rounded" 
+        style={{ 
+          position: 'absolute', 
+          top: `${top}px`,
+          right: '1rem',
+          width: '280px',
+          maxWidth: '280px'
+        }}
       >
         <div className="flex items-start">
           <Avatar className="h-8 w-8">
@@ -269,9 +306,11 @@ const PostView = ({ postId }: PostViewProps) => {
               <span className="text-sm font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
             </div>
             <p className="text-sm mt-1 text-[#161718]">{comment.content}</p>
-            <div className="text-xs text-[#a67a48] mt-1 italic">
-              On selected text
-            </div>
+            {comment.selectedText && (
+              <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-2 p-2 rounded italic">
+                "{comment.selectedText}"
+              </div>
+            )}
           </div>
         </div>
       </div>

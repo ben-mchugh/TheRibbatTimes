@@ -87,19 +87,27 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
         setPosition({ top: e.clientY, left: e.clientX });
         
         // Position for the comment dialog
-        // Place it to the right of the selection, or below if there's not enough space
+        // Always place it to the right of the content area, not covering any text
+        const postContentElement = document.querySelector('.post-main-content');
+        const postContentRect = postContentElement?.getBoundingClientRect();
         const viewportWidth = window.innerWidth;
         const dialogWidth = 350; // Estimated width of our dialog
         const dialogHeight = 300; // Estimated height of our dialog
         
-        let commentLeft = rect.right + 20; // 20px offset from the selection
-        let commentTop = rect.top;
+        // Default position - to the right of the content area
+        let commentLeft = postContentRect ? postContentRect.right + 30 : rect.right + 20;
+        let commentTop = rect.top; // Align with the selection vertically
         
         // Check if dialog would go off-screen to the right
         if (commentLeft + dialogWidth > viewportWidth - 20) {
-          // Position it below the selection instead
-          commentLeft = rect.left;
-          commentTop = rect.bottom + 10;
+          // If not enough space on right, try using left side of content
+          commentLeft = Math.max(20, (postContentRect?.left || 0) - dialogWidth - 30);
+          
+          // If still not enough space, put below the selection
+          if (commentLeft < 20) {
+            commentLeft = rect.left;
+            commentTop = rect.bottom + 10;
+          }
         }
         
         // Ensure dialog stays within viewport vertically
