@@ -76,30 +76,11 @@ const CommentSection = ({
       }
     },
     onSuccess: (newComment) => {
-      // Add the new comment to the query cache instead of just invalidating
-      queryClient.setQueryData(
-        ['/api/posts', postId, 'comments'], 
-        (oldData: Comment[] | undefined) => {
-          // Log for debugging
-          console.log('Current comments in cache:', oldData);
-          console.log('Adding new comment to cache:', newComment);
-          
-          // If we have no old data, create a new array with just the new comment
-          if (!oldData) return [newComment];
-          
-          // Check if this comment is already in the array to avoid duplicates
-          const exists = oldData.some(comment => comment.id === newComment.id);
-          if (exists) {
-            console.log('Comment already exists in cache, not adding duplicate');
-            return oldData;
-          }
-          
-          // Otherwise append the new comment to the existing array
-          const updatedComments = [...oldData, newComment];
-          console.log('Updated comments cache:', updatedComments);
-          return updatedComments;
-        }
-      );
+      // Always force fetch the comments to avoid any cache issues
+      refetchComments();
+      
+      // For debugging only
+      console.log('Comment added successfully:', newComment);
       
       // Also invalidate related post queries to update comment counts
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
