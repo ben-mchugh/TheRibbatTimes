@@ -1,0 +1,140 @@
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
+import { Post, Comment } from '@/lib/types';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { X } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import CommentSection from './CommentSection';
+import { useAuth } from '@/hooks/useAuth';
+
+interface PostViewProps {
+  postId: number;
+}
+
+const PostView = ({ postId }: PostViewProps) => {
+  const [showComments, setShowComments] = useState(true);
+  const { currentUser } = useAuth();
+  
+  const { data: post, isLoading, error } = useQuery<Post>({
+    queryKey: ['/api/posts', postId],
+  });
+
+  const { data: comments, isLoading: commentsLoading } = useQuery<Comment[]>({
+    queryKey: ['/api/posts', postId, 'comments'],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="relative bg-white w-full max-w-5xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto p-12">
+            <Skeleton className="absolute top-4 right-4 h-6 w-6 rounded-full" />
+            <div className="flex flex-col md:flex-row">
+              <div className="w-full md:w-3/4 pr-0 md:pr-8">
+                <Skeleton className="h-8 w-3/4 mb-4" />
+                <div className="flex items-center mb-6">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-4 w-24 ml-2" />
+                  <Skeleton className="h-4 w-16 ml-4" />
+                </div>
+                <div className="space-y-4">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              </div>
+              <div className="w-full md:w-1/4 mt-8 md:mt-0 border-t md:border-t-0 md:border-l border-neutral-200 pt-8 md:pt-0 md:pl-8">
+                <Skeleton className="h-6 w-24 mb-4" />
+                <div className="space-y-4">
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="relative bg-white w-full max-w-5xl mx-auto rounded-lg shadow-xl p-12">
+            <Link href="/">
+              <Button variant="ghost" className="absolute top-4 right-4">
+                <X className="h-6 w-6" />
+              </Button>
+            </Link>
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Post</h2>
+              <p className="text-neutral-600 mb-6">The post you're looking for could not be loaded.</p>
+              <Link href="/">
+                <Button>Return to Home</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const formattedDate = formatDistanceToNow(new Date(post.createdAt), { addSuffix: true });
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="relative bg-white w-full max-w-5xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto">
+          <Link href="/">
+            <Button variant="ghost" className="absolute top-4 right-4 text-neutral-500 hover:text-neutral-700">
+              <X className="h-6 w-6" />
+            </Button>
+          </Link>
+          
+          <div className="px-6 pt-12 pb-8 md:p-12 flex flex-col md:flex-row">
+            <div className="w-full md:w-3/4 pr-0 md:pr-8">
+              <h1 className="text-2xl md:text-3xl font-heading font-bold text-neutral-900">{post.title}</h1>
+              <div className="mt-2 mb-6 flex items-center">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
+                  <AvatarFallback>{post.author.displayName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <span className="ml-2 text-sm text-neutral-700">{post.author.displayName}</span>
+                <span className="mx-2 text-neutral-300">•</span>
+                <span className="text-sm text-neutral-500">{formattedDate}</span>
+              </div>
+              
+              <div className="prose prose-green max-w-none">
+                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              </div>
+              
+              {currentUser && post.authorId === parseInt(currentUser.uid) && (
+                <div className="mt-6 flex">
+                  <Link href={`/edit/${post.id}`}>
+                    <Button variant="outline" className="mr-2">Edit Post</Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+            
+            <CommentSection 
+              postId={post.id} 
+              comments={comments || []} 
+              isLoading={commentsLoading} 
+              showComments={showComments} 
+              setShowComments={setShowComments} 
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PostView;
