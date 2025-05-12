@@ -73,7 +73,11 @@ export default function Header() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <span className="site-title cursor-pointer">The Ribbat Times</span>
+                <img 
+                  src="/images/ribbat_times_logo.png" 
+                  alt="The Ribbat Times" 
+                  className="h-14 cursor-pointer"
+                />
               </Link>
             </div>
             <nav className="hidden sm:ml-8 sm:flex sm:space-x-8 sm:items-center">
