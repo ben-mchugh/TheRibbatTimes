@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Comment } from '@/lib/types';
-import { apiRequest } from '@/lib/queryClient';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,31 +31,7 @@ const CommentSection = ({
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Listen for text selection to create context-aware comments
-  useEffect(() => {
-    const handleTextSelection = () => {
-      const selection = window.getSelection();
-      if (!selection || selection.isCollapsed) return;
-      
-      // Get selected text and its container element
-      const selectedText = selection.toString().trim();
-      if (!selectedText) return;
-      
-      const range = selection.getRangeAt(0);
-      const container = range.commonAncestorContainer.parentElement;
-      
-      if (container && container.id) {
-        setSelectedElementId(container.id);
-      } else if (container && container.parentElement && container.parentElement.id) {
-        setSelectedElementId(container.parentElement.id);
-      }
-    };
-
-    document.addEventListener('mouseup', handleTextSelection);
-    return () => document.removeEventListener('mouseup', handleTextSelection);
-  }, []);
-
+  
   // Add new comment with direct approach
   const addCommentMutation = useMutation({
     mutationFn: async (comment: { 
@@ -125,6 +100,61 @@ const CommentSection = ({
     }
   });
 
+  // Listen for text selection to create context-aware comments
+  useEffect(() => {
+    const handleTextSelection = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed) return;
+      
+      // Get selected text and its container element
+      const selectedText = selection.toString().trim();
+      if (!selectedText) return;
+      
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer.parentElement;
+      
+      if (container && container.id) {
+        setSelectedElementId(container.id);
+      } else if (container && container.parentElement && container.parentElement.id) {
+        setSelectedElementId(container.parentElement.id);
+      }
+    };
+
+    document.addEventListener('mouseup', handleTextSelection);
+    return () => document.removeEventListener('mouseup', handleTextSelection);
+  }, []);
+  
+  // Listen for selection comment events
+  useEffect(() => {
+    const handleSelectionComment = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const data = customEvent.detail;
+      
+      if (data && data.content) {
+        setNewComment(data.content);
+        
+        // If we have selection data, submit the comment automatically
+        if (data.selectedText && data.selectionStart !== undefined && data.selectionEnd !== undefined) {
+          addCommentMutation.mutate({
+            content: data.content,
+            selectedText: data.selectedText,
+            selectionStart: data.selectionStart,
+            selectionEnd: data.selectionEnd
+          });
+        }
+      }
+    };
+    
+    const commentSectionElement = document.querySelector('.comment-section');
+    if (commentSectionElement) {
+      commentSectionElement.addEventListener('addSelectionComment', handleSelectionComment);
+      
+      return () => {
+        commentSectionElement.removeEventListener('addSelectionComment', handleSelectionComment);
+      };
+    }
+  }, [addCommentMutation]);
+
   const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) {
@@ -157,7 +187,7 @@ const CommentSection = ({
   };
 
   return (
-    <div className={`w-full mt-8 pt-4 border-t border-[#a67a48] ${showComments ? 'block' : 'hidden md:block'}`}>
+    <div className={`comment-section w-full mt-8 pt-4 border-t border-[#a67a48] ${showComments ? 'block' : 'hidden md:block'}`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
         <Button 

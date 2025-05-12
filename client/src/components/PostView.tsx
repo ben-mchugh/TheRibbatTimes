@@ -8,7 +8,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { X } from 'lucide-react';
 import { formatDate } from '@/lib/dateUtils';
 import CommentSection from './CommentSection';
+import TextSelectionMenu from './TextSelectionMenu';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface PostViewProps {
   postId: number;
@@ -24,8 +26,9 @@ const PostView = ({ postId }: PostViewProps) => {
     comment: Comment;
   }>>([]);
 
-  // Auth hook  
+  // Hooks
   const { currentUser } = useAuth();
+  const { toast } = useToast();
   
   // Data fetching with direct approach like we did for comments
   const { data: post, isLoading: postLoading, error: postError } = useQuery<Post>({
@@ -131,6 +134,42 @@ const PostView = ({ postId }: PostViewProps) => {
     }
   }, [comments, updateCommentPositions]);
   
+  // Handler for text selection comments
+  const handleSelectionComment = useCallback((selectedText: string, start: number, end: number) => {
+    if (!currentUser) {
+      toast({
+        title: 'Authentication required',
+        description: 'You must be signed in to comment on text.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // Open the comment form and pre-fill with selected text reference
+    setShowComments(true);
+    
+    // Create a new comment with the selected text info
+    const commentData = {
+      content: `Comment on: "${selectedText.substring(0, 40)}${selectedText.length > 40 ? '...' : ''}"`,
+      selectedText,
+      selectionStart: start,
+      selectionEnd: end
+    };
+    
+    // Use the CommentSection's addCommentMutation directly
+    const commentSectionElement = document.querySelector('.comment-section') as HTMLElement;
+    if (commentSectionElement) {
+      // Scroll to comment section
+      commentSectionElement.scrollIntoView({ behavior: 'smooth' });
+      
+      // Set up a custom event to pass the selection data
+      const event = new CustomEvent('addSelectionComment', { 
+        detail: commentData
+      });
+      commentSectionElement.dispatchEvent(event);
+    }
+  }, [currentUser, setShowComments, toast]);
+
   // HTML content processing
   const processContent = useCallback((html: string) => {
     if (!html) return '';
@@ -148,6 +187,61 @@ const PostView = ({ postId }: PostViewProps) => {
       // Highlight elements with comments
       if (comments.some(comment => comment.elementId === el.id)) {
         el.classList.add('comment-highlight');
+      }
+    });
+    
+    // Process selection-based comments
+    comments.forEach(comment => {
+      if (comment.selectedText && comment.selectionStart !== undefined && comment.selectionEnd !== undefined) {
+        // Find all text nodes in the post content
+        const textNodes = Array.from(tempDiv.querySelectorAll('*'))
+          .filter(node => node.childNodes.length > 0)
+          .flatMap(node => Array.from(node.childNodes))
+          .filter(node => node.nodeType === Node.TEXT_NODE);
+        
+        // We need to find the node containing our selection
+        let currentPosition = 0;
+        let foundNode = null;
+        let foundNodeStartPosition = 0;
+        
+        for (const node of textNodes) {
+          const nodeLength = node.textContent?.length || 0;
+          
+          // Check if this node contains the selection
+          if (comment.selectionStart >= currentPosition && 
+              comment.selectionStart < currentPosition + nodeLength) {
+            foundNode = node;
+            foundNodeStartPosition = currentPosition;
+            break;
+          }
+          
+          currentPosition += nodeLength;
+        }
+        
+        // If we found the node, highlight the selection
+        if (foundNode && foundNode.parentElement) {
+          const nodeText = foundNode.textContent || '';
+          const selectionStartInNode = comment.selectionStart - foundNodeStartPosition;
+          const selectionEndInNode = Math.min(comment.selectionEnd - foundNodeStartPosition, nodeText.length);
+          
+          // Split the text and add the highlight span
+          const beforeSelection = nodeText.substring(0, selectionStartInNode);
+          const selection = nodeText.substring(selectionStartInNode, selectionEndInNode);
+          const afterSelection = nodeText.substring(selectionEndInNode);
+          
+          const span = document.createElement('span');
+          span.classList.add('selection-highlight');
+          span.setAttribute('data-comment-id', comment.id.toString());
+          span.textContent = selection;
+          
+          // Replace the text node with our new structure
+          const fragment = document.createDocumentFragment();
+          if (beforeSelection) fragment.appendChild(document.createTextNode(beforeSelection));
+          fragment.appendChild(span);
+          if (afterSelection) fragment.appendChild(document.createTextNode(afterSelection));
+          
+          foundNode.parentElement.replaceChild(fragment, foundNode);
+        }
       }
     });
     
@@ -259,6 +353,8 @@ const PostView = ({ postId }: PostViewProps) => {
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[#161718] bg-opacity-75">
       <div className="flex items-center justify-center min-h-screen">
         <div className="relative post-card w-full max-w-5xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto bg-[#e0d3af]">
+          {/* Add the text selection menu component */}
+          <TextSelectionMenu onAddComment={handleSelectionComment} />
           <Link href="/">
             <Button 
               variant="ghost" 
