@@ -47,7 +47,8 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes
       retry: false,
     },
     mutations: {
@@ -55,3 +56,14 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+// Make queryClient globally accessible for certain optimizations
+declare global {
+  interface Window {
+    ___QUERY_CLIENT: typeof queryClient;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.___QUERY_CLIENT = queryClient;
+}

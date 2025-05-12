@@ -51,8 +51,8 @@ export const checkRedirectResult = async () => {
   }
 };
 
-// Helper to send user info to backend
-const sendUserToBackend = async (user: User) => {
+// Helper to send user info to backend and return our database user
+export const sendUserToBackend = async (user: User) => {
   try {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
@@ -71,12 +71,15 @@ const sendUserToBackend = async (user: User) => {
     // Return the user data from our backend to cache it
     if (response.ok) {
       const result = await response.json();
-      // Pre-populate the profile query cache
-      const queryClient = window.___QUERY_CLIENT;
-      if (queryClient && result.user) {
-        queryClient.setQueryData(['/api/profile'], result.user);
+      
+      // Return the database user object
+      if (result && result.user) {
+        // Pre-populate the profile query cache if global client is available
+        if (typeof window !== 'undefined' && window.___QUERY_CLIENT) {
+          window.___QUERY_CLIENT.setQueryData(['/api/profile'], result.user);
+        }
+        return result.user;
       }
-      return result.user;
     }
   } catch (error) {
     console.error("Error sending user to backend", error);
