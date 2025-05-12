@@ -2,10 +2,19 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertPostSchema, insertCommentSchema, insertUserSchema } from "@shared/schema";
-import { auth } from "firebase-admin";
+import * as admin from "firebase-admin";
 import { initializeApp as initializeAdminApp, cert } from "firebase-admin/app";
 import session from "express-session";
 import MemoryStore from "memorystore";
+
+// Define types at the top level
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
 
 // Initialize Firebase Admin
 const firebaseAdminConfig = {
@@ -67,7 +76,7 @@ const authenticateUser = async (req: Request, res: Response, next: Function) => 
       return res.status(401).json({ message: 'Invalid token format' });
     }
 
-    const decodedToken = await auth().verifyIdToken(token);
+    const decodedToken = await admin.auth().verifyIdToken(token);
     const uid = decodedToken.uid;
     
     let user = await storage.getUserByUid(uid);
@@ -107,15 +116,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
   }));
-
-  // Extend request type
-  declare global {
-    namespace Express {
-      interface Request {
-        user?: any;
-      }
-    }
-  }
 
   // Auth routes
   app.post('/api/auth/login', async (req, res) => {
