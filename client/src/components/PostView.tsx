@@ -204,8 +204,9 @@ const PostView = ({ postId }: PostViewProps) => {
     }
   }, [currentUser, setShowComments, toast]);
 
-  // HTML content processing
-  const processContent = useCallback((html: string) => {
+  // HTML content processing with highlights for comments
+  const renderPostContentWithHighlights = useCallback(() => {
+    const html = post?.content || '';
     if (!html) return '';
     
     const tempDiv = document.createElement('div');
@@ -280,7 +281,7 @@ const PostView = ({ postId }: PostViewProps) => {
     });
     
     return tempDiv.innerHTML;
-  }, [comments]);
+  }, [comments, post]);
   
   // Render functions
   const renderMarginComments = () => {
