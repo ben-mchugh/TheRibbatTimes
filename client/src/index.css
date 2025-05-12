@@ -9,8 +9,8 @@
 --muted-foreground: 25 5.3% 44.7%;
 --popover: 0 0% 100%;
 --popover-foreground: 20 14.3% 4.1%;
---card: 43 83% 78%; /* #f6dda7 */
---card-foreground: 20 14.3% 4.1%;
+--card: 48 36% 78%; /* #e0d3af */
+--card-foreground: 0 0% 75%; /* #c0c0c0 - same as header */
 --border: 20 5.9% 90%;
 --input: 20 5.9% 90%;
 --primary: 207 90% 54%;
@@ -31,8 +31,8 @@
 --muted-foreground: 240 5% 64.9%;
 --popover: 240 10% 3.9%;
 --popover-foreground: 0 0% 98%;
---card: 43 83% 78%; /* #f6dda7 */
---card-foreground: 0 0% 9%;
+--card: 48 36% 78%; /* #e0d3af */
+--card-foreground: 0 0% 75%; /* #c0c0c0 - same as header */
 --border: 240 3.7% 15.9%;
 --input: 240 3.7% 15.9%;
 --primary: 207 90% 54%;
@@ -94,8 +94,8 @@
   }
 
   .post-card {
-    background-color: #f6dda7; /* Sepia color for post backgrounds */
-    color: #2d2d2d;
+    background-color: #e0d3af; /* Sepia color for post backgrounds */
+    color: #c0c0c0; /* Light gray for text, matching header */
   }
 
   .site-title {
@@ -126,9 +126,10 @@
     right: -250px;
     width: 230px;
     padding: 8px;
-    background-color: rgba(246, 221, 167, 0.8); /* #f6dda7 with opacity */
+    background-color: rgba(224, 211, 175, 0.8); /* #e0d3af with opacity */
     border-left: 3px solid #d1b280;
     font-size: 0.9rem;
+    color: #c0c0c0; /* Light gray text matching header */
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 }
