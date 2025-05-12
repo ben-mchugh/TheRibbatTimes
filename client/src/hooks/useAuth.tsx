@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { auth } from '@/lib/firebase';
+import { auth, checkRedirectResult } from '@/lib/firebase';
 import type { User } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,6 +18,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // Check for redirect result when component mounts
+  useEffect(() => {
+    const checkForRedirect = async () => {
+      try {
+        const redirectUser = await checkRedirectResult();
+        if (redirectUser) {
+          setCurrentUser(redirectUser);
+          toast({
+            title: 'Sign in successful',
+            description: `Welcome ${redirectUser.displayName || 'back'}!`,
+          });
+        }
+      } catch (error) {
+        console.error('Redirect result error:', error);
+      }
+    };
+    
+    checkForRedirect();
+  }, [toast]);
+
+  // Setup auth state listener
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(
       (user) => {
@@ -46,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }): JSX.Element
   );
 };
 
+// Use named function declaration for better HMR compatibility
 export function useAuth() {
   return useContext(AuthContext);
 }

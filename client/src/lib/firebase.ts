@@ -1,5 +1,13 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signInWithRedirect, 
+  getRedirectResult,
+  signOut,
+  User
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
@@ -9,6 +17,12 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
 };
 
+console.log("Firebase config:", {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ? "Set" : "Not set",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ? "Set" : "Not set",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID ? "Set" : "Not set"
+});
+
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
   console.error("Firebase configuration is incomplete. Please check environment variables.");
 }
@@ -17,12 +31,29 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-export const signInWithGoogle = async () => {
+// Add additional scopes if needed
+googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
+googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+
+// Check for redirect result on page load
+export const checkRedirectResult = async () => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-    
-    // Send user info to backend
+    const result = await getRedirectResult(auth);
+    if (result) {
+      const user = result.user;
+      await sendUserToBackend(user);
+      return user;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error checking redirect result", error);
+    return null;
+  }
+};
+
+// Helper to send user info to backend
+const sendUserToBackend = async (user: User) => {
+  try {
     await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
@@ -36,8 +67,27 @@ export const signInWithGoogle = async () => {
       }),
       credentials: 'include',
     });
-    
-    return user;
+  } catch (error) {
+    console.error("Error sending user to backend", error);
+  }
+};
+
+// Try popup first, fall back to redirect
+export const signInWithGoogle = async () => {
+  try {
+    try {
+      // Try popup first (works better in most browsers)
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      await sendUserToBackend(user);
+      return user;
+    } catch (popupError) {
+      console.log("Popup signin failed, trying redirect...", popupError);
+      // If popup fails (e.g., on mobile or blocked), try redirect
+      await signInWithRedirect(auth, googleProvider);
+      // User will be redirected away, result handled in checkRedirectResult
+      return null;
+    }
   } catch (error) {
     console.error("Error signing in with Google", error);
     throw error;
