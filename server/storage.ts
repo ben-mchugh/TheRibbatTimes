@@ -36,6 +36,14 @@ export class MemStorage implements IStorage {
     this.postId = 1;
     this.commentId = 1;
     
+    // Initialize with sample data
+    this.initializeSampleData();
+    
+
+  }
+  
+  // Initialize sample data for testing
+  private initializeSampleData() {
     // Create sample user
     const sampleUser: User = {
       id: this.userId++,
@@ -68,6 +76,7 @@ export class MemStorage implements IStorage {
       createdAt: "2025-05-01T10:00:00.000Z",
       updatedAt: "2025-05-01T10:00:00.000Z",
       tags: ["Media", "Journalism", "Digital Transformation"],
+      commentCount: 0
     };
     this.postsData.set(samplePost.id, samplePost);
     
@@ -113,7 +122,28 @@ export class MemStorage implements IStorage {
       tags: ["Community", "Gardening", "Urban Agriculture", "Sustainability"],
       commentCount: 0
     };
-    this.postsData.set(samplePost.id, samplePost);
+    this.postsData.set(samplePost2.id, samplePost2);
+    
+    // Add your test post with matching title and details
+    const userPost: Post = {
+      id: this.postId++,
+      title: "May 12, 2025Title test",
+      content: "<p>Test <strong>text <em>dfdsaf</em></strong>f sda dafd</p>",
+      authorId: 2,
+      author: {
+        id: 2,
+        uid: "personal-user",
+        displayName: "Ribbat Reader", 
+        email: "reader@ribbattimes.com",
+        photoURL: "https://i.pravatar.cc/150?u=ribbattimes",
+        createdAt: new Date().toISOString()
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      tags: ["Tag"],
+      commentCount: 0
+    };
+    this.postsData.set(userPost.id, userPost);
   }
 
   // User operations
