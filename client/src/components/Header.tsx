@@ -61,7 +61,7 @@ export default function Header() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <span className="text-primary font-heading font-bold text-2xl cursor-pointer">The Ribbat Times</span>
+                <span className="text-primary site-title cursor-pointer">The Ribbat Times</span>
               </Link>
             </div>
             <nav className="hidden sm:ml-6 sm:flex sm:space-x-8">

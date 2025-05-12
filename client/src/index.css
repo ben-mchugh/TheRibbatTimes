@@ -53,6 +53,50 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply antialiased bg-background text-foreground;
+    font-family: 'Playfair Display', serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Chomsky', 'Libre Baskerville', serif;
+  }
+
+  .font-heading {
+    font-family: 'Chomsky', 'Libre Baskerville', serif;
+  }
+
+  .post-card {
+    background-color: rgba(249, 240, 219, 0.9); /* Sepia color for post backgrounds */
+    color: #2d2d2d;
+  }
+
+  .site-title {
+    font-family: 'Chomsky', 'Libre Baskerville', serif;
+    font-size: 2.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .monthly-header {
+    font-family: 'Chomsky', 'Libre Baskerville', serif;
+    font-size: 1.75rem;
+    border-bottom: 2px solid rgba(249, 240, 219, 0.6);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .comment-highlight {
+    background-color: rgba(255, 255, 150, 0.4);
+    position: relative;
+  }
+
+  .margin-comment {
+    position: absolute;
+    right: -250px;
+    width: 230px;
+    padding: 8px;
+    background-color: rgba(249, 240, 219, 0.8);
+    border-left: 3px solid #d1b280;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 }

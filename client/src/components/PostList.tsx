@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import PostCard from './PostCard';
 import { Post } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { format, parseISO } from 'date-fns';
 
 const PostList = () => {
   const { data: posts, isLoading, error } = useQuery<Post[]>({
@@ -59,21 +60,52 @@ const PostList = () => {
 
   if (!posts || posts.length === 0) {
     return (
-      <Card className="bg-white shadow overflow-hidden sm:rounded-lg">
+      <Card className="post-card shadow overflow-hidden sm:rounded-lg">
         <CardContent className="p-6 text-center">
-          <h3 className="text-xl font-medium text-neutral-700 mb-2">No Posts Yet</h3>
-          <p className="text-neutral-500">
-            Be the first to create a post and start the conversation!
+          <h3 className="text-xl font-medium mb-2">No Posts Yet</h3>
+          <p>
+            Be the first to contribute to the monthly newsletter!
           </p>
         </CardContent>
       </Card>
     );
   }
+  
+  // Group posts by month and year
+  const groupedPosts = useMemo(() => {
+    const groups: Record<string, Post[]> = {};
+    
+    posts.forEach(post => {
+      const date = parseISO(post.createdAt);
+      const monthYear = format(date, 'MMMM yyyy');
+      
+      if (!groups[monthYear]) {
+        groups[monthYear] = [];
+      }
+      
+      groups[monthYear].push(post);
+    });
+    
+    // Sort the monthYear keys in reverse chronological order
+    return Object.entries(groups)
+      .sort((a, b) => {
+        const dateA = new Date(a[0]);
+        const dateB = new Date(b[0]);
+        return dateB.getTime() - dateA.getTime();
+      });
+  }, [posts]);
 
   return (
-    <div className="space-y-8">
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+    <div className="space-y-12">
+      {groupedPosts.map(([monthYear, monthPosts]) => (
+        <div key={monthYear} className="space-y-6">
+          <h2 className="monthly-header">{monthYear}</h2>
+          <div className="space-y-8">
+            {monthPosts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   );
