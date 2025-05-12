@@ -60,11 +60,20 @@ const CommentSection = ({
   // Add new comment
   const addCommentMutation = useMutation({
     mutationFn: async (comment: { content: string; elementId?: string }) => {
-      console.log('Submitting comment:', comment);
-      const response = await apiRequest('POST', `/api/posts/${postId}/comments`, comment);
-      const result = await response.json();
-      console.log('Comment creation response:', result);
-      return result;
+      if (!postId) {
+        console.error('PostID is undefined - cannot submit comment');
+        throw new Error('Post ID is undefined');
+      }
+      console.log(`Submitting comment to post ${postId}:`, comment);
+      try {
+        const response = await apiRequest('POST', `/api/posts/${postId}/comments`, comment);
+        const result = await response.json();
+        console.log('Comment creation response:', result);
+        return result;
+      } catch (error) {
+        console.error('Error in comment submission:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       // Instead of just invalidating, directly refetch comments to ensure immediate update

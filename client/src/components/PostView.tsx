@@ -15,6 +15,7 @@ interface PostViewProps {
 }
 
 const PostView = ({ postId }: PostViewProps) => {
+  console.log('PostView initialized with postId:', postId);
   // State hooks
   const [showComments, setShowComments] = useState(true);
   const [marginComments, setMarginComments] = useState<Array<{
@@ -275,7 +276,7 @@ const PostView = ({ postId }: PostViewProps) => {
                 )}
                 
                 <CommentSection 
-                  postId={post.id} 
+                  postId={postId} // Use the prop directly instead of post.id, which might be undefined
                   comments={comments} 
                   isLoading={commentsLoading} 
                   showComments={showComments} 
