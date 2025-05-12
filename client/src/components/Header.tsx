@@ -80,31 +80,31 @@ export default function Header() {
                 />
               </Link>
             </div>
-            <nav className="hidden sm:ml-8 sm:flex sm:space-x-8 sm:items-center">
+            <nav className="hidden sm:ml-8 sm:flex sm:space-x-5 sm:items-center">
               <Link href="/">
                 <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  location === '/' ? 'border-primary text-primary' : 'border-transparent text-gray-300 hover:text-primary'
+                  location === '/' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
                   Home
                 </a>
               </Link>
               <Link href="/communities">
                 <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  location === '/communities' ? 'border-primary text-primary' : 'border-transparent text-gray-300 hover:text-primary'
+                  location === '/communities' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
                   Communities
                 </a>
               </Link>
               <Link href="/resources">
                 <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  location === '/resources' ? 'border-primary text-primary' : 'border-transparent text-gray-300 hover:text-primary'
+                  location === '/resources' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
                   Resources
                 </a>
               </Link>
               <Link href="/about">
                 <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  location === '/about' ? 'border-primary text-primary' : 'border-transparent text-gray-300 hover:text-primary'
+                  location === '/about' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
                   About
                 </a>
