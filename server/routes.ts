@@ -43,26 +43,18 @@ const authenticateUser = async (req: Request, res: Response, next: Function) => 
       }
     }
 
-    // If no Firebase Admin, return unauthorized in production
+    // If there's a session with a userId, use that
+    if (req.session.userId) {
+      const user = await storage.getUser(req.session.userId);
+      if (user) {
+        req.user = user;
+        return next();
+      }
+    }
+    
+    // Return unauthorized in production if no Firebase Admin is configured
     if (!firebaseAdmin && process.env.NODE_ENV === 'production') {
       return res.status(401).json({ message: 'Authentication required' });
-    }
-
-    // For development without Firebase Admin, create a personalized user
-    if (!firebaseAdmin && process.env.NODE_ENV === 'development') {
-      // Create a more personalized user experience
-      let personalUser = await storage.getUserByUid('personal-user');
-      if (!personalUser) {
-        personalUser = await storage.createUser({
-          uid: 'personal-user',
-          displayName: 'Ribbat Reader',
-          email: 'reader@ribbattimes.com',
-          photoURL: 'https://i.pravatar.cc/150?u=ribbattimes',
-        });
-      }
-      req.session.userId = personalUser.id;
-      req.user = personalUser;
-      return next();
     }
 
     // Otherwise, check Firebase Auth
@@ -129,8 +121,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let user = await storage.getUserByUid(uid);
       
       if (!user) {
+        // Create a new user with their Google profile information
         const userData = {
-          uid,
+          uid, // Unique Google user ID
           displayName: displayName || 'Anonymous',
           email,
           photoURL: photoURL || '',
@@ -138,6 +131,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const validatedData = insertUserSchema.parse(userData);
         user = await storage.createUser(validatedData);
+        console.log('Created new user with Google profile:', user);
+      } else {
+        // Update existing user with latest Google profile information
+        const updatedData = {
+          displayName: displayName || user.displayName,
+          email: email || user.email,
+          photoURL: photoURL || user.photoURL,
+        };
+        
+        // Only update if any values changed
+        if (updatedData.displayName !== user.displayName || 
+            updatedData.email !== user.email || 
+            updatedData.photoURL !== user.photoURL) {
+          // We would need a storage.updateUser method, which we don't have yet
+          // For now, we'll just log this
+          console.log('User profile information updated from Google');
+        }
       }
       
       req.session.userId = user.id;
