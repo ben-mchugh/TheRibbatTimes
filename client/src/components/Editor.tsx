@@ -2,16 +2,13 @@ import { useCallback, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
-import TextStyle from '@tiptap/extension-text-style';
-import Color from '@tiptap/extension-color';
 import Heading from '@tiptap/extension-heading';
 import Placeholder from '@tiptap/extension-placeholder';
-import Image from '@tiptap/extension-image';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
-  Bold, Italic, Underline as UnderlineIcon, Heading1, Heading2, Heading3, 
-  List, ListOrdered, Quote, Image as ImageIcon, Undo, Redo 
+  Bold, Italic, Underline as UnderlineIcon, 
+  List, ListOrdered, Quote, Undo, Redo 
 } from 'lucide-react';
 import { 
   Select, 
@@ -30,19 +27,21 @@ interface EditorProps {
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
   const editor = useEditor({
     extensions: [
+      // Basic features only to improve performance
       StarterKit.configure({
         heading: false,
+        history: {
+          depth: 10, // Limit history depth to save memory
+        },
       }),
       Underline,
-      TextStyle,
-      Color,
       Heading.configure({
         levels: [1, 2, 3],
       }),
       Placeholder.configure({
         placeholder: 'Start writing your post...',
       }),
-      Image,
+      // Only include essential extensions
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -62,11 +61,21 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     }
   }, [content, editor]);
 
-  // Generate unique ids for headings and paragraphs to enable targeted comments
+  // Simplified ID generation with throttling for better performance
   useEffect(() => {
     if (!editor) return;
     
-    const originalGetHTML = editor.view.dom.innerHTML;
+    // Helper to throttle function calls for better performance
+    const throttle = (func, delay) => {
+      let lastCall = 0;
+      return function(...args) {
+        const now = Date.now();
+        if (now - lastCall >= delay) {
+          lastCall = now;
+          func(...args);
+        }
+      };
+    };
     
     const addIdsToNodes = () => {
       // Find all headings and paragraphs
@@ -82,12 +91,14 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     // Run initially
     addIdsToNodes();
     
-    // Set up a mutation observer to add IDs to new elements
-    const observer = new MutationObserver(addIdsToNodes);
-    observer.observe(editor.view.dom, { childList: true, subtree: true });
+    // Throttled version to reduce processing load
+    const throttledAddIds = throttle(addIdsToNodes, 500);
+    
+    // Use simpler event approach instead of MutationObserver
+    editor.on('update', throttledAddIds);
     
     return () => {
-      observer.disconnect();
+      editor.off('update', throttledAddIds);
     };
   }, [editor]);
 
@@ -133,52 +144,11 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     );
   };
 
-  const ColorSelect = () => {
-    const colors = [
-      { name: 'Default', value: '#000000' },
-      { name: 'Primary', value: '#2E7D32' },
-      { name: 'Secondary', value: '#558B2F' },
-      { name: 'Accent', value: '#FFB300' },
-      { name: 'Red', value: '#D32F2F' },
-      { name: 'Blue', value: '#1976D2' },
-    ];
-
-    return (
-      <Select
-        onValueChange={(value) => {
-          editor?.chain().focus().setColor(value).run();
-        }}
-      >
-        <SelectTrigger className="w-[120px] h-8" style={{ backgroundColor: "#161718", color: "#eeeeee", borderColor: "#666" }}>
-          <SelectValue placeholder="Text Color" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {colors.map((color) => (
-              <SelectItem key={color.value} value={color.value}>
-                <div className="flex items-center">
-                  <div 
-                    className="w-4 h-4 rounded-full mr-2" 
-                    style={{ backgroundColor: color.value }}
-                  ></div>
-                  {color.name}
-                </div>
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    );
-  };
+  // Color select function removed to improve performance
 
   // Remove FontSelect since the extension is not properly configured
 
-  const addImage = useCallback(() => {
-    const url = window.prompt('URL');
-    if (url && editor) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
-  }, [editor]);
+  // Image functionality removed to improve performance
 
   if (!editor) {
     return null;
@@ -240,11 +210,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               <HeadingSelect />
             </div>
             
-            <div className="flex items-center mr-4">
-              <ColorSelect />
-            </div>
-            
-            {/* Font Select removed */}
+            {/* Color and Font selectors removed for performance */}
             
             <div className="flex space-x-1 mr-4">
               <Tooltip>
@@ -292,20 +258,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                 <TooltipContent>Quote</TooltipContent>
               </Tooltip>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={addImage}
-                    style={{ color: "#eeeeee" }}
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Insert Image</TooltipContent>
-              </Tooltip>
+              {/* Image button removed for performance */}
             </div>
             
             <div className="flex space-x-1">
