@@ -80,10 +80,24 @@ const CommentSection = ({
       queryClient.setQueryData(
         ['/api/posts', postId, 'comments'], 
         (oldData: Comment[] | undefined) => {
+          // Log for debugging
+          console.log('Current comments in cache:', oldData);
+          console.log('Adding new comment to cache:', newComment);
+          
           // If we have no old data, create a new array with just the new comment
           if (!oldData) return [newComment];
+          
+          // Check if this comment is already in the array to avoid duplicates
+          const exists = oldData.some(comment => comment.id === newComment.id);
+          if (exists) {
+            console.log('Comment already exists in cache, not adding duplicate');
+            return oldData;
+          }
+          
           // Otherwise append the new comment to the existing array
-          return [...oldData, newComment];
+          const updatedComments = [...oldData, newComment];
+          console.log('Updated comments cache:', updatedComments);
+          return updatedComments;
         }
       );
       
@@ -184,7 +198,7 @@ const CommentSection = ({
         <div className="space-y-4 overflow-y-auto">
           {comments && comments.length > 0 ? (
             comments.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} />
+              <CommentItem key={`comment-${comment.id}-${comment.postId}`} comment={comment} />
             ))
           ) : (
             <div className="bg-[#f5f0e0] p-4 rounded-lg text-center py-6">

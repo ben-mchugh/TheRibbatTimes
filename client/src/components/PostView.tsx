@@ -34,12 +34,14 @@ const PostView = ({ postId }: PostViewProps) => {
     staleTime: 5000, // Consider data stale after 5 seconds
   });
 
-  const { data: comments = [], isLoading: commentsLoading, refetch: refetchComments } = useQuery<Comment[]>({
+  const { 
+    data: comments = [], 
+    isLoading: commentsLoading, 
+    refetch: refetchComments 
+  } = useQuery<Comment[]>({
     queryKey: ['/api/posts', postId, 'comments'],
-    // Only fetch comments if we have a post
-    enabled: !!post,
     refetchOnWindowFocus: true,
-    staleTime: 5000, // Consider data stale after 5 seconds
+    staleTime: 2000 // Consider data stale after 2 seconds
   });
 
   // Comment position calculation
