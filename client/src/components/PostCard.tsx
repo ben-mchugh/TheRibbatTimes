@@ -37,7 +37,7 @@ const PostCard = ({ post }: PostCardProps) => {
           </Link>
         </div>
         <div className="px-4 py-4 sm:px-6 border-t" style={{ borderColor: "#a67a48" }}>
-          <p className="line-clamp-3">
+          <p className="line-clamp-3" style={{ color: "#161718" }}>
             {/* Display a plain text preview from the content (strip HTML) */}
             {post.content.replace(/<[^>]*>/g, '').substring(0, 250)}...
           </p>
