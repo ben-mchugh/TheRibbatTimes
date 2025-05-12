@@ -81,7 +81,25 @@ export default function EditPost() {
       return response.json();
     },
     onSuccess: (data) => {
+      // Invalidate both general posts query and user-specific posts query
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      
+      // If we have the current user's id from the returned post data
+      if (data && data.authorId) {
+        // Invalidate the user posts query to refresh profile page
+        queryClient.invalidateQueries({ 
+          queryKey: [`/api/users/${data.authorId}/posts`] 
+        });
+      } else if (currentUser) {
+        // Try to get user profile from the cache
+        const userProfile = queryClient.getQueryData<any>(['/api/profile']);
+        if (userProfile && userProfile.id) {
+          queryClient.invalidateQueries({ 
+            queryKey: [`/api/users/${userProfile.id}/posts`] 
+          });
+        }
+      }
+      
       toast({
         title: 'Post created',
         description: 'Your post has been published successfully.',
@@ -105,8 +123,26 @@ export default function EditPost() {
       return response.json();
     },
     onSuccess: (data) => {
+      // Invalidate general posts queries
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       queryClient.invalidateQueries({ queryKey: ['/api/posts', data.id] });
+      
+      // Invalidate user-specific posts queries
+      if (data && data.authorId) {
+        // Invalidate the user posts query to refresh profile page
+        queryClient.invalidateQueries({ 
+          queryKey: [`/api/users/${data.authorId}/posts`] 
+        });
+      } else if (currentUser) {
+        // Try to get user profile from the cache
+        const userProfile = queryClient.getQueryData<any>(['/api/profile']);
+        if (userProfile && userProfile.id) {
+          queryClient.invalidateQueries({ 
+            queryKey: [`/api/users/${userProfile.id}/posts`] 
+          });
+        }
+      }
+      
       toast({
         title: 'Post updated',
         description: 'Your post has been updated successfully.',

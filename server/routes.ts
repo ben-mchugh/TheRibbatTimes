@@ -311,12 +311,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const postData = req.body;
       const validatedData = insertPostSchema.parse(postData);
       
+      // Create post with the current user as author
       const post = await storage.createPost({
         ...validatedData,
         authorId: req.user.id
       });
       
-      res.status(201).json(post);
+      // Include author information in the response for immediate use in the UI
+      const comments = await storage.getCommentsByPostId(post.id);
+      
+      // Return complete post with author and comment count
+      res.status(201).json({
+        ...post,
+        author: {
+          id: req.user.id,
+          displayName: req.user.displayName,
+          email: req.user.email,
+          photoURL: req.user.photoURL,
+          uid: req.user.uid
+        },
+        commentCount: comments.length
+      });
     } catch (error) {
       console.error('Create post error:', error);
       res.status(400).json({ message: 'Invalid post data' });
@@ -339,7 +354,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const postData = req.body;
       const updatedPost = await storage.updatePost(postId, postData);
       
-      res.json(updatedPost);
+      // Get comments for the post
+      const comments = await storage.getCommentsByPostId(postId);
+      
+      // Return the updated post with complete author info and comment count
+      res.json({
+        ...updatedPost,
+        author: {
+          id: req.user.id,
+          displayName: req.user.displayName,
+          email: req.user.email,
+          photoURL: req.user.photoURL,
+          uid: req.user.uid
+        },
+        commentCount: comments.length
+      });
     } catch (error) {
       console.error('Update post error:', error);
       res.status(400).json({ message: 'Invalid post data' });
