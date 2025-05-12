@@ -27,7 +27,7 @@ const PostView = ({ postId }: PostViewProps) => {
   // Auth hook  
   const { currentUser } = useAuth();
   
-  // Data fetching
+  // Data fetching with additional console logging
   const { data: post, isLoading: postLoading, error: postError } = useQuery<Post>({
     queryKey: ['/api/posts', postId],
     refetchOnWindowFocus: true,
@@ -41,7 +41,14 @@ const PostView = ({ postId }: PostViewProps) => {
   } = useQuery<Comment[]>({
     queryKey: ['/api/posts', postId, 'comments'],
     refetchOnWindowFocus: true,
-    staleTime: 2000 // Consider data stale after 2 seconds
+    staleTime: 2000, // Consider data stale after 2 seconds
+    select: (data) => {
+      // Filter comments to ensure they belong to this post
+      console.log(`Received ${data.length} comments for post ${postId}, filtering...`);
+      const filtered = data.filter(comment => comment.postId === postId);
+      console.log(`Filtered to ${filtered.length} comments that belong to post ${postId}`);
+      return filtered;
+    }
   });
 
   // Comment position calculation

@@ -76,11 +76,35 @@ const CommentSection = ({
       }
     },
     onSuccess: (newComment) => {
-      // Always force fetch the comments to avoid any cache issues
-      refetchComments();
-      
-      // For debugging only
-      console.log('Comment added successfully:', newComment);
+      // Update the cache manually with proper type checking
+      queryClient.setQueryData<Comment[]>(
+        ['/api/posts', postId, 'comments'],
+        (oldData = []) => {
+          // Debug log
+          console.log(`Comment created for post ${postId}:`, newComment);
+          console.log(`Current comments in cache (${oldData.length}):`, 
+            oldData.map(c => ({ id: c.id, postId: c.postId, content: c.content.substring(0, 20) }))
+          );
+          
+          // Ensure the comment belongs to this post
+          if (newComment.postId !== postId) {
+            console.error(`Comment has wrong postId: ${newComment.postId}, expected: ${postId}`);
+            return oldData;
+          }
+          
+          // Check if comment already exists to avoid duplicates
+          const exists = oldData.some(c => c.id === newComment.id);
+          if (exists) {
+            console.log(`Comment ${newComment.id} already in cache, not adding duplicate`);
+            return oldData;
+          }
+          
+          // Add the new comment to the cache
+          const updatedComments = [...oldData, newComment];
+          console.log(`Updated cache now has ${updatedComments.length} comments for post ${postId}`);
+          return updatedComments;
+        }
+      );
       
       // Also invalidate related post queries to update comment counts
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
