@@ -9,6 +9,7 @@ export interface IStorage {
   // Post operations
   getPost(id: number): Promise<Post | undefined>;
   getAllPosts(): Promise<Post[]>;
+  getPostsByAuthor(authorId: number): Promise<Post[]>; // Added to support profile page
   createPost(post: InsertPost & { authorId: number }): Promise<Post>;
   updatePost(id: number, post: Partial<Post>): Promise<Post | undefined>;
   deletePost(id: number): Promise<boolean>;
@@ -176,6 +177,14 @@ export class MemStorage implements IStorage {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }
+  
+  async getPostsByAuthor(authorId: number): Promise<Post[]> {
+    return Array.from(this.postsData.values())
+      .filter(post => post.authorId === authorId)
+      .sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+  }
 
   async createPost(postData: InsertPost & { authorId: number }): Promise<Post> {
     const id = this.postId++;
@@ -242,4 +251,12 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Import the database storage
+import { DatabaseStorage } from './dbStorage';
+
+// Use database storage in production, memory storage in development
+const isProduction = process.env.NODE_ENV === 'production';
+
+export const storage = isProduction 
+  ? new DatabaseStorage()
+  : new MemStorage();
