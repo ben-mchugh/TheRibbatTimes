@@ -116,7 +116,7 @@ export default function Header() {
               !currentUser ? (
                 <Button onClick={handleSignIn} className="flex items-center signin-button">
                   <UserIcon className="h-5 w-5 mr-2" />
-                  Sign in with Google
+                  Sign in
                 </Button>
               ) : (
                 <>
@@ -240,7 +240,7 @@ export default function Header() {
                     className="w-full flex items-center justify-center signin-button"
                   >
                     <UserIcon className="h-5 w-5 mr-2" />
-                    Sign in with Google
+                    Sign in
                   </Button>
                 </div>
               ) : (

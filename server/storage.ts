@@ -35,6 +35,42 @@ export class MemStorage implements IStorage {
     this.userId = 1;
     this.postId = 1;
     this.commentId = 1;
+    
+    // Create sample user
+    const sampleUser: User = {
+      id: this.userId++,
+      uid: "sample-user-uid",
+      displayName: "Eleanor Worthington",
+      email: "eleanor@example.com",
+      photoURL: "https://randomuser.me/api/portraits/women/32.jpg",
+      createdAt: new Date().toISOString()
+    };
+    this.usersData.set(sampleUser.id, sampleUser);
+    
+    // Create sample post for May 2025
+    const samplePost: Post = {
+      id: this.postId++,
+      title: "The Decline of Traditional Print Media in the Digital Age",
+      content: `<h2>A Shifting Landscape</h2>
+      <p>As we approach the mid-2020s, the transformation of traditional print journalism continues unabated. Newspapers and magazines that once dominated the media landscape have given way to digital platforms, social media news sources, and citizen journalism.</p>
+      <p>The venerable institutions that once served as the primary sources of news and commentary have been forced to adapt or face extinction. Many have chosen hybrid models, maintaining limited print operations while focusing increasingly on their digital presence.</p>
+      <h2>Economic Realities</h2>
+      <p>The economic model that sustained print journalism for centuries—based on advertising revenue and subscriptions—has been upended by the internet. Classified advertising, once a reliable profit center for newspapers, has largely migrated to online platforms.</p>
+      <p>Display advertising, while still present in print publications, commands a fraction of its former rates. The abundance of digital advertising space has driven down costs across the board, leaving traditional publications struggling to maintain profitability.</p>
+      <h2>Quality and Trust</h2>
+      <p>Perhaps the most concerning aspect of this transition is the impact on journalistic quality and public trust. The economic pressures on traditional media outlets have led to staff reductions, decreased investigative reporting, and in some cases, a shift toward more sensationalistic coverage to attract readers.</p>
+      <p>While digital-native news sources have introduced innovations in reporting and presentation, the ecosystem as a whole has become more fragmented and polarized. The shared experience of consuming news from a common set of sources has given way to highly personalized information streams that often reinforce existing beliefs rather than challenging them.</p>
+      <h2>The Path Forward</h2>
+      <p>Yet there are reasons for optimism. Some publications have successfully reinvented themselves for the digital age, finding new revenue streams through digital subscriptions, events, and specialized content. Others have embraced nonprofit models, supported by foundations and reader contributions.</p>
+      <p>The hunger for reliable information and thoughtful analysis remains strong, suggesting that the core functions of journalism will endure even as its form evolves. The challenge for the industry—and for society—is to ensure that these functions continue to be fulfilled in ways that serve the public interest.</p>`,
+      authorId: sampleUser.id,
+      author: sampleUser,
+      createdAt: "2025-05-01T10:00:00.000Z",
+      updatedAt: "2025-05-01T10:00:00.000Z",
+      tags: ["Media", "Journalism", "Digital Transformation"],
+      commentCount: 0
+    };
+    this.postsData.set(samplePost.id, samplePost);
   }
 
   // User operations
