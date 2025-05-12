@@ -412,26 +412,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Comments routes
-  app.get('/api/posts/:postId/comments', async (req, res) => {
-    try {
-      const postId = parseInt(req.params.postId);
-      const comments = await storage.getCommentsByPostId(postId);
-      
-      // Get author details for each comment
-      const commentsWithAuthors = await Promise.all(comments.map(async (comment) => {
-        const author = await storage.getUser(comment.authorId);
-        return {
-          ...comment,
-          author: author || { displayName: 'Unknown', email: '', photoURL: '' }
-        };
-      }));
-      
-      res.json(commentsWithAuthors);
-    } catch (error) {
-      console.error('Get comments error:', error);
-      res.status(500).json({ message: 'Failed to retrieve comments' });
-    }
-  });
 
   app.post('/api/posts/:postId/comments', authenticateUser, async (req, res) => {
     try {

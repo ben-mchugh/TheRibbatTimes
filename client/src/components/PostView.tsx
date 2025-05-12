@@ -34,21 +34,31 @@ const PostView = ({ postId }: PostViewProps) => {
     staleTime: 5000, // Consider data stale after 5 seconds
   });
 
+  // Reset our approach with comments - explicit fetch with no cache manipulation
   const { 
     data: comments = [], 
     isLoading: commentsLoading, 
     refetch: refetchComments 
   } = useQuery<Comment[]>({
     queryKey: ['/api/posts', postId, 'comments'],
+    queryFn: async () => {
+      console.log(`Directly fetching comments for post ${postId}`);
+      const response = await fetch(`/api/posts/${postId}/comments`, {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch comments: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log(`Fetched ${data.length} comments directly for post ${postId}:`, 
+        data.map((c: any) => ({ id: c.id, postId: c.postId, content: c.content?.substring(0, 20) }))
+      );
+      return data;
+    },
     refetchOnWindowFocus: true,
-    staleTime: 2000, // Consider data stale after 2 seconds
-    select: (data) => {
-      // Filter comments to ensure they belong to this post
-      console.log(`Received ${data.length} comments for post ${postId}, filtering...`);
-      const filtered = data.filter(comment => comment.postId === postId);
-      console.log(`Filtered to ${filtered.length} comments that belong to post ${postId}`);
-      return filtered;
-    }
+    staleTime: 2000 // Consider data stale after 2 seconds
   });
 
   // Comment position calculation

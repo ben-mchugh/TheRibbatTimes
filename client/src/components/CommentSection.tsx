@@ -57,7 +57,7 @@ const CommentSection = ({
     return () => document.removeEventListener('mouseup', handleTextSelection);
   }, []);
 
-  // Add new comment
+  // Add new comment with direct approach
   const addCommentMutation = useMutation({
     mutationFn: async (comment: { content: string; elementId?: string }) => {
       if (!postId) {
@@ -66,7 +66,25 @@ const CommentSection = ({
       }
       console.log(`Submitting comment to post ${postId}:`, comment);
       try {
-        const response = await apiRequest('POST', `/api/posts/${postId}/comments`, comment);
+        // Explicitly create the comment with its postId
+        const commentData = {
+          ...comment,
+          postId: postId // Ensure postId is set
+        };
+        
+        const response = await fetch(`/api/posts/${postId}/comments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(commentData),
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to create comment: ${response.status} ${response.statusText}`);
+        }
+        
         const result = await response.json();
         console.log('Comment creation response:', result);
         return result;
@@ -76,35 +94,10 @@ const CommentSection = ({
       }
     },
     onSuccess: (newComment) => {
-      // Update the cache manually with proper type checking
-      queryClient.setQueryData<Comment[]>(
-        ['/api/posts', postId, 'comments'],
-        (oldData = []) => {
-          // Debug log
-          console.log(`Comment created for post ${postId}:`, newComment);
-          console.log(`Current comments in cache (${oldData.length}):`, 
-            oldData.map(c => ({ id: c.id, postId: c.postId, content: c.content.substring(0, 20) }))
-          );
-          
-          // Ensure the comment belongs to this post
-          if (newComment.postId !== postId) {
-            console.error(`Comment has wrong postId: ${newComment.postId}, expected: ${postId}`);
-            return oldData;
-          }
-          
-          // Check if comment already exists to avoid duplicates
-          const exists = oldData.some(c => c.id === newComment.id);
-          if (exists) {
-            console.log(`Comment ${newComment.id} already in cache, not adding duplicate`);
-            return oldData;
-          }
-          
-          // Add the new comment to the cache
-          const updatedComments = [...oldData, newComment];
-          console.log(`Updated cache now has ${updatedComments.length} comments for post ${postId}`);
-          return updatedComments;
-        }
-      );
+      console.log('Successfully created comment:', newComment);
+      
+      // Simply refetch comments to ensure we get the latest from server
+      refetchComments();
       
       // Also invalidate related post queries to update comment counts
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
