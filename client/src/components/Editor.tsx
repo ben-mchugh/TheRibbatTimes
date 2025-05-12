@@ -91,7 +91,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     };
   }, [editor]);
 
-  const setHeading = useCallback((level: number) => {
+  const setHeading = useCallback((level: 1 | 2 | 3) => {
     if (!editor) return;
     editor.chain().focus().toggleHeading({ level }).run();
   }, [editor]);
@@ -104,7 +104,8 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
             editor?.chain().focus().setParagraph().run();
           } else {
             const level = parseInt(value.replace('heading', ''));
-            setHeading(level);
+            // Type assertion to match expected heading level type
+            setHeading(level as 1 | 2 | 3);
           }
         }}
         value={
@@ -117,7 +118,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
             : 'paragraph'
         }
       >
-        <SelectTrigger className="w-[140px] h-8">
+        <SelectTrigger className="w-[140px] h-8" style={{ backgroundColor: "#161718", color: "#eeeeee", borderColor: "#666" }}>
           <SelectValue placeholder="Paragraph" />
         </SelectTrigger>
         <SelectContent>
@@ -170,35 +171,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     );
   };
 
-  const FontSelect = () => {
-    const fonts = [
-      { name: 'Inter', value: 'Inter' },
-      { name: 'Poppins', value: 'Poppins' },
-      { name: 'Roboto', value: 'Roboto' },
-      { name: 'Roboto Mono', value: 'Roboto Mono' },
-    ];
-
-    return (
-      <Select
-        onValueChange={(value) => {
-          editor?.chain().focus().setFontFamily(value).run();
-        }}
-      >
-        <SelectTrigger className="w-[120px] h-8">
-          <SelectValue placeholder="Font" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            {fonts.map((font) => (
-              <SelectItem key={font.value} value={font.value}>
-                <span style={{ fontFamily: font.value }}>{font.name}</span>
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    );
-  };
+  // Remove FontSelect since the extension is not properly configured
 
   const addImage = useCallback(() => {
     const url = window.prompt('URL');
@@ -213,8 +186,8 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
 
   return (
     <div>
-      <div className="border border-neutral-300 rounded-t-md">
-        <div className="flex flex-wrap items-center px-3 py-2 border-b border-neutral-300 bg-neutral-50 gap-1">
+      <div className="border border-neutral-300 rounded-t-lg">
+        <div className="flex flex-wrap items-center px-3 py-2 border-b border-neutral-300 gap-1" style={{ backgroundColor: "#161718", color: "#eeeeee" }}>
           <TooltipProvider>
             <div className="flex space-x-1 mr-4">
               <Tooltip>
@@ -224,6 +197,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('bold') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleBold().run()}
+                    style={{ color: "#eeeeee" }}
                   >
                     <Bold className="h-4 w-4" />
                   </Button>
@@ -238,6 +212,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('italic') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleItalic().run()}
+                    style={{ color: "#eeeeee" }}
                   >
                     <Italic className="h-4 w-4" />
                   </Button>
@@ -252,6 +227,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('underline') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    style={{ color: "#eeeeee" }}
                   >
                     <UnderlineIcon className="h-4 w-4" />
                   </Button>
@@ -268,9 +244,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               <ColorSelect />
             </div>
             
-            <div className="flex items-center mr-4">
-              <FontSelect />
-            </div>
+            {/* Font Select removed */}
             
             <div className="flex space-x-1 mr-4">
               <Tooltip>
