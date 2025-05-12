@@ -135,7 +135,7 @@ const PostView = ({ postId }: PostViewProps) => {
   }, [comments, updateCommentPositions]);
   
   // Handler for text selection comments
-  const handleSelectionComment = useCallback((selectedText: string, start: number, end: number) => {
+  const handleSelectionComment = useCallback((commentText: string, start: number, end: number) => {
     if (!currentUser) {
       toast({
         title: 'Authentication required',
@@ -145,13 +145,17 @@ const PostView = ({ postId }: PostViewProps) => {
       return;
     }
     
-    // Open the comment form and pre-fill with selected text reference
+    // Open the comment form and use the provided comment text
     setShowComments(true);
     
-    // Create a new comment with the selected text info
+    // Get the text selection from selectionInfo
+    const selectionData = document.querySelector('.post-main-content')?.textContent || '';
+    const selectedText = selectionData.substring(start, end);
+    
+    // Create a new comment with the selected text info and user's comment text
     const commentData = {
-      content: `Comment on: "${selectedText.substring(0, 40)}${selectedText.length > 40 ? '...' : ''}"`,
-      selectedText,
+      content: commentText,
+      selectedText: selectedText,
       selectionStart: start,
       selectionEnd: end
     };

@@ -1,7 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, X } from 'lucide-react';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface TextSelectionMenuProps {
   onAddComment: (text: string, start: number, end: number) => void;
@@ -11,6 +20,8 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [selectedText, setSelectedText] = useState('');
+  const [commentText, setCommentText] = useState('');
+  const [isCommentDialogOpen, setIsCommentDialogOpen] = useState(false);
   const [selectionInfo, setSelectionInfo] = useState<{
     start: number;
     end: number;
@@ -97,7 +108,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
     };
   }, []);
   
-  const handleAddComment = () => {
+  const handleOpenCommentDialog = () => {
     if (!selectionInfo) {
       toast({
         title: 'Selection error',
@@ -107,33 +118,101 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
       return;
     }
     
-    onAddComment(selectionInfo.text, selectionInfo.start, selectionInfo.end);
+    // Pre-populate the comment text with a reference to the selected text
+    const previewText = selectionInfo.text.length > 40 
+      ? selectionInfo.text.substring(0, 40) + '...' 
+      : selectionInfo.text;
+    
+    setCommentText('');
+    setIsCommentDialogOpen(true);
     setIsVisible(false);
   };
   
-  if (!isVisible) return null;
+  const handleSubmitComment = () => {
+    if (!selectionInfo) return;
+    
+    if (!commentText.trim()) {
+      toast({
+        title: 'Empty comment',
+        description: 'Please enter some text for your comment.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    onAddComment(commentText, selectionInfo.start, selectionInfo.end);
+    setIsCommentDialogOpen(false);
+    setCommentText('');
+  };
+  
+  if (!isVisible && !isCommentDialogOpen) return null;
   
   return (
-    <div 
-      ref={menuRef}
-      className="fixed z-50 bg-white rounded-lg shadow-lg border border-[#a67a48] py-2 px-1"
-      style={{ 
-        top: `${position.top}px`, 
-        left: `${position.left}px`,
-        transform: 'translate(-50%, -100%)',
-        marginTop: '-10px'
-      }}
-    >
-      <Button
-        variant="ghost"
-        size="sm"
-        className="flex items-center text-[#161718] hover:bg-[#f5f0e0] hover:text-[#a67a48]"
-        onClick={handleAddComment}
-      >
-        <MessageSquare className="h-4 w-4 mr-2" />
-        <span>Add Comment</span>
-      </Button>
-    </div>
+    <>
+      {/* Right-click menu */}
+      {isVisible && (
+        <div 
+          ref={menuRef}
+          className="fixed z-50 bg-white rounded-lg shadow-lg border border-[#a67a48] py-2 px-1"
+          style={{ 
+            top: `${position.top}px`, 
+            left: `${position.left}px`,
+            transform: 'translate(-50%, -100%)',
+            marginTop: '-10px'
+          }}
+        >
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex items-center text-[#161718] hover:bg-[#f5f0e0] hover:text-[#a67a48]"
+            onClick={handleOpenCommentDialog}
+          >
+            <MessageSquare className="h-4 w-4 mr-2" />
+            <span>Add Comment</span>
+          </Button>
+        </div>
+      )}
+      
+      {/* Comment dialog */}
+      <Dialog open={isCommentDialogOpen} onOpenChange={setIsCommentDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-[#f5f0e0] border-[#a67a48]">
+          <DialogHeader>
+            <DialogTitle className="text-[#161718]">Add Comment</DialogTitle>
+            <DialogDescription className="text-[#a67a48]">
+              Commenting on: <span className="italic">"{selectedText.substring(0, 60)}{selectedText.length > 60 ? '...' : ''}"</span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Textarea
+              className="w-full min-h-[120px] px-3 py-2 text-sm border border-[#a67a48] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#a67a48] focus:border-[#a67a48]"
+              placeholder="Write your comment here..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              autoFocus
+            />
+          </div>
+          
+          <DialogFooter className="sm:justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              className="border-[#a67a48] text-[#a67a48] hover:bg-[#a67a48] hover:text-[#f5f0e0]"
+              onClick={() => setIsCommentDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="button"
+              className="bg-[#a67a48] text-[#f5f0e0] hover:bg-[#8a5d2e]"
+              onClick={handleSubmitComment}
+            >
+              Submit Comment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
