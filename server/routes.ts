@@ -466,6 +466,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get comments for a specific post
+  app.get('/api/posts/:postId/comments', async (req, res) => {
+    try {
+      const postId = parseInt(req.params.postId);
+      console.log(`Fetching comments for post ID: ${postId}`);
+      
+      // Verify the post exists
+      const post = await storage.getPost(postId);
+      if (!post) {
+        console.log(`Post ${postId} not found, cannot fetch comments`);
+        return res.status(404).json({ message: 'Post not found' });
+      }
+      
+      // Get comments for this post only
+      const comments = await storage.getCommentsByPostId(postId);
+      console.log(`Retrieved ${comments.length} comments for post ${postId}`);
+      
+      // Enrich with author information
+      const enrichedComments = await Promise.all(comments.map(async (comment) => {
+        const author = await storage.getUser(comment.authorId);
+        return {
+          ...comment,
+          author: author || { displayName: 'Unknown', email: '', photoURL: '' }
+        };
+      }));
+      
+      res.json(enrichedComments);
+    } catch (error) {
+      console.error(`Error fetching comments for post ${req.params.postId}:`, error);
+      res.status(500).json({ message: 'Failed to retrieve comments' });
+    }
+  });
+  
   app.delete('/api/comments/:id', authenticateUser, async (req, res) => {
     try {
       const commentId = parseInt(req.params.id);

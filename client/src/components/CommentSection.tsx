@@ -75,11 +75,19 @@ const CommentSection = ({
         throw error;
       }
     },
-    onSuccess: () => {
-      // Instead of just invalidating, directly refetch comments to ensure immediate update
-      refetchComments();
+    onSuccess: (newComment) => {
+      // Add the new comment to the query cache instead of just invalidating
+      queryClient.setQueryData(
+        ['/api/posts', postId, 'comments'], 
+        (oldData: Comment[] | undefined) => {
+          // If we have no old data, create a new array with just the new comment
+          if (!oldData) return [newComment];
+          // Otherwise append the new comment to the existing array
+          return [...oldData, newComment];
+        }
+      );
       
-      // Also invalidate related queries
+      // Also invalidate related post queries to update comment counts
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       
