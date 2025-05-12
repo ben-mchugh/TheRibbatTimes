@@ -58,11 +58,29 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Chomsky', 'Libre Baskerville', serif;
+    font-family: 'Old English BT', 'Libre Baskerville', serif;
+    color: #c0c0c0; /* Light gray for headings */
   }
 
   .font-heading {
-    font-family: 'Chomsky', 'Libre Baskerville', serif;
+    font-family: 'Old English BT', 'Libre Baskerville', serif;
+    color: #c0c0c0;
+  }
+
+  /* Dark gray header and footer */
+  header, footer {
+    background-color: #333333 !important;
+    color: #c0c0c0;
+  }
+
+  /* Custom button color */
+  .signin-button {
+    background-color: #e66933 !important;
+    color: white !important;
+  }
+  
+  .signin-button:hover {
+    background-color: #d55822 !important;
   }
 
   .post-card {
@@ -71,17 +89,19 @@
   }
 
   .site-title {
-    font-family: 'Chomsky', 'Libre Baskerville', serif;
+    font-family: 'Old English BT', 'Libre Baskerville', serif;
     font-size: 2.5rem;
     letter-spacing: -0.02em;
+    color: #c0c0c0;
   }
 
   .monthly-header {
-    font-family: 'Chomsky', 'Libre Baskerville', serif;
+    font-family: 'Old English BT', 'Libre Baskerville', serif;
     font-size: 1.75rem;
     border-bottom: 2px solid rgba(249, 240, 219, 0.6);
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
+    color: #c0c0c0;
   }
 
   .comment-highlight {

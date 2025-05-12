@@ -67,7 +67,7 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
@@ -79,28 +79,28 @@ export default function Header() {
             <nav className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link href="/">
                 <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  location === '/' ? 'border-primary text-primary' : 'border-transparent text-neutral-700 hover:text-primary'
+                  location === '/' ? 'border-primary text-primary' : 'border-transparent text-gray-300 hover:text-primary'
                 }`}>
                   Home
                 </a>
               </Link>
               <Link href="/communities">
                 <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  location === '/communities' ? 'border-primary text-primary' : 'border-transparent text-neutral-700 hover:text-primary'
+                  location === '/communities' ? 'border-primary text-primary' : 'border-transparent text-gray-300 hover:text-primary'
                 }`}>
                   Communities
                 </a>
               </Link>
               <Link href="/resources">
                 <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  location === '/resources' ? 'border-primary text-primary' : 'border-transparent text-neutral-700 hover:text-primary'
+                  location === '/resources' ? 'border-primary text-primary' : 'border-transparent text-gray-300 hover:text-primary'
                 }`}>
                   Resources
                 </a>
               </Link>
               <Link href="/about">
                 <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  location === '/about' ? 'border-primary text-primary' : 'border-transparent text-neutral-700 hover:text-primary'
+                  location === '/about' ? 'border-primary text-primary' : 'border-transparent text-gray-300 hover:text-primary'
                 }`}>
                   About
                 </a>
@@ -110,7 +110,7 @@ export default function Header() {
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
             {!loading && (
               !currentUser ? (
-                <Button onClick={handleSignIn} className="flex items-center">
+                <Button onClick={handleSignIn} className="flex items-center signin-button">
                   <UserIcon className="h-5 w-5 mr-2" />
                   Sign in with Google
                 </Button>
@@ -233,7 +233,7 @@ export default function Header() {
                       handleSignIn();
                       setMenuOpen(false);
                     }} 
-                    className="w-full flex items-center justify-center"
+                    className="w-full flex items-center justify-center signin-button"
                   >
                     <UserIcon className="h-5 w-5 mr-2" />
                     Sign in with Google
