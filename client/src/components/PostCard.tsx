@@ -18,7 +18,7 @@ const PostCard = ({ post }: PostCardProps) => {
       <CardContent className="p-0">
         <div className="px-4 py-5 sm:px-6 flex justify-between">
           <div>
-            <h2 className="text-xl font-heading font-bold">{post.title}</h2>
+            <h2 className="text-xl font-heading font-bold" style={{ color: "#161718" }}>{post.title}</h2>
             <div className="mt-1 flex items-center">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
@@ -30,7 +30,7 @@ const PostCard = ({ post }: PostCardProps) => {
             </div>
           </div>
           <Link href={`/post/${post.id}`}>
-            <Button variant="ghost" className="inline-flex items-center px-3 py-1.5 text-sm text-primary bg-primary-light bg-opacity-10 hover:bg-opacity-20">
+            <Button variant="ghost" className="inline-flex items-center px-3 py-1.5 text-sm bg-opacity-10 hover:bg-opacity-20" style={{ color: "#a67a48" }}>
               Read More
               <ChevronRight className="ml-1 h-5 w-5" />
             </Button>
