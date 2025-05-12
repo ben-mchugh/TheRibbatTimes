@@ -185,7 +185,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
           
           <div className="py-4">
             <Textarea
-              className="w-full min-h-[120px] px-3 py-2 text-sm border border-[#a67a48] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#a67a48] focus:border-[#a67a48]"
+              className="w-full min-h-[120px] px-3 py-2 text-sm text-[#161718] border border-[#a67a48] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#a67a48] focus:border-[#a67a48]"
               placeholder="Write your comment here..."
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
