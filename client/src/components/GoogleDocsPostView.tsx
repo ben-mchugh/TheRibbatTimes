@@ -650,17 +650,30 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col relative">
-      {/* Close button for the entire post view */}
-      <div className="absolute top-2 right-2 z-40">
+      {/* Fixed position controls */}
+      <div className="fixed top-4 right-4 z-40 flex flex-col gap-2">
+        {/* Close button */}
         <a href="/">
           <Button
             variant="ghost"
             size="sm"
-            className="text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0]/50"
+            className="bg-[#f5f0e0]/80 hover:bg-[#f5f0e0] text-[#a67a48] hover:text-[#8a5a28] rounded-full w-10 h-10 flex items-center justify-center p-0"
+            title="Close"
           >
             <X className="h-5 w-5" />
           </Button>
         </a>
+        
+        {/* Comments toggle button - simplified to just an icon */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowComments(!showComments)}
+          className={`bg-[#f5f0e0]/80 hover:bg-[#f5f0e0] text-[#a67a48] hover:text-[#8a5a28] rounded-full w-10 h-10 flex items-center justify-center p-0 ${showComments ? 'opacity-100' : 'opacity-80'}`}
+          title={showComments ? "Hide comments" : "Show comments"}
+        >
+          <MessageSquare className="h-5 w-5" />
+        </Button>
       </div>
       
       <div className="flex flex-col md:flex-row gap-6 flex-1">
@@ -719,28 +732,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               />
             </div>
           )}
-          
-          {/* Comments toggle button - on both mobile and desktop */}
-          <div className="mt-4 flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowComments(!showComments)}
-              className="flex items-center text-[#a67a48] border-[#a67a48] hover:bg-[#f5f0e0]/50"
-            >
-              {showComments ? (
-                <>
-                  <ChevronRight className="h-4 w-4 mr-1" />
-                  Hide Comments
-                </>
-              ) : (
-                <>
-                  <MessageSquare className="h-4 w-4 mr-1" />
-                  Show Comments
-                </>
-              )}
-            </Button>
-          </div>
         </div>
         
         {/* Comments panel - collapsible on both mobile and desktop */}

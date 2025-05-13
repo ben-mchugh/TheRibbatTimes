@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Comment } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronRight, X } from 'lucide-react';
 import GoogleDocsComment from './GoogleDocsComment';
 
 interface GoogleDocsCommentSectionProps {
@@ -75,7 +75,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           className="text-[#161718] hover:text-[#a67a48]"
           title="Close comments panel"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
       
