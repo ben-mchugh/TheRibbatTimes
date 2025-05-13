@@ -263,10 +263,10 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   }
   
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 h-[calc(100vh-4rem)] flex flex-col">
-      <div className="flex flex-col md:flex-row gap-6 flex-1 overflow-hidden">
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* Main content area */}
-        <div className={`flex-1 ${showComments ? 'md:w-2/3' : 'md:w-full'} overflow-y-auto`}>
+        <div className={`flex-1 ${showComments ? 'md:w-2/3' : 'md:w-full'}`}>
           {isLoadingPost ? (
             <div className="bg-[#e0d3af] p-6 rounded-lg">
               <Skeleton className="h-10 w-3/4 mb-4" />
@@ -352,7 +352,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             w-full md:w-auto z-30 md:z-auto bg-[#f9f5e8] md:bg-transparent
             transition-transform duration-300 ease-in-out
             ${showComments ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
-            md:flex md:flex-col md:h-full
           `}
         >
           <GoogleDocsCommentSection
