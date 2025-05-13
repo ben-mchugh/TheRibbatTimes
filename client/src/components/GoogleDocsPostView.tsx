@@ -86,19 +86,11 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       
       return response.json();
     },
-    onSuccess: (newComment) => {
+    onSuccess: () => {
       // Refetch comments and invalidate related queries
       refetchComments();
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
-      
-      // Set the newly created comment as focused to scroll to it
-      if (newComment && newComment.id) {
-        setFocusedCommentId(newComment.id);
-        
-        // Ensure comments panel is open
-        setShowComments(true);
-      }
       
       toast({
         title: 'Comment added',
@@ -413,23 +405,17 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       {/* Text selection menu component */}
       <GoogleDocsTextSelection 
         postId={postId}
-        onAddComment={async (commentData) => {
+        onAddComment={(commentData) => {
           if (!currentUser) {
             toast({
               title: 'Sign in required',
               description: 'Please sign in to add comments.',
               variant: 'destructive'
             });
-            throw new Error('Authentication required');
+            return;
           }
           
-          // Return a promise that resolves with the new comment data
-          return new Promise((resolve, reject) => {
-            addCommentMutation.mutate(commentData, {
-              onSuccess: (newComment) => resolve(newComment),
-              onError: (error) => reject(error)
-            });
-          });
+          addCommentMutation.mutate(commentData);
         }}
       />
     </div>
