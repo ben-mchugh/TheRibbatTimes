@@ -87,16 +87,72 @@ const PostView = ({ postId }: PostViewProps) => {
     if (!comments.length) return;
     
     // Check for comments with selection information (not just elementId)
-    const selectionComments = comments.filter(comment => 
+    // Sort comments by their position in the text (start position)
+    // This ensures comments are processed in the order they appear in the document
+    const sortedComments = [...comments].sort((a, b) => {
+      const aStart = a.selectionStart || 0;
+      const bStart = b.selectionStart || 0;
+      return aStart - bStart;
+    });
+    
+    // Comments with selection info
+    const selectionComments = sortedComments.filter(comment => 
       comment.selectionStart !== null && 
       comment.selectionEnd !== null && 
       comment.selectedText
     );
     
+    // Legacy element-based comments
+    const inlineComments = sortedComments.filter(comment => comment.elementId);
+    
+    // Will store all comment positions
     const positions: Array<{id: number; top: number; comment: Comment}> = [];
     
-    // First handle standard element-based comments (legacy)
-    const inlineComments = comments.filter(comment => comment.elementId);
+    // Track occupied vertical space to prevent overlapping
+    // Map of top position -> height of comment
+    const occupiedSpaces: Array<{top: number; bottom: number}> = [];
+    
+    // Helper function to find a non-overlapping position
+    const findNonOverlappingPosition = (idealTop: number, commentHeight: number = 120): number => {
+      // Check for overlaps with the ideal position
+      let isOverlapping = false;
+      let overlapBottom = 0;
+      
+      for (const space of occupiedSpaces) {
+        // Check various overlap conditions
+        const topOverlaps = idealTop >= space.top && idealTop <= space.bottom;
+        const bottomOverlaps = (idealTop + commentHeight) >= space.top && (idealTop + commentHeight) <= space.bottom;
+        const spansAcross = idealTop <= space.top && (idealTop + commentHeight) >= space.bottom;
+        
+        if (topOverlaps || bottomOverlaps || spansAcross) {
+          isOverlapping = true;
+          overlapBottom = Math.max(overlapBottom, space.bottom);
+        }
+      }
+      
+      if (!isOverlapping) {
+        // No overlap, we can use the ideal position
+        occupiedSpaces.push({
+          top: idealTop,
+          bottom: idealTop + commentHeight
+        });
+        return idealTop;
+      }
+      
+      // Position it after the last overlapping comment
+      const newTop = overlapBottom + 12; // Add margin between comments
+      
+      // Add this position to occupied spaces and return it
+      occupiedSpaces.push({
+        top: newTop,
+        bottom: newTop + commentHeight
+      });
+      return newTop;
+    };
+    
+    // Process each type of comment
+    
+    // First handle standard element-based comments
     for (const comment of inlineComments) {
       // Guard against undefined elementId
       const elementId = comment.elementId || '';
@@ -105,19 +161,19 @@ const PostView = ({ postId }: PostViewProps) => {
       
       const rect = targetElement.getBoundingClientRect();
       const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
-      
       if (!containerRect) continue;
       
-      const topPosition = rect.top - containerRect.top;
+      const idealTop = rect.top - containerRect.top;
+      const finalTop = findNonOverlappingPosition(idealTop); 
       
       positions.push({
         id: comment.id,
-        top: topPosition,
+        top: finalTop,
         comment
       });
     }
     
-    // Then handle selection-based comments (align with the actual text)
+    // Then handle selection-based comments
     for (const comment of selectionComments) {
       // Find the highlighted span with this comment's selection
       const highlightSpan = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`);
@@ -125,21 +181,22 @@ const PostView = ({ postId }: PostViewProps) => {
       if (highlightSpan) {
         const rect = highlightSpan.getBoundingClientRect();
         const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
-        
         if (!containerRect) continue;
         
-        // Position comment aligned with the highlighted text
-        const topPosition = rect.top - containerRect.top;
+        const idealTop = rect.top - containerRect.top;
+        const finalTop = findNonOverlappingPosition(idealTop);
         
         positions.push({
           id: comment.id,
-          top: topPosition,
+          top: finalTop,
           comment
         });
       }
     }
     
-    setMarginComments(positions);
+    // Sort positions by their vertical order for a clean stacking
+    const sortedPositions = positions.sort((a, b) => a.top - b.top);
+    setMarginComments(sortedPositions);
   }, [comments]);
   
   // Update positions when comments change
@@ -434,11 +491,7 @@ const PostView = ({ postId }: PostViewProps) => {
                       />
                     </div>
                     
-                    {currentUser && (
-                      <div className="mt-8 text-sm text-gray-500">
-                        <p>💡 Tip: Select any text in the article to add a comment</p>
-                      </div>
-                    )}
+                    {/* No tips or helper text as per requirements */}
                   </div>
                   
                   {/* Inline comments appear next to the related text - takes 35% width */}
@@ -457,6 +510,14 @@ const PostView = ({ postId }: PostViewProps) => {
                           zIndex: 10,
                         }}
                       >
+                        {/* Connector line to visually link comment to text */}
+                        <div 
+                          className="absolute w-2 border-t border-[#a67a48] opacity-30" 
+                          style={{
+                            left: '-2px',
+                            top: '15px',
+                          }}
+                        ></div>
                         <div className="flex items-start">
                           <div className="flex-1">
                             <div className="flex items-center mb-1">

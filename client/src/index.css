@@ -150,20 +150,24 @@
   .margin-comment {
     position: relative;
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: 8px; /* Reduced for tighter stacking */
     padding: 10px 12px;
     background-color: #f9f6ea;
     border-left: 3px solid #a67a48;
     font-size: 0.9rem;
-    color: #161718; /* Dark color matching the site background */
+    color: #161718;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     border-radius: 0 4px 4px 0;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    max-height: 150px; /* Limit height for better stacking */
+    overflow-y: auto; /* Allow scrolling for longer comments */
+    z-index: 5; /* Base z-index for comments */
   }
   
   .margin-comment:hover {
     transform: translateX(2px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 10; /* Raise z-index on hover to appear above other comments */
   }
   
   /* No visual cues for text selection */
