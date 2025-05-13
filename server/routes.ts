@@ -500,6 +500,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get replies for a specific comment
+  app.get('/api/comments/:id/replies', async (req, res) => {
+    try {
+      const commentId = parseInt(req.params.id);
+      const comment = await storage.getComment(commentId);
+      
+      if (!comment) {
+        return res.status(404).json({ message: 'Comment not found' });
+      }
+      
+      const replies = await storage.getCommentReplies(commentId);
+      
+      // Enrich with author information
+      const enrichedReplies = await Promise.all(replies.map(async (reply) => {
+        const author = await storage.getUser(reply.authorId);
+        return {
+          ...reply,
+          author: author || { displayName: 'Unknown', email: '', photoURL: '' }
+        };
+      }));
+      
+      res.json(enrichedReplies);
+    } catch (error) {
+      console.error(`Error fetching replies for comment ${req.params.id}:`, error);
+      res.status(500).json({ message: 'Failed to retrieve replies' });
+    }
+  });
+  
+  // Update a comment
+  app.patch('/api/comments/:id', authenticateUser, async (req, res) => {
+    try {
+      const commentId = parseInt(req.params.id);
+      const comment = await storage.getComment(commentId);
+      
+      if (!comment) {
+        return res.status(404).json({ message: 'Comment not found' });
+      }
+      
+      if (comment.authorId !== req.user.id) {
+        return res.status(403).json({ message: 'You do not have permission to edit this comment' });
+      }
+      
+      const { content } = req.body;
+      const updatedComment = await storage.updateComment(commentId, { content });
+      
+      // Get the author to include in the response
+      const author = await storage.getUser(req.user.id);
+      
+      res.json({
+        ...updatedComment,
+        author: author || { displayName: 'Unknown', email: '', photoURL: '' }
+      });
+    } catch (error) {
+      console.error('Update comment error:', error);
+      res.status(500).json({ message: 'Failed to update comment' });
+    }
+  });
+  
+  // Delete a comment
   app.delete('/api/comments/:id', authenticateUser, async (req, res) => {
     try {
       const commentId = parseInt(req.params.id);
