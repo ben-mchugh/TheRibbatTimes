@@ -82,7 +82,7 @@
 /* Comments container styles */
 .comments-container {
   position: relative;
-  max-height: 80vh;
+  max-height: 95vh;
   scrollbar-width: thin;
   scrollbar-color: #a67a48 #e0d3af;
 }

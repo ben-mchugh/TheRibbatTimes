@@ -289,7 +289,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''}`}>
       <div 
         ref={commentRef}
-        className={`bg-[#f5f0e0] p-3 rounded-lg mb-2 relative ${
+        className={`bg-[#f5f0e0] p-2 rounded-lg mb-1 relative ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#ebddbe]' : ''
         } ${isReply ? 'border-l-2 border-[#a67a48]' : ''}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
@@ -321,16 +321,16 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         )}
         
         <div className="flex items-start">
-          <Avatar className="h-8 w-8 flex-shrink-0">
+          <Avatar className="h-6 w-6 flex-shrink-0">
             <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
             <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="ml-2 flex-1">
+          <div className="ml-1 flex-1">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
+              <span className="text-xs font-medium text-[#161718]">{comment.author.displayName}</span>
               <div className="flex items-center">
-                <span className="text-xs text-[#a67a48]">{formattedDate}</span>
-                {comment.isEdited && <span className="text-xs text-[#a67a48] italic ml-1">(edited)</span>}
+                <span className="text-xxs text-[#a67a48]">{formattedDate}</span>
+                {comment.isEdited && <span className="text-xxs text-[#a67a48] italic ml-1">(edited)</span>}
               </div>
             </div>
             
