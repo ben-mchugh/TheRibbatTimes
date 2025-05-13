@@ -124,8 +124,9 @@ const CommentSection = ({
     return () => document.removeEventListener('mouseup', handleTextSelection);
   }, []);
   
-  // Listen for selection comment events
+  // Listen for selection comment events - memoize the handler
   useEffect(() => {
+    // Create a handler function that captures the necessary state without directly using the hook
     const handleSelectionComment = (event: Event) => {
       const customEvent = event as CustomEvent;
       const data = customEvent.detail;
@@ -133,13 +134,52 @@ const CommentSection = ({
       if (data && data.content) {
         setNewComment(data.content);
         
-        // If we have selection data, submit the comment automatically
+        // If we have selection data, submit the comment using our cached mutation function
         if (data.selectedText && data.selectionStart !== undefined && data.selectionEnd !== undefined) {
-          addCommentMutation.mutate({
+          // Create the comment data object
+          const commentData = {
             content: data.content,
             selectedText: data.selectedText,
             selectionStart: data.selectionStart,
-            selectionEnd: data.selectionEnd
+            selectionEnd: data.selectionEnd,
+            postId: postId // Ensure postId is set
+          };
+          
+          // Use fetch directly instead of the mutation hook inside the event handler
+          fetch(`/api/posts/${postId}/comments`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(commentData),
+            credentials: 'include'
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Failed to create comment: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(result => {
+            console.log('Successfully created comment:', result);
+            // Refresh comments to show the new one
+            refetchComments();
+            // Also invalidate related queries
+            queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
+            queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+            
+            toast({
+              title: 'Comment added',
+              description: 'Your comment has been posted successfully.',
+            });
+          })
+          .catch(error => {
+            console.error('Error in comment submission:', error);
+            toast({
+              title: 'Comment failed',
+              description: 'Unable to post your comment. Please try again.',
+              variant: 'destructive',
+            });
           });
         }
       }
@@ -153,7 +193,7 @@ const CommentSection = ({
         commentSectionElement.removeEventListener('addSelectionComment', handleSelectionComment);
       };
     }
-  }, [addCommentMutation]);
+  }, [postId, refetchComments, queryClient, toast]);
 
   const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault();
