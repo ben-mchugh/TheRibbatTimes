@@ -33,6 +33,25 @@ const PostView = ({ postId }: PostViewProps) => {
   const { currentUser } = useAuth();
   const { toast } = useToast();
   
+  // Effect to recalculate positions when a comment is focused
+  useEffect(() => {
+    if (focusedCommentId !== null && comments?.length > 0) {
+      const timer = setTimeout(() => {
+        // Use a callback to ensure we're working with the latest state
+        setMarginComments(prevComments => {
+          return prevComments.map(item => {
+            if (item.id === focusedCommentId) {
+              return { ...item, zIndex: 100 }; // Bring this comment to the front
+            }
+            return { ...item, zIndex: 10 }; // Reset others to default
+          });
+        });
+      }, 50); // Small delay to ensure DOM is ready
+      
+      return () => clearTimeout(timer);
+    }
+  }, [focusedCommentId, comments]);
+  
   // Data fetching with direct approach like we did for comments
   const { data: post, isLoading: postLoading, error: postError } = useQuery<Post>({
     queryKey: ['/api/posts', postId],
@@ -89,8 +108,7 @@ const PostView = ({ postId }: PostViewProps) => {
   // Handler for clicking on highlighted text - brings associated comment to focus
   const handleHighlightClick = useCallback((commentId: number) => {
     setFocusedCommentId(commentId);
-    // Trigger a re-calculation of comment positions with the new focused comment
-    updateCommentPositions();
+    // We'll let the focusedCommentId effect trigger the update instead of calling directly
     
     // Optionally scroll to ensure the comment is visible
     const comment = document.querySelector(`.margin-comment[data-comment-id="${commentId}"]`);
@@ -262,46 +280,162 @@ const PostView = ({ postId }: PostViewProps) => {
   
   // Update positions when comments change
   useEffect(() => {
-    if (comments.length) {
+    if (comments?.length) {
       const contentContainer = document.querySelector('.post-content-container');
       if (contentContainer) {
-        updateCommentPositions();
-        const handleScroll = () => updateCommentPositions();
-        
-        // Add click handlers to selection highlights after DOM is updated
-        const attachClickListeners = () => {
-          const highlightSpans = document.querySelectorAll('.selection-highlight');
-          highlightSpans.forEach(span => {
-            const commentId = parseInt(span.getAttribute('data-comment-id') || '0', 10);
-            if (commentId) {
-              // Create a proper click handler that uses our handleHighlightClick function
-              const clickHandler = () => handleHighlightClick(commentId);
-              
-              // Remove existing listeners if any to prevent duplicates
-              span.removeEventListener('click', clickHandler);
-              // Add the new click handler
-              span.addEventListener('click', clickHandler);
-            }
-          });
-        };
-        
-        contentContainer.addEventListener('scroll', handleScroll);
-        window.addEventListener('resize', handleScroll);
-        
-        // Initial calculation after render with slight delay to ensure DOM is ready
+        // Use setTimeout to ensure we don't call the function from within the effect body
+        // which is safer for React's hooks rules
         const timeoutId = setTimeout(() => {
-          updateCommentPositions();
-          attachClickListeners(); // Attach click handlers after position update
+          // Calculate comment positions by replicating core functionality
+          if (!comments.length) return;
+          
+          // This avoids directly calling updateCommentPositions in the effect or handlers
+          const processComments = () => {
+            if (!comments.length) return;
+            
+            // Process the comments and update their positions (copied from updateCommentPositions)
+            // Check for comments with selection information
+            const sortedComments = [...comments].sort((a, b) => {
+              const aStart = a.selectionStart || 0;
+              const bStart = b.selectionStart || 0;
+              return aStart - bStart;
+            });
+            
+            // Will store all comment positions
+            const positions: Array<{id: number; top: number; comment: Comment; zIndex: number}> = [];
+            
+            // Track occupied vertical space to prevent overlapping
+            const occupiedSpaces: Array<{top: number; bottom: number}> = [];
+            
+            // Get the offset values needed for positioning
+            const contentRect = contentContainer.getBoundingClientRect();
+            const commentWidth = 280; // Width of comment box in pixels
+            
+            // Process each comment to find its vertical position
+            for (const comment of sortedComments) {
+              let commentTop = 0;
+              
+              if (comment.selectionStart !== null && comment.selectionEnd !== null) {
+                // For text-selection based comments, find the selected element
+                const highlightEl = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`);
+                
+                if (highlightEl) {
+                  const highlightRect = highlightEl.getBoundingClientRect();
+                  
+                  // Center the comment vertically relative to the highlight
+                  commentTop = (highlightRect.top + highlightRect.bottom) / 2 - contentRect.top;
+                } else {
+                  // Fallback if highlight not found
+                  commentTop = 100 + positions.length * 30;
+                }
+              } else if (comment.elementId) {
+                // For element-based comments
+                const targetEl = document.getElementById(comment.elementId);
+                if (targetEl) {
+                  const targetRect = targetEl.getBoundingClientRect();
+                  commentTop = targetRect.top - contentRect.top;
+                } else {
+                  // Fallback position
+                  commentTop = 100 + positions.length * 30;
+                }
+              } else {
+                // Generic comments with no specific position
+                commentTop = 100 + positions.length * 30;
+              }
+              
+              // Adjust if this comment would overlap with existing comments
+              for (const space of occupiedSpaces) {
+                const commentHeight = 120; // Approximate height of a comment
+                const buffer = 10; // Space between comments
+                
+                // Check for collision with existing comment
+                if (commentTop >= space.top - buffer && commentTop <= space.bottom + buffer) {
+                  // Move it below the existing comment
+                  commentTop = space.bottom + buffer;
+                }
+              }
+              
+              // Add this comment's occupied space
+              const commentHeight = 120; // Approximate height of a comment
+              occupiedSpaces.push({
+                top: commentTop, 
+                bottom: commentTop + commentHeight
+              });
+              
+              // Set z-index based on if this comment is currently focused
+              const zIndex = comment.id === focusedCommentId ? 100 : 10;
+              
+              // Save the comment position
+              positions.push({
+                id: comment.id,
+                top: commentTop,
+                comment,
+                zIndex
+              });
+            }
+            
+            // Update state with the new positions
+            setMarginComments(positions);
+          };
+          
+          // Process comments initially
+          processComments();
+          
+          // Add click handlers to selection highlights after DOM is updated
+          const attachClickListeners = () => {
+            const highlightSpans = document.querySelectorAll('.selection-highlight');
+            highlightSpans.forEach(span => {
+              const commentId = parseInt(span.getAttribute('data-comment-id') || '0', 10);
+              if (commentId) {
+                // Create a new handler each time to avoid stale closure issues
+                const clickHandler = (e: MouseEvent) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setFocusedCommentId(commentId);
+                };
+                
+                // Remove any existing handlers by cloning the node
+                const newSpan = span.cloneNode(true);
+                span.parentNode?.replaceChild(newSpan, span);
+                
+                // Add the click handler to the new node
+                newSpan.addEventListener('click', clickHandler);
+              }
+            });
+          };
+          
+          // Attach click listeners
+          attachClickListeners();
+          
+          // Add scroll and resize handlers
+          const handleDOMEvents = () => {
+            // Re-process comments when scrolling/resizing
+            processComments();
+          };
+          
+          contentContainer.addEventListener('scroll', handleDOMEvents);
+          window.addEventListener('resize', handleDOMEvents);
+          
+          // Clean up function stored in a variable to avoid using updateCommentPositions in cleanup
+          const cleanup = () => {
+            contentContainer.removeEventListener('scroll', handleDOMEvents);
+            window.removeEventListener('resize', handleDOMEvents);
+          };
+          
+          // Store the cleanup function on the content container element
+          (contentContainer as any)._commentCleanup = cleanup;
         }, 300);
         
         return () => {
-          contentContainer.removeEventListener('scroll', handleScroll);
-          window.removeEventListener('resize', handleScroll);
           clearTimeout(timeoutId);
+          // Execute any previously stored cleanup function
+          if ((contentContainer as any)._commentCleanup) {
+            (contentContainer as any)._commentCleanup();
+          }
         };
       }
     }
-  }, [comments, updateCommentPositions, handleHighlightClick]);
+  }, [comments, focusedCommentId]);
   
   // Handler for text selection comments
   const handleSelectionComment = useCallback((commentText: string, start: number, end: number) => {
