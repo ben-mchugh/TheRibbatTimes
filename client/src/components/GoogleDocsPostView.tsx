@@ -60,6 +60,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     enabled: !!postId,
   });
   
+  // Track newly added comment IDs to highlight them
+  const [newCommentIds, setNewCommentIds] = useState<number[]>([]);
+
   // Add comment mutation
   const addCommentMutation = useMutation({
     mutationFn: async (commentData: {
@@ -86,7 +89,15 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Track the new comment ID for highlighting
+      setNewCommentIds(prev => [...prev, data.id]);
+      
+      // Clear the "new" status after 5 seconds
+      setTimeout(() => {
+        setNewCommentIds(prev => prev.filter(id => id !== data.id));
+      }, 5000);
+      
       // Refetch comments and invalidate related queries
       refetchComments();
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
@@ -158,8 +169,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             // Get the text to be highlighted
             const selectedText = nodeText.substring(startOffset, endOffset);
             
-            // Create the highlight span HTML
-            const spanHtml = `<span class="selection-highlight" data-comment-id="${comment.id}" tabindex="0">${selectedText}</span>`;
+            // Create the highlight span HTML with new indicator if needed
+            const isNew = newCommentIds.includes(comment.id);
+            const spanHtml = `<span class="selection-highlight" data-comment-id="${comment.id}" ${isNew ? 'data-new="true"' : ''} tabindex="0">${selectedText}</span>`;
             
             // Add to insertions map
             if (!insertions.has(textNode)) {
@@ -206,7 +218,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     }
     
     return tempDiv.innerHTML;
-  }, [post?.content, comments]);
+  }, [post?.content, comments, newCommentIds]);
   
   // Get all text nodes in an element
   function getTextNodesIn(node: Node): Text[] {
@@ -301,11 +313,24 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         element.setAttribute('tabindex', '0');
         element.setAttribute('role', 'button');
         element.setAttribute('aria-label', 'Comment on this text');
+        
+        // Apply special handling for new highlights
+        const commentId = Number(element.getAttribute('data-comment-id'));
+        if (!isNaN(commentId) && newCommentIds.includes(commentId)) {
+          // This is a new comment, add a visual indicator
+          element.setAttribute('data-new', 'true');
+          
+          // Scroll to and focus on the new highlight
+          setTimeout(() => {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.focus();
+          }, 500);
+        }
       });
       
       console.log(`Found and enhanced ${highlights.length} text highlights in the content`);
     }
-  }, [post?.content, comments]);
+  }, [post?.content, comments, newCommentIds]);
   
   // Format the post date
   const formattedDate = post?.createdAt 
