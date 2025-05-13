@@ -129,149 +129,127 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     
     if (commentsWithSelection.length === 0) return post.content;
     
-    // Create a temporary div to work with the HTML content
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = post.content;
+    // Completely new approach: Avoid DOM manipulations and use HTML string replacements
+    // This will handle overlapping comments better
     
-    // Final content after all transformations
-    let modifiedContent = post.content;
+    // Step 1: Build a map of all the positions that need highlighting
+    // We'll track the start and end of each comment's selection
+    const highlightPositions: {
+      position: number;
+      type: 'start' | 'end';
+      commentId: number;
+      isNew: boolean;
+    }[] = [];
     
-    // 1. First pass: Extract all text content as a continuous string
-    // This helps us determine where text nodes are and how they align with selections
-    const textNodesMap = new Map<number, {node: Text, startIndex: number, endIndex: number}>();
-    let totalTextIndex = 0;
-    
-    function mapTextNodes(node: Node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const textNode = node as Text;
-        const textLength = textNode.textContent?.length || 0;
-        if (textLength > 0) {
-          textNodesMap.set(totalTextIndex, {
-            node: textNode,
-            startIndex: totalTextIndex,
-            endIndex: totalTextIndex + textLength
-          });
-          totalTextIndex += textLength;
-        }
-      } else {
-        for (let i = 0; i < node.childNodes.length; i++) {
-          mapTextNodes(node.childNodes[i]);
-        }
-      }
-    }
-    
-    // Map all text nodes in the document
-    mapTextNodes(tempDiv);
-    
-    // 2. Process each comment to add highlights
-    // Sort comments by end position in ascending order to avoid offset issues
-    const sortedComments = [...commentsWithSelection].sort((a, b) => 
-      (a.selectionEnd || 0) - (b.selectionEnd || 0)
-    );
-    
-    // For each comment, identify if it matches one or more text nodes
-    sortedComments.forEach(comment => {
-      if (!comment.selectedText || comment.selectionStart === undefined || comment.selectionEnd === undefined) {
+    // Add all comment boundaries to the positions array
+    commentsWithSelection.forEach(comment => {
+      if (comment.selectionStart === undefined || comment.selectionEnd === undefined || !comment.selectedText) {
         return;
       }
       
-      console.log(`Processing comment ${comment.id}: "${comment.selectedText}" at positions ${comment.selectionStart}-${comment.selectionEnd}`);
+      highlightPositions.push({
+        position: comment.selectionStart,
+        type: 'start',
+        commentId: comment.id,
+        isNew: newCommentIds.includes(comment.id)
+      });
       
-      // Approach 1: Direct node replacement for simple cases
-      // Find all text nodes that overlap with the comment's selection
-      const overlappingNodes: {node: Text, startOffset: number, endOffset: number}[] = [];
-      
-      for (const [_, nodeInfo] of textNodesMap) {
-        // Check if this text node overlaps with the selection
-        if (comment.selectionEnd > nodeInfo.startIndex && comment.selectionStart < nodeInfo.endIndex) {
-          // Calculate the relative offsets within this text node
-          const startOffset = Math.max(0, comment.selectionStart - nodeInfo.startIndex);
-          const endOffset = Math.min(nodeInfo.endIndex - nodeInfo.startIndex, comment.selectionEnd - nodeInfo.startIndex);
-          
-          if (startOffset < endOffset) {
-            overlappingNodes.push({
-              node: nodeInfo.node,
-              startOffset,
-              endOffset
-            });
-          }
-        }
+      highlightPositions.push({
+        position: comment.selectionEnd,
+        type: 'end',
+        commentId: comment.id,
+        isNew: newCommentIds.includes(comment.id)
+      });
+    });
+    
+    // Sort the positions by their index in the text
+    // This ensures we process everything in the right order
+    highlightPositions.sort((a, b) => {
+      // If positions are equal, prioritize end tags before start tags
+      // This handles nested or overlapping tags correctly
+      if (a.position === b.position) {
+        return a.type === 'end' ? -1 : 1;
       }
+      return a.position - b.position;
+    });
+    
+    // If there are no positions to highlight, return the original content
+    if (highlightPositions.length === 0) {
+      return post.content;
+    }
+    
+    // Step 2: Extract the raw text content (without HTML tags)
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = post.content;
+    
+    // Create a text-to-html position mapping by parsing the HTML
+    // We'll track character positions in the plain text vs positions in the HTML
+    const textToHtmlMapping: {textPos: number, htmlPos: number}[] = [];
+    
+    // Initialize with position 0
+    textToHtmlMapping.push({ textPos: 0, htmlPos: 0 });
+    
+    // Use a regex to find all text nodes in the HTML
+    const htmlContent = post.content;
+    let plainText = '';
+    let inTag = false;
+    
+    // Process each character in the HTML to build the mapping
+    for (let i = 0; i < htmlContent.length; i++) {
+      const char = htmlContent[i];
       
-      if (overlappingNodes.length > 0) {
-        console.log(`Found ${overlappingNodes.length} overlapping nodes for comment ${comment.id}`);
+      if (char === '<') {
+        inTag = true;
+      } else if (char === '>') {
+        inTag = false;
+      } else if (!inTag) {
+        // This is a text character (not in a tag)
+        plainText += char;
+        textToHtmlMapping.push({ textPos: plainText.length, htmlPos: i + 1 });
+      }
+    }
+    
+    // Step 3: Use the mapping to insert highlight spans
+    // We'll work backward to avoid position shifts
+    const resultParts: string[] = [];
+    let lastPos = htmlContent.length;
+    
+    // Reverse both arrays to work from the end
+    const reversedPositions = [...highlightPositions].reverse();
+    const reversedMapping = [...textToHtmlMapping].reverse();
+    
+    // For each highlight position, find the corresponding HTML position
+    reversedPositions.forEach(pos => {
+      // Find the closest mapping entry for this text position
+      const mappingEntry = reversedMapping.find(entry => entry.textPos <= pos.position);
+      
+      if (mappingEntry) {
+        // Calculate HTML position
+        const htmlPos = mappingEntry.htmlPos;
         
-        // For each overlapping node, modify the content
-        overlappingNodes.forEach(({node, startOffset, endOffset}) => {
-          const parent = node.parentNode;
-          if (!parent) return;
-          
-          const text = node.textContent || '';
-          const beforeText = text.substring(0, startOffset);
-          const highlightedText = text.substring(startOffset, endOffset);
-          const afterText = text.substring(endOffset);
-          
-          if (highlightedText.trim() === '') return; // Skip empty text
-          
-          const isNew = newCommentIds.includes(comment.id);
-          
-          // Create new nodes
-          const beforeNode = document.createTextNode(beforeText);
-          const highlightNode = document.createElement('span');
-          highlightNode.className = 'selection-highlight';
-          highlightNode.setAttribute('data-comment-id', comment.id.toString());
-          if (isNew) highlightNode.setAttribute('data-new', 'true');
-          highlightNode.setAttribute('tabindex', '0');
-          highlightNode.setAttribute('role', 'button');
-          highlightNode.textContent = highlightedText;
-          const afterNode = document.createTextNode(afterText);
-          
-          // Replace the original node with our new nodes
-          if (beforeText) parent.insertBefore(beforeNode, node);
-          parent.insertBefore(highlightNode, node);
-          if (afterText) parent.insertBefore(afterNode, node);
-          parent.removeChild(node);
-          
-          console.log(`Successfully highlighted text: "${highlightedText}" for comment ${comment.id}`);
-        });
-      } else {
-        // Approach 2: If the precise text node approach fails, use regex replacement as a fallback
-        try {
-          // Try to find the text using a regex pattern
-          const escapedText = escapeRegExp(comment.selectedText);
-          const regex = new RegExp(`(^|>)([^<]*?)(${escapedText})([^<]*?)(<|$)`, 'g');
-          
-          let match;
-          let found = false;
-          let htmlContent = tempDiv.innerHTML;
-          
-          while ((match = regex.exec(htmlContent)) !== null && !found) {
-            const isNew = newCommentIds.includes(comment.id);
-            
-            // Create the highlighted span
-            const replacement = `$1$2<span class="selection-highlight" data-comment-id="${comment.id}" ${isNew ? 'data-new="true"' : ''} tabindex="0" role="button">${match[3]}</span>$4$5`;
-            
-            // Apply the replacement
-            htmlContent = htmlContent.substring(0, match.index) + 
-              match[0].replace(match[3], `<span class="selection-highlight" data-comment-id="${comment.id}" ${isNew ? 'data-new="true"' : ''} tabindex="0" role="button">${match[3]}</span>`) + 
-              htmlContent.substring(match.index + match[0].length);
-            
-            found = true;
-            console.log(`Used fallback method to highlight text for comment ${comment.id}`);
-          }
-          
-          if (found) {
-            tempDiv.innerHTML = htmlContent;
-          } else {
-            console.log(`Could not find match for comment ${comment.id} text "${comment.selectedText}"`);
-          }
-        } catch (err) {
-          console.error(`Error processing comment ${comment.id}:`, err);
+        // Insert the appropriate tag
+        if (pos.type === 'end') {
+          // End tag - closing span
+          const part = htmlContent.substring(htmlPos, lastPos);
+          resultParts.unshift('</span>');
+          resultParts.unshift(part);
+        } else {
+          // Start tag - opening span with comment ID
+          const part = htmlContent.substring(htmlPos, lastPos);
+          resultParts.unshift(`<span class="selection-highlight" data-comment-id="${pos.commentId}" ${pos.isNew ? 'data-new="true"' : ''} tabindex="0" role="button">`);
+          resultParts.unshift(part);
         }
+        
+        lastPos = htmlPos;
       }
     });
     
-    return tempDiv.innerHTML;
+    // Add any remaining content at the beginning
+    if (lastPos > 0) {
+      resultParts.unshift(htmlContent.substring(0, lastPos));
+    }
+    
+    return resultParts.join('');
   }, [post?.content, comments, newCommentIds]);
   
   // Utility function to escape regex special characters
@@ -333,16 +311,37 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   useEffect(() => {
     const handleHighlightClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const highlightElement = target.closest('.selection-highlight') as HTMLElement;
       
-      if (highlightElement) {
-        const commentId = Number(highlightElement.dataset.commentId);
+      // Improved highlight detection that handles nested elements correctly
+      // First check if the target itself is a highlight element
+      let clickedElement = null;
+      
+      if (target.classList?.contains('selection-highlight')) {
+        clickedElement = target;
+      } else {
+        // Then check all parent elements (for nested highlights)
+        let parent = target.parentElement;
+        while (parent) {
+          if (parent.classList?.contains('selection-highlight')) {
+            clickedElement = parent;
+            break;
+          }
+          parent = parent.parentElement;
+        }
+      }
+      
+      if (clickedElement) {
+        const commentId = Number(clickedElement.getAttribute('data-comment-id'));
         if (!isNaN(commentId)) {
           console.log(`Highlight clicked for comment ID: ${commentId}`);
           
+          // Stop event propagation to prevent handling clicks multiple times
+          // This is important for nested highlights
+          e.stopPropagation();
+          
           // Remove the "new" marker if present
-          if (highlightElement.hasAttribute('data-new')) {
-            highlightElement.removeAttribute('data-new');
+          if (clickedElement.hasAttribute('data-new')) {
+            clickedElement.removeAttribute('data-new');
             
             // Also remove the comment ID from the newCommentIds array
             setNewCommentIds(prev => prev.filter(id => id !== commentId));
@@ -351,14 +350,19 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           // Focus the associated comment
           setFocusedCommentId(commentId);
           
-          // Apply highlight effect
-          highlightElement.classList.add('highlight-focus-pulse');
-          setTimeout(() => {
-            highlightElement.classList.remove('highlight-focus-pulse');
-          }, 2000);
+          // Find all highlights with the same ID and add pulse effects
+          const allHighlights = document.querySelectorAll(`.selection-highlight[data-comment-id="${commentId}"]`);
+          allHighlights.forEach(highlight => {
+            highlight.classList.remove('highlight-focus-pulse');
+            // Trigger a reflow to restart the animation
+            void highlight.offsetWidth;
+            highlight.classList.add('highlight-focus-pulse');
+          });
           
-          // Ensure comments panel is open
-          setShowComments(true);
+          // Ensure comments panel is open on mobile
+          if (isMobile) {
+            setShowComments(true);
+          }
           
           // Scroll the comment into view in the sidebar
           setTimeout(() => {
@@ -381,7 +385,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     return () => {
       document.removeEventListener('click', handleHighlightClick);
     };
-  }, [setNewCommentIds, setFocusedCommentId, setShowComments]);
+  }, [setNewCommentIds, setFocusedCommentId, setShowComments, isMobile]);
   
   // Effect to re-apply event handlers after content rendering
   useEffect(() => {
