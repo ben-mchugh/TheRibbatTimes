@@ -731,8 +731,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               />
             </div>
           )}
-          
-
         </div>
         
         {/* Comments panel - slide in/out based on showComments state */}
