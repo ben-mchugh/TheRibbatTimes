@@ -129,96 +129,102 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     
     if (commentsWithSelection.length === 0) return post.content;
     
-    // Create a temporary div to hold the content
+    // Create a new approach that works with rich HTML content
+    // First, let's extract just the text content to build a mapping
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = post.content;
     
-    // Get all text nodes
-    const textNodes = getTextNodesIn(tempDiv);
-    let charCount = 0;
-    
-    // Create a map to track insertions at different positions
-    // Using a map to avoid modifying the DOM as we iterate through it
-    const insertions: Map<Text, {offset: number, html: string, replacing: string}[]> = new Map();
-    
-    // Process each text node
-    textNodes.forEach(textNode => {
-      const nodeText = textNode.textContent || '';
-      const nodeLength = nodeText.length;
-      
-      // Check each comment to see if it applies to this text node
-      commentsWithSelection.forEach(comment => {
-        if (!comment.selectedText || comment.selectionStart === undefined || comment.selectionEnd === undefined) {
-          return;
-        }
-        
-        const selStart = comment.selectionStart;
-        const selEnd = comment.selectionEnd;
-        
-        // Check if this text node contains the comment's selection
-        const nodeStartPos = charCount;
-        const nodeEndPos = charCount + nodeLength;
-        
-        // Check if selection overlaps with this text node
-        if (selEnd > nodeStartPos && selStart < nodeEndPos) {
-          // Calculate the portion of the selection that falls within this node
-          const startOffset = Math.max(0, selStart - nodeStartPos);
-          const endOffset = Math.min(nodeLength, selEnd - nodeStartPos);
-          
-          if (startOffset < endOffset) { // Make sure we have a valid range
-            // Get the text to be highlighted
-            const selectedText = nodeText.substring(startOffset, endOffset);
-            
-            // Create the highlight span HTML with new indicator if needed
-            const isNew = newCommentIds.includes(comment.id);
-            const spanHtml = `<span class="selection-highlight" data-comment-id="${comment.id}" ${isNew ? 'data-new="true"' : ''} tabindex="0">${selectedText}</span>`;
-            
-            // Add to insertions map
-            if (!insertions.has(textNode)) {
-              insertions.set(textNode, []);
-            }
-            insertions.get(textNode)?.push({
-              offset: startOffset,
-              html: spanHtml,
-              replacing: selectedText
-            });
-          }
-        }
-      });
-      
-      charCount += nodeLength;
-    });
-    
-    // Apply all insertions in reverse order (to avoid messing up offsets)
-    for (const [textNode, replacements] of insertions.entries()) {
-      // Sort replacements in reverse order (highest offset first)
-      replacements.sort((a, b) => b.offset - a.offset);
-      
-      // Apply each replacement
-      for (const { offset, html, replacing } of replacements) {
-        const text = textNode.textContent || '';
-        const before = text.substring(0, offset);
-        const after = text.substring(offset + replacing.length);
-        
-        // Create a temporary element to hold our new content
-        const container = document.createElement('div');
-        container.innerHTML = before + html + after;
-        
-        // Replace the text node with our new nodes
-        const parent = textNode.parentNode;
-        if (parent) {
-          // Insert all child nodes from our container
-          while (container.firstChild) {
-            parent.insertBefore(container.firstChild, textNode);
-          }
-          // Remove the original text node
-          parent.removeChild(textNode);
-        }
+    // Extract all text to build a flat string for character positions
+    function extractTextContent(node: Node): string {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent || '';
       }
+      
+      let text = '';
+      for (let i = 0; i < node.childNodes.length; i++) {
+        text += extractTextContent(node.childNodes[i]);
+      }
+      return text;
     }
     
-    return tempDiv.innerHTML;
+    // Get the flat text representation
+    const flatText = extractTextContent(tempDiv);
+    console.log('Flat text length:', flatText.length);
+    
+    // Now let's apply highlights to this HTML content
+    let modifiedContent = post.content;
+    
+    // Sort comments by start position in reverse order to avoid offset issues
+    const sortedComments = [...commentsWithSelection].sort((a, b) => 
+      (b.selectionStart || 0) - (a.selectionStart || 0)
+    );
+    
+    // Process each comment to add highlights
+    sortedComments.forEach(comment => {
+      if (!comment.selectedText || comment.selectionStart === undefined || comment.selectionEnd === undefined) {
+        return;
+      }
+      
+      // For debugging
+      console.log(`Processing comment ${comment.id} with selection "${comment.selectedText}" at positions ${comment.selectionStart}-${comment.selectionEnd}`);
+      
+      // Verify the selection actually matches what we expect
+      const actualSelectedText = flatText.substring(comment.selectionStart, comment.selectionEnd);
+      console.log(`Expected text: "${comment.selectedText}", Actual text: "${actualSelectedText}"`);
+      
+      try {
+        // Create a regex to find this specific text at the correct position
+        // This is a more advanced approach that searches for the HTML pattern
+        const htmlRegex = new RegExp(
+          `(.{0,20})(${escapeRegExp(comment.selectedText)})(.{0,20})`,
+          'g'
+        );
+        
+        let lastMatch: RegExpExecArray | null;
+        let bestMatch: RegExpExecArray | null = null;
+        let closestPosition = Infinity;
+        
+        // Find the match closest to the stored position
+        while ((lastMatch = htmlRegex.exec(modifiedContent)) !== null) {
+          const matchPosition = lastMatch.index + lastMatch[1].length;
+          const positionDiff = Math.abs(matchPosition - comment.selectionStart);
+          
+          if (positionDiff < closestPosition) {
+            closestPosition = positionDiff;
+            bestMatch = lastMatch;
+          }
+        }
+        
+        if (bestMatch) {
+          const matchText = bestMatch[2];
+          const matchStartIndex = bestMatch.index + bestMatch[1].length;
+          const isNew = newCommentIds.includes(comment.id);
+          
+          // Create the replacement HTML
+          const replacement = `<span class="selection-highlight" data-comment-id="${comment.id}" ${isNew ? 'data-new="true"' : ''} tabindex="0">${matchText}</span>`;
+          
+          // Replace the text with the highlighted version
+          modifiedContent = 
+            modifiedContent.substring(0, matchStartIndex) + 
+            replacement + 
+            modifiedContent.substring(matchStartIndex + matchText.length);
+          
+          console.log(`Successfully highlighted comment ${comment.id}`);
+        } else {
+          console.log(`Could not find match for comment ${comment.id} text "${comment.selectedText}"`);
+        }
+      } catch (err) {
+        console.error(`Error processing comment ${comment.id}:`, err);
+      }
+    });
+    
+    return modifiedContent;
   }, [post?.content, comments, newCommentIds]);
+  
+  // Utility function to escape regex special characters
+  function escapeRegExp(string: string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
   
   // Get all text nodes in an element
   function getTextNodesIn(node: Node): Text[] {
