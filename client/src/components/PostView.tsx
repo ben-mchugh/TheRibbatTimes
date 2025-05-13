@@ -427,12 +427,18 @@ const PostView = ({ postId }: PostViewProps) => {
                 <div className="flex relative">
                   {/* Main content - takes 65% width */}
                   <div className="w-[65%] pr-6">
-                    <div className="prose max-w-none relative text-[#161718]">
+                    <div className="prose prose-headings:text-[#161718] prose-p:text-[#161718] prose-strong:text-[#161718] prose-em:text-[#161718] prose-li:text-[#161718] max-w-none relative">
                       <div 
                         dangerouslySetInnerHTML={{ __html: renderPostContentWithHighlights() }} 
                         className="post-main-content"
                       />
                     </div>
+                    
+                    {currentUser && (
+                      <div className="mt-8 text-sm text-gray-500">
+                        <p>💡 Tip: Select any text in the article to add a comment</p>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Inline comments appear next to the related text - takes 35% width */}

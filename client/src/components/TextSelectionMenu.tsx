@@ -184,7 +184,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
       {isVisible && (
         <div 
           ref={menuRef}
-          className="fixed z-50 bg-white rounded-lg shadow-lg border border-[#a67a48] py-2 px-1"
+          className="fixed z-50 bg-[#f9f6ea] rounded shadow-md border border-[#a67a48] py-1 px-1"
           style={{ 
             top: `${position.top}px`, 
             left: `${position.left}px`,
@@ -195,7 +195,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
           <Button
             variant="ghost"
             size="sm"
-            className="flex items-center text-[#161718] hover:bg-[#f5f0e0] hover:text-[#a67a48]"
+            className="flex items-center text-[#161718] hover:bg-[#f0e9d5] hover:text-[#a67a48] transition-colors"
             onClick={handleOpenCommentDialog}
           >
             <MessageSquare className="h-4 w-4 mr-2" />
