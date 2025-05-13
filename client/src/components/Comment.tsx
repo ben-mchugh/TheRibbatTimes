@@ -47,8 +47,12 @@ const CommentItem = ({
   const replyInputRef = useRef<HTMLTextAreaElement>(null);
   
   const formattedDate = formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true });
+  
+  // The comments show the dropdown menu is showing now, so we can remove verbose debugging
+  // and focus on the most reliable comparison
+
   // Check if the current user is the author of this comment
-  const isAuthor = currentUser && currentUser.id === comment.authorId;
+  const isAuthor = currentUser && currentUser.uid === comment.author?.uid;
   const hasReplies = !isReply && comment.id !== undefined; // Only top-level comments can have replies
 
   useEffect(() => {
