@@ -33,6 +33,55 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
   
   // Handle text selection and right-click context menu
   useEffect(() => {
+    // Helper function to accurately calculate text positions
+    const calculateSelectionPositions = (selection: Selection, postContent: Element) => {
+      const selectedText = selection.toString().trim();
+      const range = selection.getRangeAt(0);
+      const postText = postContent.textContent || '';
+      
+      // Create a range for all text before the selection
+      const precedingRange = document.createRange();
+      precedingRange.setStart(postContent, 0);
+      precedingRange.setEnd(range.startContainer, range.startOffset);
+      const startPos = precedingRange.toString().length;
+      
+      // Use the actual selection range length for more accuracy
+      const endPos = startPos + selectedText.length;
+      
+      // Verify the selection accuracy
+      const actualText = postText.substring(startPos, endPos);
+      console.log(`Selection verification: Expected "${selectedText}", Found "${actualText}"`);
+      
+      // If there's a mismatch, try to find the exact text
+      if (actualText !== selectedText && selectedText.length > 0) {
+        // Look for the exact text in a reasonable range around the initial position
+        const contextRange = 200; // Search window
+        const searchStart = Math.max(0, startPos - contextRange);
+        const searchEnd = Math.min(postText.length, endPos + contextRange);
+        const searchText = postText.substring(searchStart, searchEnd);
+        
+        const exactIndex = searchText.indexOf(selectedText);
+        if (exactIndex >= 0) {
+          // Found the exact text - use precise positions
+          const adjustedStart = searchStart + exactIndex;
+          const adjustedEnd = adjustedStart + selectedText.length;
+          console.log(`Adjusted selection positions: ${adjustedStart}-${adjustedEnd}`);
+          return {
+            text: selectedText,
+            start: adjustedStart,
+            end: adjustedEnd
+          };
+        }
+      }
+      
+      // Default to original calculation if adjustment not needed or failed
+      return {
+        text: selectedText,
+        start: startPos,
+        end: endPos
+      };
+    };
+    
     const handleContextMenu = (e: MouseEvent) => {
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
@@ -55,13 +104,8 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       // Prevent default context menu
       e.preventDefault();
       
-      // Calculate character positions
-      const allText = postContent.textContent || '';
-      const precedingRange = document.createRange();
-      precedingRange.setStart(postContent, 0);
-      precedingRange.setEnd(range.startContainer, range.startOffset);
-      const startPos = precedingRange.toString().length;
-      const endPos = startPos + selectedText.length;
+      // Get precise selection positions
+      const selectionData = calculateSelectionPositions(selection, postContent);
       
       // Set custom context menu position at cursor
       setMenuPosition({
@@ -70,11 +114,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       });
       
       // Store selection data
-      setSelectionData({
-        text: selectedText,
-        start: startPos,
-        end: endPos
-      });
+      setSelectionData(selectionData);
       
       // Show the context menu
       setIsContextMenuVisible(true);
@@ -103,20 +143,11 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       const range = selection.getRangeAt(0);
       if (!postContent.contains(range.commonAncestorContainer)) return;
       
-      // Calculate character positions
-      const allText = postContent.textContent || '';
-      const precedingRange = document.createRange();
-      precedingRange.setStart(postContent, 0);
-      precedingRange.setEnd(range.startContainer, range.startOffset);
-      const startPos = precedingRange.toString().length;
-      const endPos = startPos + selectedText.length;
+      // Use the helper function to get accurate positions
+      const accurateSelection = calculateSelectionPositions(selection, postContent);
       
       // Store selection data
-      setSelectionData({
-        text: selectedText,
-        start: startPos,
-        end: endPos
-      });
+      setSelectionData(accurateSelection);
     };
     
     // Add event listeners

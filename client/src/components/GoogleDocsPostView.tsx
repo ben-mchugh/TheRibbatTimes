@@ -132,7 +132,39 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     // Completely new approach: Avoid DOM manipulations and use HTML string replacements
     // This will handle overlapping comments better
     
-    // Step 1: Build a map of all the positions that need highlighting
+    // Step 1: Extract text content without HTML tags
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = post.content;
+    
+    // Get the plain text version of the HTML content for mapping
+    let plainText = tempDiv.textContent || '';
+    
+    // Verify that stored selections are correct
+    commentsWithSelection.forEach(comment => {
+      if (comment.selectionStart === undefined || comment.selectionEnd === undefined || !comment.selectedText) {
+        return;
+      }
+      
+      // Log selection ranges for debugging
+      console.log(`Selection for comment ${comment.id}: "${comment.selectedText}" at ${comment.selectionStart}-${comment.selectionEnd}`);
+      const actualText = plainText.substring(comment.selectionStart, comment.selectionEnd);
+      console.log(`Text at those positions: "${actualText}"`);
+      
+      // If the stored selection doesn't match what's at those positions, adjust it
+      if (actualText !== comment.selectedText && comment.selectedText.length > 0) {
+        console.log(`Selection mismatch for comment ${comment.id}, searching...`);
+        
+        // Try to find the exact text in the content
+        const textIndex = plainText.indexOf(comment.selectedText);
+        if (textIndex >= 0) {
+          console.log(`Found text at position ${textIndex}, adjusting selection`);
+          comment.selectionStart = textIndex;
+          comment.selectionEnd = textIndex + comment.selectedText.length;
+        }
+      }
+    });
+    
+    // Step 2: Build a map of all the positions that need highlighting
     // We'll track the start and end of each comment's selection
     const highlightPositions: {
       position: number;
@@ -178,23 +210,19 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       return post.content;
     }
     
-    // Step 2: Extract the raw text content (without HTML tags)
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = post.content;
-    
-    // Create a text-to-html position mapping by parsing the HTML
-    // We'll track character positions in the plain text vs positions in the HTML
+    // Step 3: Create a more precise text-to-html position mapping by parsing the HTML
+    // We'll build a character-by-character mapping of text positions to HTML positions
     const textToHtmlMapping: {textPos: number, htmlPos: number}[] = [];
     
     // Initialize with position 0
     textToHtmlMapping.push({ textPos: 0, htmlPos: 0 });
     
-    // Use a regex to find all text nodes in the HTML
-    const htmlContent = post.content;
-    let plainText = '';
-    let inTag = false;
-    
     // Process each character in the HTML to build the mapping
+    const htmlContent = post.content;
+    let currentTextPos = 0;
+    let inTag = false;
+    let inEntity = false; // Track HTML entities like &nbsp;
+    
     for (let i = 0; i < htmlContent.length; i++) {
       const char = htmlContent[i];
       
@@ -202,14 +230,22 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         inTag = true;
       } else if (char === '>') {
         inTag = false;
-      } else if (!inTag) {
-        // This is a text character (not in a tag)
-        plainText += char;
-        textToHtmlMapping.push({ textPos: plainText.length, htmlPos: i + 1 });
+      } else if (char === '&' && !inTag) {
+        inEntity = true;
+        // Don't increment text position for entity start
+      } else if (char === ';' && inEntity) {
+        inEntity = false;
+        // Add a single character for the entire entity
+        currentTextPos++;
+        textToHtmlMapping.push({ textPos: currentTextPos, htmlPos: i + 1 });
+      } else if (!inTag && !inEntity) {
+        // This is a regular text character (not in a tag or entity)
+        currentTextPos++;
+        textToHtmlMapping.push({ textPos: currentTextPos, htmlPos: i + 1 });
       }
     }
     
-    // Step 3: Use the mapping to insert highlight spans
+    // Step 4: Use the mapping to insert highlight spans
     // We'll work backward to avoid position shifts
     const resultParts: string[] = [];
     let lastPos = htmlContent.length;
