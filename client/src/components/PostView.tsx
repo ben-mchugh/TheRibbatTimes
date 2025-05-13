@@ -421,10 +421,10 @@ const PostView = ({ postId }: PostViewProps) => {
                   <span className="text-sm text-[#161718]">{formattedDate}</span>
                 </div>
                 
-                {/* Two-column layout for content and inline comments */}
+                {/* Dynamic two-column layout for content and inline comments */}
                 <div className="flex relative">
-                  {/* Main content - takes 70% width */}
-                  <div className="w-[70%] pr-8">
+                  {/* Main content - dynamic width based on comment presence */}
+                  <div className={`${marginComments.length > 0 ? 'w-[70%] pr-8' : 'w-full'}`}>
                     <div className="prose prose-lg max-w-none relative text-[#161718]">
                       <div 
                         dangerouslySetInnerHTML={{ __html: renderPostContentWithHighlights() }} 
@@ -433,29 +433,30 @@ const PostView = ({ postId }: PostViewProps) => {
                     </div>
                   </div>
                   
-                  {/* Inline comments appear next to the related text - takes 30% width */}
-                  <div className="w-[30%] relative">
-                    {marginComments.map(({ id, top, comment }) => (
-                      <div 
-                        key={id} 
-                        className="margin-comment mb-3 p-3 border-l-2 border-[#a67a48] bg-[#f9f6ea] rounded-r shadow-sm"
-                        style={{ 
-                          position: 'absolute',
-                          top: `${top}px`,
-                          left: 0,
-                          width: '100%',
-                          maxWidth: '100%',
-                        }}
-                      >
-                        <div className="flex items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center mb-1">
-                              <Avatar className="h-6 w-6 mr-2">
-                                <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
-                                <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                              </Avatar>
-                              <span className="text-xs font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
-                            </div>
+                  {/* Inline comments appear next to the related text - only show when comments exist */}
+                  {marginComments.length > 0 && (
+                    <div className="w-[30%] relative">
+                      {marginComments.map(({ id, top, comment }) => (
+                        <div 
+                          key={id} 
+                          className="margin-comment mb-3 p-3 border-l-2 border-[#a67a48] bg-[#f9f6ea] rounded-r shadow-sm"
+                          style={{ 
+                            position: 'absolute',
+                            top: `${top}px`,
+                            left: 0,
+                            width: '100%',
+                            maxWidth: '100%',
+                          }}
+                        >
+                          <div className="flex items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center mb-1">
+                                <Avatar className="h-6 w-6 mr-2">
+                                  <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
+                                  <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                                </Avatar>
+                                <span className="text-xs font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
+                              </div>
                             <p className="text-xs text-[#161718]">{comment.content}</p>
                             {comment.selectedText && (
                               <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-1 p-1 rounded italic">
