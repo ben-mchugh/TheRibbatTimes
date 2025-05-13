@@ -47,7 +47,8 @@ const CommentItem = ({
   const replyInputRef = useRef<HTMLTextAreaElement>(null);
   
   const formattedDate = formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true });
-  const isAuthor = currentUser?.id === comment.authorId;
+  // Check if the current user is the author of this comment
+  const isAuthor = currentUser && currentUser.id === comment.authorId;
   const hasReplies = !isReply && comment.id !== undefined; // Only top-level comments can have replies
 
   useEffect(() => {
@@ -104,9 +105,13 @@ const CommentItem = ({
     }
     
     try {
-      const response = await apiRequest(`/api/comments/${comment.id}`, {
+      const response = await fetch(`/api/comments/${comment.id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ content: editedContent })
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: editedContent }),
+        credentials: 'include'
       });
       
       if (response.ok) {
@@ -139,8 +144,12 @@ const CommentItem = ({
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this comment?')) {
       try {
-        const response = await apiRequest(`/api/comments/${comment.id}`, {
-          method: 'DELETE'
+        const response = await fetch(`/api/comments/${comment.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
         });
         
         if (response.ok) {
@@ -189,13 +198,17 @@ const CommentItem = ({
     }
     
     try {
-      const response = await apiRequest(`/api/posts/${postId}/comments`, {
+      const response = await fetch(`/api/posts/${postId}/comments`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ 
           content: replyContent,
           postId,
           parentId: comment.id
-        })
+        }),
+        credentials: 'include'
       });
       
       if (response.ok) {
@@ -237,7 +250,10 @@ const CommentItem = ({
       // Fetch replies
       setIsLoadingReplies(true);
       try {
-        const response = await apiRequest(`/api/comments/${comment.id}/replies`);
+        const response = await fetch(`/api/comments/${comment.id}/replies`, {
+          method: 'GET',
+          credentials: 'include'
+        });
         if (response.ok) {
           const fetchedReplies = await response.json();
           setReplies(fetchedReplies);
