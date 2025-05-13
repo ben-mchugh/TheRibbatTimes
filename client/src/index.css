@@ -82,7 +82,7 @@
 /* Comments container styles */
 .comments-container {
   position: relative;
-  max-height: 95vh;
+  /* Removed max-height constraint to allow unlimited comments */
   scrollbar-width: thin;
   scrollbar-color: #a67a48 #e0d3af;
 }

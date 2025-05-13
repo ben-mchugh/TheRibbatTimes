@@ -57,7 +57,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
 
   return (
     <div className="gdocs-comment-section w-full h-full flex flex-col border-l border-[#a67a48]">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-[#f5f0e0]/60">
         <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
         <Button 
           variant="ghost" 
@@ -72,20 +72,20 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       {/* Comments list */}
       <div 
         ref={commentsRef}
-        className="comments-container flex-1 overflow-y-auto p-4 space-y-4"
+        className="comments-container flex-1 overflow-y-auto px-4 py-6 space-y-6"
       >
         {isLoading ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-[#f5f0e0] p-4 rounded-lg">
+              <div key={i} className="bg-[#f5f0e0] p-4 rounded-lg shadow-sm">
                 <div className="flex items-start">
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                  <div className="ml-2 flex-1">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div className="ml-3 flex-1">
                     <div className="flex justify-between items-center">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-3 w-16" />
+                      <Skeleton className="h-5 w-28" />
+                      <Skeleton className="h-4 w-20" />
                     </div>
-                    <Skeleton className="h-4 w-full mt-1" />
+                    <Skeleton className="h-4 w-full mt-2" />
                     <Skeleton className="h-4 w-3/4 mt-1" />
                   </div>
                 </div>
@@ -93,7 +93,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
             ))}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {sortedComments.length > 0 ? (
               sortedComments.map((comment) => (
                 <GoogleDocsComment 
@@ -118,8 +118,9 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 />
               ))
             ) : (
-              <div className="bg-[#f5f0e0] p-4 rounded-lg text-center py-6 text-[#a67a48]">
-                No comments yet
+              <div className="bg-[#f5f0e0] p-6 rounded-lg text-center shadow-sm">
+                <p className="text-[#a67a48] font-medium">No comments yet</p>
+                <p className="text-sm text-[#a67a48]/80 mt-2">Select text and right-click to add the first comment</p>
               </div>
             )}
           </div>
@@ -127,10 +128,12 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       </div>
       
       {/* Instructions for commenting */}
-      <div className="p-4 border-t border-[#a67a48] text-center">
-        <p className="text-sm text-[#a67a48]">
-          To add a comment, select text and right-click
-        </p>
+      <div className="px-4 py-3 border-t border-[#a67a48] bg-[#f5f0e0]/60">
+        <div className="flex items-center justify-center space-x-2">
+          <p className="text-sm text-[#a67a48] font-medium">
+            To add a comment, select text and right-click
+          </p>
+        </div>
       </div>
     </div>
   );
