@@ -272,7 +272,11 @@ const CommentSection = ({
         <div className="space-y-4 overflow-y-auto">
           {comments && comments.length > 0 ? (
             comments.map((comment) => (
-              <CommentItem key={`comment-${comment.id}-${comment.postId}`} comment={comment} />
+              <CommentItem 
+                key={`comment-${comment.id}-${comment.postId}`} 
+                comment={comment} 
+                onCommentUpdate={refetchComments}
+              />
             ))
           ) : (
             <div className="bg-[#f5f0e0] p-4 rounded-lg text-center py-6">

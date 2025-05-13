@@ -7,7 +7,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { Pencil, Reply, Trash, X, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { apiRequest } from '@/lib/queryClient';
 
 interface CommentProps {
   comment: Comment;
@@ -26,7 +25,9 @@ const CommentItem = ({ comment, onCommentUpdate }: CommentProps) => {
   const commentRef = useRef<HTMLDivElement>(null);
   
   const formattedDate = formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true });
-  const isOwner = currentUser && comment.authorId === currentUser.id;
+  // Check if the current user is the author of the comment
+  const isOwner = currentUser && currentUser.uid && comment.author && 
+    comment.author.uid === currentUser.uid;
 
   // Focus the textarea when editing starts
   useEffect(() => {
@@ -67,10 +68,21 @@ const CommentItem = ({ comment, onCommentUpdate }: CommentProps) => {
 
     setIsSubmitting(true);
     try {
-      const updatedComment = await apiRequest(`/api/comments/${comment.id}`, {
+      // Use fetch directly instead of apiRequest for better type safety
+      const response = await fetch(`/api/comments/${comment.id}`, {
         method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ content: editedContent }),
+        credentials: 'include'
       });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update comment: ${response.status}`);
+      }
+      
+      const updatedComment = await response.json();
       
       setIsEditing(false);
       toast({
@@ -101,9 +113,15 @@ const CommentItem = ({ comment, onCommentUpdate }: CommentProps) => {
 
     setIsSubmitting(true);
     try {
-      await apiRequest(`/api/comments/${comment.id}`, {
+      // Use fetch directly instead of apiRequest for better type safety
+      const response = await fetch(`/api/comments/${comment.id}`, {
         method: 'DELETE',
+        credentials: 'include'
       });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to delete comment: ${response.status}`);
+      }
       
       toast({
         title: 'Comment deleted',
@@ -138,10 +156,19 @@ const CommentItem = ({ comment, onCommentUpdate }: CommentProps) => {
 
     setIsSubmitting(true);
     try {
-      await apiRequest(`/api/comments/${comment.id}/replies`, {
+      // Use fetch directly instead of apiRequest for better type safety
+      const response = await fetch(`/api/comments/${comment.id}/replies`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ content: replyContent }),
+        credentials: 'include'
       });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to add reply: ${response.status}`);
+      }
       
       setIsReplying(false);
       setReplyContent('');
