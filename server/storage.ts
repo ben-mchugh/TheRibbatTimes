@@ -18,7 +18,9 @@ export interface IStorage {
   // Comment operations
   getComment(id: number): Promise<Comment | undefined>;
   getCommentsByPostId(postId: number): Promise<Comment[]>;
+  getCommentReplies(commentId: number): Promise<Comment[]>; // Get replies to a specific comment
   createComment(comment: InsertComment & { authorId: number }): Promise<Comment>;
+  updateComment(id: number, commentData: Partial<Comment>): Promise<Comment | undefined>; // Edit a comment
   deleteComment(id: number): Promise<boolean>;
 }
 
@@ -291,10 +293,10 @@ export class MemStorage implements IStorage {
       ({ id, postId: c.postId, content: c.content.substring(0, 20) + '...' }))
     );
     
-    // Get comments only for this post
+    // Get only top-level comments for this post (no parent comment)
     const filteredComments = Array.from(this.commentsData.values())
       .filter(comment => {
-        const matches = comment.postId === postId;
+        const matches = comment.postId === postId && !comment.parentId;
         console.log(`Comment ${comment.id} for post ${comment.postId} matches postId ${postId}? ${matches}`);
         return matches;
       })
@@ -302,12 +304,27 @@ export class MemStorage implements IStorage {
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       });
     
-    console.log(`Returning ${filteredComments.length} comments for post ${postId}`);
+    console.log(`Returning ${filteredComments.length} top-level comments for post ${postId}`);
     return filteredComments;
+  }
+  
+  async getCommentReplies(commentId: number): Promise<Comment[]> {
+    console.log(`Fetching replies for comment ID: ${commentId}`);
+    
+    // Get all replies to this comment (where parentId equals this comment's id)
+    const replies = Array.from(this.commentsData.values())
+      .filter(comment => comment.parentId === commentId)
+      .sort((a, b) => {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      });
+      
+    console.log(`Found ${replies.length} replies for comment ${commentId}`);
+    return replies;
   }
 
   async createComment(commentData: InsertComment & { authorId: number }): Promise<Comment> {
     const id = this.commentId++;
+    const now = new Date().toISOString();
     
     // Ensure the postId is properly set
     if (!commentData.postId) {
@@ -318,7 +335,15 @@ export class MemStorage implements IStorage {
     const comment: Comment = {
       ...commentData,
       id,
-      createdAt: new Date().toISOString()
+      createdAt: now,
+      updatedAt: now,
+      isEdited: false,
+      // Handle optional fields
+      parentId: commentData.parentId || null,
+      elementId: commentData.elementId || null,
+      selectedText: commentData.selectedText || null,
+      selectionStart: commentData.selectionStart || null,
+      selectionEnd: commentData.selectionEnd || null
     };
     
     console.log(`Creating new comment with ID: ${id}, postId: ${comment.postId}, content: "${comment.content.substring(0, 20)}..."`);
@@ -331,8 +356,43 @@ export class MemStorage implements IStorage {
     
     return comment;
   }
+  
+  async updateComment(id: number, commentData: Partial<Comment>): Promise<Comment | undefined> {
+    const comment = this.commentsData.get(id);
+    
+    if (!comment) {
+      console.log(`Comment with ID ${id} not found for update`);
+      return undefined;
+    }
+    
+    const now = new Date().toISOString();
+    
+    const updatedComment: Comment = {
+      ...comment,
+      ...commentData,
+      updatedAt: now,
+      isEdited: true
+    };
+    
+    console.log(`Updating comment with ID: ${id}, new content: "${updatedComment.content.substring(0, 20)}..."`);
+    
+    this.commentsData.set(id, updatedComment);
+    return updatedComment;
+  }
 
   async deleteComment(id: number): Promise<boolean> {
+    console.log(`Deleting comment with ID: ${id}`);
+    
+    // First, get all replies to this comment
+    const replies = await this.getCommentReplies(id);
+    
+    // Delete all replies first
+    for (const reply of replies) {
+      console.log(`Deleting reply with ID: ${reply.id} to comment ${id}`);
+      this.commentsData.delete(reply.id);
+    }
+    
+    // Then delete the comment itself
     return this.commentsData.delete(id);
   }
 }
