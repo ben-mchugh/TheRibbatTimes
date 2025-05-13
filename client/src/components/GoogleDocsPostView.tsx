@@ -119,7 +119,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   });
   
   // Process text selection-based comments and add highlight spans
-  // This implementation uses a position-based approach to ensure we only highlight the exact instances
+  // This implements a simplified but more robust highlighting approach
   const renderPostContentWithHighlights = useCallback(() => {
     if (!post?.content) return post?.content || '';
     
@@ -130,186 +130,171 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     
     if (commentsWithSelection.length === 0) return post.content;
     
-    // We'll use a DOM-based approach to ensure more precision
-    const container = document.createElement('div');
-    container.innerHTML = post.content;
+    // Create a temp div to work with the content
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = post.content;
     
-    // Get a plain text version of the content for position mapping
-    const plainText = container.textContent || '';
+    // Get the textContent for position calculations
+    const plainText = tempDiv.textContent || '';
     
-    // Build an array of all comments to process
-    // First sort by position, earlier comments first
+    // Sort comments by their position in the text (earlier first)
     const sortedComments = [...commentsWithSelection].sort((a, b) => {
       return (a.selectionStart || 0) - (b.selectionStart || 0);
     });
     
-    // Now we need to work with the actual HTML to insert our span tags
-    // We'll create a map of where each highlight needs to go
-    const highlights = [];
+    // We'll use a special approach to handle text spanning multiple DOM nodes
+    // First, create an array of all text nodes in order
+    const textNodes = getTextNodesIn(tempDiv);
     
-    // Process each comment to prepare highlights
-    sortedComments.forEach(comment => {
-      // Skip invalid selections
+    // Helper function to get character position from node and offset
+    function getCharacterPosition(targetNode, targetOffset) {
+      let position = 0;
+      for (const node of textNodes) {
+        if (node === targetNode) {
+          return position + targetOffset;
+        }
+        position += node.textContent?.length || 0;
+      }
+      return -1;
+    }
+    
+    // Helper function to find node and offset for a character position
+    function findNodeForPosition(targetPosition) {
+      let cumulativeLength = 0;
+      
+      for (const node of textNodes) {
+        const nodeLength = node.textContent?.length || 0;
+        
+        if (cumulativeLength + nodeLength > targetPosition) {
+          // This node contains our position
+          return {
+            node,
+            offset: targetPosition - cumulativeLength
+          };
+        }
+        
+        cumulativeLength += nodeLength;
+      }
+      
+      // If we get here, we're at the end of the document
+      const lastNode = textNodes[textNodes.length - 1];
+      return {
+        node: lastNode,
+        offset: lastNode.textContent?.length || 0
+      };
+    }
+    
+    // Process each comment to add highlights
+    let highlightCount = 0;
+    
+    // We'll process comments in reverse order (from last to first position)
+    // to avoid position shifts as we modify the DOM
+    [...sortedComments].reverse().forEach(comment => {
+      // Skip invalid comments
       if (!comment.selectedText || comment.selectionStart === undefined || comment.selectionEnd === undefined) {
         return;
       }
       
-      // Log each comment's selection details for debugging
+      // Debug logging
       console.log(`Processing comment ${comment.id}: "${comment.selectedText}" at positions ${comment.selectionStart}-${comment.selectionEnd}`);
       
-      // Verify if the text at the specified positions matches the expected selection
+      // Check if the positions make sense
       const textAtPosition = plainText.substring(comment.selectionStart, comment.selectionEnd);
       console.log(`Text at positions ${comment.selectionStart}-${comment.selectionEnd}: "${textAtPosition}"`);
       
-      // Verify our selection is legitimate or try to fix it
+      // If the text doesn't match the selection, find the actual text
       if (textAtPosition !== comment.selectedText) {
-        // Try to find the exact position of this text
-        const textToFind = comment.selectedText;
-        
-        // Only look for the text near where we expect it to be
-        // This helps prevent highlighting every instance of common words
-        const contextRange = 100; // Look at most 100 chars in either direction
+        // First try to find it nearby (within 100 chars)
+        const contextRange = 100;
         const searchStart = Math.max(0, comment.selectionStart - contextRange);
         const searchEnd = Math.min(plainText.length, comment.selectionEnd + contextRange);
         const searchArea = plainText.substring(searchStart, searchEnd);
         
-        const relativePosition = searchArea.indexOf(textToFind);
-        if (relativePosition >= 0) {
-          // Found the text nearby - adjust the position
-          const absolutePosition = searchStart + relativePosition;
-          comment.selectionStart = absolutePosition;
-          comment.selectionEnd = absolutePosition + textToFind.length;
-          console.log(`Adjusted to positions ${comment.selectionStart}-${comment.selectionEnd}`);
+        const relativePos = searchArea.indexOf(comment.selectedText);
+        if (relativePos >= 0) {
+          // Found it nearby
+          comment.selectionStart = searchStart + relativePos;
+          comment.selectionEnd = comment.selectionStart + comment.selectedText.length;
+          console.log(`Adjusted positions to ${comment.selectionStart}-${comment.selectionEnd}`);
         } else {
-          // Can't find the text - this is a problem
-          console.log(`Could not find "${comment.selectedText}" near the expected position, trying global search`);
-          
-          // Fall back to a global search
-          const globalPosition = plainText.indexOf(comment.selectedText);
-          if (globalPosition >= 0) {
-            comment.selectionStart = globalPosition;
-            comment.selectionEnd = globalPosition + comment.selectedText.length;
-            console.log(`Found globally at positions ${comment.selectionStart}-${comment.selectionEnd}`);
+          // Try to find it anywhere in the text
+          const pos = plainText.indexOf(comment.selectedText);
+          if (pos >= 0) {
+            comment.selectionStart = pos;
+            comment.selectionEnd = pos + comment.selectedText.length;
+            console.log(`Found text globally at positions ${comment.selectionStart}-${comment.selectionEnd}`);
           } else {
-            console.log(`Could not find text "${comment.selectedText}" anywhere in the content, skipping highlight`);
+            console.log(`Could not find text "${comment.selectedText}" in the content, skipping highlight`);
             return;
           }
         }
       }
       
-      // Add this highlight to our array
-      highlights.push({
-        id: comment.id,
-        start: comment.selectionStart,
-        end: comment.selectionEnd,
-        text: comment.selectedText,
-        isNew: newCommentIds.includes(comment.id)
-      });
-    });
-    
-    // Now convert this back to HTML with highlights
-    // We'll build a completely new HTML string
-    const parts = [];
-    let lastIndex = 0;
-    
-    // Sort highlights by start position to process them in order
-    highlights.sort((a, b) => a.start - b.start);
-    
-    // Helper function to escape HTML
-    const escapeHtml = (text) => {
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    };
-    
-    // Now, let's create a more robust approach using markers in the HTML
-    // First, insert special marker comments at the exact positions
-    let markedHtml = post.content;
-    
-    // We need to process highlights from end to beginning to avoid position shifts
-    const reversedHighlights = [...highlights].sort((a, b) => b.start - a.start);
-    
-    // Add markers for each highlight position
-    reversedHighlights.forEach(highlight => {
-      // Create unique markers for this highlight
-      const startMarkerId = `highlight-start-${highlight.id}`;
-      const endMarkerId = `highlight-end-${highlight.id}`;
-      
-      // Find text nodes and create proper offsets
-      // This is a simplified approach - we're working with the plain text offsets
-      const allTextNodes = [];
-      const textWalker = document.createTreeWalker(
-        container, 
-        NodeFilter.SHOW_TEXT, 
-        null
-      );
-      
-      let currentNode;
-      while (currentNode = textWalker.nextNode()) {
-        allTextNodes.push(currentNode);
-      }
-      
-      // Locate the exact position in text nodes
-      let currentPos = 0;
-      let startNodeInfo = null;
-      let endNodeInfo = null;
-      
-      for (let i = 0; i < allTextNodes.length; i++) {
-        const node = allTextNodes[i];
-        const nodeLength = node.nodeValue?.length || 0;
-        const nodeEndPos = currentPos + nodeLength;
+      try {
+        // Find the DOM nodes corresponding to our start and end positions
+        const startNodeInfo = findNodeForPosition(comment.selectionStart);
+        const endNodeInfo = findNodeForPosition(comment.selectionEnd);
         
-        // Check if this node contains our start position
-        if (!startNodeInfo && currentPos <= highlight.start && highlight.start < nodeEndPos) {
-          const offset = highlight.start - currentPos;
-          startNodeInfo = { node, offset };
-        }
-        
-        // Check if this node contains our end position
-        if (!endNodeInfo && currentPos <= highlight.end && highlight.end <= nodeEndPos) {
-          const offset = highlight.end - currentPos;
-          endNodeInfo = { node, offset };
-        }
-        
-        // Move to next node
-        currentPos = nodeEndPos;
-        
-        // If we found both positions, we can stop
-        if (startNodeInfo && endNodeInfo) break;
-      }
-      
-      // If we found valid positions, use a direct DOM approach
-      if (startNodeInfo && endNodeInfo) {
+        // Create a range to highlight
         const range = document.createRange();
         range.setStart(startNodeInfo.node, startNodeInfo.offset);
         range.setEnd(endNodeInfo.node, endNodeInfo.offset);
         
-        // Mark the range with a highlight span
-        const span = document.createElement('span');
-        span.className = 'selection-highlight';
-        span.setAttribute('data-comment-id', highlight.id.toString());
-        span.setAttribute('tabindex', '0');
-        span.setAttribute('role', 'button');
-        if (highlight.isNew) {
-          span.setAttribute('data-new', 'true');
+        // Create our highlight span
+        const highlightSpan = document.createElement('span');
+        highlightSpan.className = 'selection-highlight';
+        highlightSpan.setAttribute('data-comment-id', comment.id.toString());
+        highlightSpan.setAttribute('tabindex', '0');
+        highlightSpan.setAttribute('role', 'button');
+        
+        if (newCommentIds.includes(comment.id)) {
+          highlightSpan.setAttribute('data-new', 'true');
         }
         
+        // Apply the highlight
         try {
-          range.surroundContents(span);
+          range.surroundContents(highlightSpan);
+          highlightCount++;
         } catch (e) {
-          console.log(`Error highlighting range: ${e.message}`);
+          console.log(`Failed to highlight range: ${e.message}`);
+          
+          // If surroundContents fails, the range likely crosses multiple nodes
+          // In this case, we'll use a simpler but less precise approach
+          // We'll highlight the entire nodes that contain our range
+          if (startNodeInfo.node === endNodeInfo.node) {
+            // If they're in the same node, we can use extractContents/insertNode
+            const textNode = startNodeInfo.node;
+            const parent = textNode.parentNode;
+            
+            if (parent) {
+              // Create a new range that selects just the text we want
+              const newRange = document.createRange();
+              newRange.setStart(textNode, startNodeInfo.offset);
+              newRange.setEnd(textNode, endNodeInfo.offset);
+              
+              // Extract the content and wrap it
+              const fragment = newRange.extractContents();
+              highlightSpan.appendChild(fragment);
+              
+              // Insert it back
+              newRange.insertNode(highlightSpan);
+              highlightCount++;
+            }
+          }
         }
-      } else {
-        console.log(`Could not locate text nodes for positions ${highlight.start}-${highlight.end}`);
+      } catch (e) {
+        console.log(`Error creating highlight for comment ${comment.id}: ${e.message}`);
       }
     });
     
-    // Return the modified HTML
-    return container.innerHTML;
-  }, [post?.content, comments, newCommentIds]);
+    // Remove any empty spans or broken nodes that might have been created
+    const cleanupSpans = tempDiv.querySelectorAll('span:empty');
+    cleanupSpans.forEach(span => span.remove());
+    
+    console.log(`Found and enhanced ${highlightCount} text highlights in the content`);
+    
+    return tempDiv.innerHTML;
+  }, [post?.content, comments, newCommentIds, getTextNodesIn]);
   
   // Utility function to escape regex special characters
   function escapeRegExp(string: string) {
