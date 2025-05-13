@@ -98,7 +98,9 @@ const PostView = ({ postId }: PostViewProps) => {
     // First handle standard element-based comments (legacy)
     const inlineComments = comments.filter(comment => comment.elementId);
     for (const comment of inlineComments) {
-      const targetElement = document.getElementById(comment.elementId);
+      // Guard against undefined elementId
+      const elementId = comment.elementId || '';
+      const targetElement = document.getElementById(elementId);
       if (!targetElement) continue;
       
       const rect = targetElement.getBoundingClientRect();
@@ -393,22 +395,22 @@ const PostView = ({ postId }: PostViewProps) => {
 
   // Main render
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#161718] bg-opacity-75">
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="relative post-card w-full max-w-5xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto bg-[#e0d3af]">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#161718] bg-opacity-80">
+      <div className="flex items-center justify-center min-h-screen py-8">
+        <div className="relative post-card w-full max-w-6xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto bg-[#e0d3af]">
           {/* Add the text selection menu component */}
           <TextSelectionMenu onAddComment={handleSelectionComment} />
           <Link href="/">
             <Button 
               variant="ghost" 
-              className="absolute top-4 right-4 text-[#161718] hover:text-[#a67a48]"
+              className="absolute top-4 right-4 text-[#161718] hover:text-[#a67a48] z-20"
             >
               <X className="h-6 w-6" />
             </Button>
           </Link>
           
-          <div className="px-6 pt-12 pb-8 md:p-12 flex flex-col md:flex-row">
-            <div className="w-full md:w-2/3 pr-0 md:pr-8 relative">
+          <div className="px-4 pt-10 pb-6 md:px-8 md:pt-12 md:pb-8 lg:p-12">
+            <div className="w-full relative">
               <div className="post-content-container relative">
                 <h1 className="text-2xl md:text-3xl font-heading font-bold text-[#161718] mb-4">{post.title}</h1>
                 <div className="mt-2 mb-6 flex flex-wrap items-center">
@@ -423,9 +425,9 @@ const PostView = ({ postId }: PostViewProps) => {
                 
                 {/* Two-column layout for content and inline comments */}
                 <div className="flex relative">
-                  {/* Main content - takes 70% width */}
-                  <div className="w-[70%] pr-8">
-                    <div className="prose prose-lg max-w-none relative text-[#161718]">
+                  {/* Main content - takes 65% width */}
+                  <div className="w-[65%] pr-6">
+                    <div className="prose max-w-none relative text-[#161718]">
                       <div 
                         dangerouslySetInnerHTML={{ __html: renderPostContentWithHighlights() }} 
                         className="post-main-content"
@@ -433,8 +435,8 @@ const PostView = ({ postId }: PostViewProps) => {
                     </div>
                   </div>
                   
-                  {/* Inline comments appear next to the related text - takes 30% width */}
-                  <div className="w-[30%] relative">
+                  {/* Inline comments appear next to the related text - takes 35% width */}
+                  <div className="w-[35%] relative">
                     {marginComments.map(({ id, top, comment }) => (
                       <div 
                         key={id} 
@@ -445,6 +447,7 @@ const PostView = ({ postId }: PostViewProps) => {
                           left: 0,
                           width: '100%',
                           maxWidth: '100%',
+                          zIndex: 10,
                         }}
                       >
                         <div className="flex items-start">
