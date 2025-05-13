@@ -28,6 +28,47 @@
   background-color: rgba(230, 220, 190, 0.3);
 }
 
+/* Margin comment styling with connector lines */
+.margin-comment {
+  position: absolute;
+  right: 1rem;
+  max-width: 280px;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0d3af;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease; 
+}
+
+.margin-comment:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.margin-comment:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -10px;
+  width: 10px;
+  height: 2px;
+  background-color: #a67a48;
+  transform: translateY(-50%);
+}
+
+.margin-comment:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: #a67a48;
+  transform: translateY(-50%);
+}
+
 :root {
       --background: 240 3% 9%; /* #161718 */
 --foreground: 0 0% 98%;

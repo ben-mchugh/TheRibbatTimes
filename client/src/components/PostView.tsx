@@ -325,7 +325,9 @@ const PostView = ({ postId }: PostViewProps) => {
                   const highlightRect = highlightEl.getBoundingClientRect();
                   
                   // Center the comment vertically relative to the highlight
-                  commentTop = (highlightRect.top + highlightRect.bottom) / 2 - contentRect.top;
+                  // Apply vertical offset to ensure exact alignment with the highlighted text
+                  const verticalCenter = (highlightRect.top + highlightRect.bottom) / 2;
+                  commentTop = verticalCenter - contentRect.top - 20; // Subtract 20px to align better
                 } else {
                   // Fallback if highlight not found
                   commentTop = 100 + positions.length * 30;
@@ -738,46 +740,40 @@ const PostView = ({ postId }: PostViewProps) => {
                   {/* Inline comments appear next to the related text - takes 35% width */}
                   <div className="w-[35%] relative">
                     
-                    {marginComments.map(({ id, top, comment }) => (
-                      <div 
-                        key={id} 
-                        className="margin-comment mb-3 p-3 border-l-2 border-[#a67a48] bg-[#f9f6ea] rounded-r shadow-sm"
-                        style={{ 
-                          position: 'absolute',
-                          top: `${top}px`,
-                          left: 0,
-                          width: '100%',
-                          maxWidth: '100%',
-                          zIndex: 10,
-                        }}
-                      >
-                        {/* Connector line to visually link comment to text */}
+                    {marginComments.map(({ id, top, comment, zIndex }) => {
+                      const isFocused = id === focusedCommentId;
+                      
+                      return (
                         <div 
-                          className="absolute w-2 border-t border-[#a67a48] opacity-30" 
-                          style={{
-                            left: '-2px',
-                            top: '60px', // Position in middle of comment box
+                          key={id}
+                          data-comment-id={id}
+                          className={`margin-comment ${isFocused ? 'ring-2 ring-[#a67a48] bg-[#fdf8e9]' : ''}`}
+                          style={{ 
+                            top: `${top}px`,
+                            zIndex: isFocused ? 100 : (zIndex || 10),
                           }}
-                        ></div>
-                        <div className="flex items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center mb-1">
-                              <Avatar className="h-6 w-6 mr-2">
-                                <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
-                                <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                              </Avatar>
-                              <span className="text-xs font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
-                            </div>
-                            <p className="text-xs text-[#161718]">{comment.content}</p>
-                            {comment.selectedText && (
-                              <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-1 p-1 rounded italic">
-                                "{comment.selectedText}"
+                          onClick={() => setFocusedCommentId(id)}
+                        >
+                          <div className="flex items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center mb-1">
+                                <Avatar className="h-6 w-6 mr-2">
+                                  <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
+                                  <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                                </Avatar>
+                                <span className="text-xs font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
                               </div>
-                            )}
+                              <p className="text-xs text-[#161718]">{comment.content}</p>
+                              {comment.selectedText && (
+                                <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-1 p-1 rounded italic">
+                                  "{comment.selectedText}"
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
                 
