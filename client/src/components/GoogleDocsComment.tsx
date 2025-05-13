@@ -289,8 +289,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''}`}>
       <div 
         ref={commentRef}
-        className={`bg-[#f5f0e0] p-4 rounded-lg mb-2 relative group shadow-lg opacity-100 ${
-          comment.selectedText ? 'cursor-pointer hover:bg-[#ebddbe]' : ''
+        className={`bg-[#222324] p-4 rounded-lg mb-2 relative group shadow-lg opacity-100 text-white ${
+          comment.selectedText ? 'cursor-pointer hover:bg-[#2a2b2c]' : ''
         } ${isReply ? 'border-l-2 border-[#a67a48]' : ''} 
         transition-all duration-300 ease-in-out animate-comment-enter
         ${isFocused ? 'animate-comment-focus border-2 border-[#a67a48]' : ''}`}
