@@ -33,24 +33,7 @@ const PostView = ({ postId }: PostViewProps) => {
   const { currentUser } = useAuth();
   const { toast } = useToast();
   
-  // Effect to recalculate positions when a comment is focused
-  useEffect(() => {
-    if (focusedCommentId !== null && comments?.length > 0) {
-      const timer = setTimeout(() => {
-        // Use a callback to ensure we're working with the latest state
-        setMarginComments(prevComments => {
-          return prevComments.map(item => {
-            if (item.id === focusedCommentId) {
-              return { ...item, zIndex: 100 }; // Bring this comment to the front
-            }
-            return { ...item, zIndex: 10 }; // Reset others to default
-          });
-        });
-      }, 50); // Small delay to ensure DOM is ready
-      
-      return () => clearTimeout(timer);
-    }
-  }, [focusedCommentId, comments]);
+  // We'll move this effect after we declare the comments variable
   
   // Data fetching with direct approach like we did for comments
   const { data: post, isLoading: postLoading, error: postError } = useQuery<Post>({
@@ -104,6 +87,25 @@ const PostView = ({ postId }: PostViewProps) => {
     refetchOnWindowFocus: true,
     staleTime: 2000 // Consider data stale after 2 seconds
   });
+  
+  // Effect to recalculate positions when a comment is focused
+  useEffect(() => {
+    if (focusedCommentId !== null && comments?.length > 0) {
+      const timer = setTimeout(() => {
+        // Use a callback to ensure we're working with the latest state
+        setMarginComments(prevComments => {
+          return prevComments.map(item => {
+            if (item.id === focusedCommentId) {
+              return { ...item, zIndex: 100 }; // Bring this comment to the front
+            }
+            return { ...item, zIndex: 10 }; // Reset others to default
+          });
+        });
+      }, 50); // Small delay to ensure DOM is ready
+      
+      return () => clearTimeout(timer);
+    }
+  }, [focusedCommentId, comments]);
 
   // Handler for clicking on highlighted text - brings associated comment to focus
   const handleHighlightClick = useCallback((commentId: number) => {
@@ -388,7 +390,8 @@ const PostView = ({ postId }: PostViewProps) => {
               const commentId = parseInt(span.getAttribute('data-comment-id') || '0', 10);
               if (commentId) {
                 // Create a new handler each time to avoid stale closure issues
-                const clickHandler = (e: MouseEvent) => {
+                // Use a DOM Event type to satisfy TypeScript
+                const clickHandler = (e: Event) => {
                   e.preventDefault();
                   e.stopPropagation();
                   setFocusedCommentId(commentId);
@@ -396,7 +399,9 @@ const PostView = ({ postId }: PostViewProps) => {
                 
                 // Remove any existing handlers by cloning the node
                 const newSpan = span.cloneNode(true);
-                span.parentNode?.replaceChild(newSpan, span);
+                if (span.parentNode) {
+                  span.parentNode.replaceChild(newSpan, span);
+                }
                 
                 // Add the click handler to the new node
                 newSpan.addEventListener('click', clickHandler);
