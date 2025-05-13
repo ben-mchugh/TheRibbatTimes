@@ -188,8 +188,8 @@ const PostView = ({ postId }: PostViewProps) => {
         const detail = (event as CustomEvent).detail;
         if (detail && detail.commentId) {
           setFocusedCommentId(detail.commentId);
-          // Recalculate positions with the new focused comment
-          updateCommentPositions();
+          // We'll rely on the focusedCommentId update to trigger the recalculation
+          // instead of calling the function directly from an event handler
         }
       };
 
@@ -198,7 +198,7 @@ const PostView = ({ postId }: PostViewProps) => {
       return () => {
         document.removeEventListener('focusComment', handleFocusComment);
       };
-    }, [updateCommentPositions]);
+    }, []);
     
     // Process each type of comment
     
