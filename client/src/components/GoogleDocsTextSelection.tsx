@@ -12,7 +12,7 @@ interface GoogleDocsTextSelectionProps {
     selectedText: string;
     selectionStart: number;
     selectionEnd: number;
-  }) => void;
+  }) => Promise<any>; // Changed to Promise to handle async response
 }
 
 const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelectionProps) => {
@@ -178,7 +178,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
   };
   
   // Submit comment
-  const handleSubmitComment = () => {
+  const handleSubmitComment = async () => {
     if (!selectionData) return;
     
     if (!commentText.trim()) {
@@ -190,18 +190,29 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       return;
     }
     
-    onAddComment({
-      content: commentText,
-      selectedText: selectionData.text,
-      selectionStart: selectionData.start,
-      selectionEnd: selectionData.end
-    });
-    
-    setIsPopupVisible(false);
-    setCommentText('');
-    
-    // Clear the selection after adding the comment
-    window.getSelection()?.removeAllRanges();
+    try {
+      // Wait for the comment to be added and get the response
+      await onAddComment({
+        content: commentText,
+        selectedText: selectionData.text,
+        selectionStart: selectionData.start,
+        selectionEnd: selectionData.end
+      });
+      
+      // Close popup and reset state
+      setIsPopupVisible(false);
+      setCommentText('');
+      
+      // Clear the selection after adding the comment
+      window.getSelection()?.removeAllRanges();
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+      toast({
+        title: 'Comment failed',
+        description: 'Unable to post your comment. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
   
   // Cancel comment
