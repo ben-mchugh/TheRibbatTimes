@@ -650,8 +650,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col relative">
-      {/* Fixed position controls - positioned lower to avoid overlap with header elements */}
-      <div className="fixed top-20 right-4 z-40 flex flex-col gap-2">
+      {/* Fixed position controls - positioned even lower as requested */}
+      <div className="fixed top-32 right-4 z-40 flex flex-col gap-2">
         {/* Close button */}
         <a href="/">
           <Button
@@ -664,12 +664,12 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           </Button>
         </a>
         
-        {/* Comments toggle button - simplified to just an icon */}
+        {/* Comments toggle button - simplified to just an icon with reduced opacity */}
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setShowComments(!showComments)}
-          className={`bg-[#f5f0e0]/80 hover:bg-[#f5f0e0] text-[#a67a48] hover:text-[#8a5a28] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-100' : 'opacity-80'}`}
+          className={`bg-[#f5f0e0]/80 hover:bg-[#f5f0e0] text-[#a67a48]/50 hover:text-[#8a5a28]/70 rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-50' : 'opacity-40'}`}
           title={showComments ? "Hide comments" : "Show comments"}
         >
           <MessageSquare className="h-5 w-5" />

@@ -66,7 +66,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
 
   return (
     <div className="gdocs-comment-section w-full h-full flex flex-col border-l border-[#a67a48] bg-transparent">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-[#f5f0e0]/60">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-transparent">
         <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
       </div>
       
