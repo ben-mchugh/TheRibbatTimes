@@ -65,7 +65,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   } : {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#a67a48] bg-[#f1f1f1]/20">
+    <div className="gdocs-comment-section w-full h-full flex flex-col">
       
       {/* Comments list with dynamic height matching content container */}
       <div 

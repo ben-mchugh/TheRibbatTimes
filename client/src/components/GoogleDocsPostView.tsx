@@ -738,9 +738,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         <div 
           className={`
             ${showComments ? 'block' : 'hidden'} 
-            md:w-1/3 md:max-w-xs md:border-l border-[#a67a48]
+            md:w-1/3 md:max-w-xs md:border-l border-[#a67a48]/30
             fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
-            w-full md:w-auto z-30 md:z-auto bg-transparent
+            w-full md:w-auto z-30 md:z-auto bg-[#f1f1f1]/20
             transition-all duration-300 ease-in-out
             flex flex-col md:h-full
           `}
