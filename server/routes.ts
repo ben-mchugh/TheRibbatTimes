@@ -599,26 +599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.delete('/api/comments/:id', authenticateUser, async (req, res) => {
-    try {
-      const commentId = parseInt(req.params.id);
-      const comment = await storage.getComment(commentId);
-      
-      if (!comment) {
-        return res.status(404).json({ message: 'Comment not found' });
-      }
-      
-      if (comment.authorId !== req.user.id) {
-        return res.status(403).json({ message: 'You do not have permission to delete this comment' });
-      }
-      
-      await storage.deleteComment(commentId);
-      res.json({ message: 'Comment deleted successfully' });
-    } catch (error) {
-      console.error('Delete comment error:', error);
-      res.status(500).json({ message: 'Failed to delete comment' });
-    }
-  });
+
 
   const httpServer = createServer(app);
   return httpServer;
