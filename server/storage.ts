@@ -315,6 +315,19 @@ export class MemStorage implements IStorage {
       throw new Error('Comment must have a postId');
     }
     
+    // Support for threaded comments (replies)
+    // If this is a reply, validate that the parent comment exists and belongs to the same post
+    if (commentData.parentCommentId) {
+      const parentComment = this.commentsData.get(commentData.parentCommentId);
+      if (!parentComment) {
+        throw new Error('Parent comment not found');
+      }
+      if (parentComment.postId !== commentData.postId) {
+        throw new Error('Parent comment belongs to a different post');
+      }
+      console.log(`Creating a reply to comment ${commentData.parentCommentId}`);
+    }
+    
     // Create the comment with all required fields
     const comment: Comment = {
       ...commentData,

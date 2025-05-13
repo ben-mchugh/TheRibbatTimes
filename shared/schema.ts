@@ -47,6 +47,8 @@ export const comments = pgTable("comments", {
   selectedText: text("selected_text"), // The text that was selected when the comment was created
   selectionStart: integer("selection_start"), // The start position of the selection in the content
   selectionEnd: integer("selection_end"), // The end position of the selection in the content
+  // Support for threaded comments
+  parentCommentId: integer("parent_comment_id").references(() => comments.id),
 });
 
 export const insertCommentSchema = createInsertSchema(comments).omit({

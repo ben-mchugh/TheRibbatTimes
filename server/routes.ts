@@ -578,7 +578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Create a reply comment with reference to parent
-      const replyData = {
+      const replyData: InsertComment & { authorId: number, parentCommentId: number } = {
         content: req.body.content,
         postId: parentComment.postId,
         parentCommentId: parentCommentId,
