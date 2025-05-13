@@ -732,41 +732,16 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             </div>
           )}
           
-          {/* Comments toggle button - mobile only */}
-          {isMobile && (
-            <div className="mt-4 flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowComments(!showComments)}
-                className="flex items-center text-[#a67a48] border-[#a67a48]"
-              >
-                {showComments ? (
-                  <>
-                    <ChevronRight className="h-4 w-4 mr-1" />
-                    Hide Comments
-                  </>
-                ) : (
-                  <>
-                    <ChevronLeft className="h-4 w-4 mr-1" />
-                    Show Comments
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
+
         </div>
         
-        {/* Comments panel - slide in/out on mobile */}
+        {/* Comments panel - slide in/out based on showComments state */}
         <div 
           className={`
-            ${showComments ? 'block' : 'hidden md:block'} 
-            md:w-1/3 md:max-w-xs md:border-l border-[#a67a48]
-            fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
-            w-full md:w-auto z-30 md:z-auto bg-[#f9f5e8] md:bg-transparent
-            transition-transform duration-300 ease-in-out
-            ${showComments ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
-            flex flex-col md:h-full
+            ${showComments ? 'block' : 'hidden'} 
+            transition-all duration-300 ease-in-out
+            w-full md:w-1/3 max-w-sm border-l border-[#a67a48]
+            flex flex-col h-full bg-[#f9f5e8] rounded-l-lg shadow-md
           `}
         >
           <GoogleDocsCommentSection
