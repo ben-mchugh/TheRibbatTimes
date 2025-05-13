@@ -65,12 +65,15 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   } : {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col">
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#a67a48] bg-transparent">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-transparent">
+        <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
+      </div>
       
       {/* Comments list with dynamic height matching content container */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto px-3 py-4 space-y-5"
+        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-transparent"
         style={containerStyle}
       >
         {isLoading ? (
@@ -125,15 +128,23 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 </div>
               ))
             ) : (
-              <div className="opacity-0">
-                {/* No comments message removed */}
+              <div className="bg-[#f5f0e0] p-6 rounded-lg text-center shadow-lg opacity-100">
+                <p className="text-[#a67a48] font-medium">No comments yet</p>
+                <p className="text-sm text-[#a67a48]/80 mt-2">Select text and right-click to add the first comment</p>
               </div>
             )}
           </div>
         )}
       </div>
       
-      {/* Instructions removed for cleaner minimalist design */}
+      {/* Instructions for commenting */}
+      <div className="px-4 py-3 border-t border-[#a67a48] bg-[#f5f0e0]/60">
+        <div className="flex items-center justify-center space-x-2">
+          <p className="text-sm text-[#a67a48] font-medium">
+            To add a comment, select text and right-click
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
