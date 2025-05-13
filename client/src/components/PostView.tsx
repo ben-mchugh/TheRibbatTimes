@@ -18,8 +18,7 @@ interface PostViewProps {
 
 const PostView = ({ postId }: PostViewProps) => {
   console.log('PostView initialized with postId:', postId);
-  // State hooks
-  const [showComments, setShowComments] = useState(true);
+  // State hooks for margin comments positioning
   const [marginComments, setMarginComments] = useState<Array<{
     id: number;
     top: number;
@@ -175,9 +174,6 @@ const PostView = ({ postId }: PostViewProps) => {
       return;
     }
     
-    // Open the comment form and use the provided comment text
-    setShowComments(true);
-    
     // Get the text selection from selectionInfo
     const selectionData = document.querySelector('.post-main-content')?.textContent || '';
     const selectedText = selectionData.substring(start, end);
@@ -193,16 +189,19 @@ const PostView = ({ postId }: PostViewProps) => {
     // Use the CommentSection's addCommentMutation directly
     const commentSectionElement = document.querySelector('.comment-section') as HTMLElement;
     if (commentSectionElement) {
-      // Scroll to comment section
-      commentSectionElement.scrollIntoView({ behavior: 'smooth' });
-      
       // Set up a custom event to pass the selection data
       const event = new CustomEvent('addSelectionComment', { 
         detail: commentData
       });
       commentSectionElement.dispatchEvent(event);
+      
+      // Show a toast to confirm the comment was added
+      toast({
+        title: 'Comment added',
+        description: 'Your comment has been added to the selected text.',
+      });
     }
-  }, [currentUser, setShowComments, toast]);
+  }, [currentUser, toast]);
 
   // HTML content processing with highlights for comments
   const renderPostContentWithHighlights = useCallback(() => {
@@ -485,18 +484,16 @@ const PostView = ({ postId }: PostViewProps) => {
               </div>
             </div>
             
-            <div className="w-full md:w-1/3 mt-8 md:mt-0 md:pl-8">
-              <div className="sticky top-8">
-                
-                <CommentSection 
-                  postId={postId} // Use the prop directly instead of post.id, which might be undefined
-                  comments={comments} 
-                  isLoading={commentsLoading} 
-                  showComments={showComments} 
-                  setShowComments={setShowComments}
-                  refetchComments={refetchComments}
-                />
-              </div>
+            {/* Hidden comment section - used only for adding comments */}
+            <div className="hidden">
+              <CommentSection 
+                postId={postId}
+                comments={comments} 
+                isLoading={commentsLoading} 
+                showComments={true} 
+                setShowComments={() => {}}
+                refetchComments={refetchComments}
+              />
             </div>
           </div>
         </div>
