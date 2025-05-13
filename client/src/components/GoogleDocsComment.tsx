@@ -289,7 +289,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''}`}>
       <div 
         ref={commentRef}
-        className={`bg-transparent p-4 rounded-lg mb-2 relative group shadow-lg opacity-100 ${
+        className={`bg-[#f5f0e0] p-4 rounded-lg mb-2 relative group shadow-lg opacity-100 ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#ebddbe]' : ''
         } ${isReply ? 'border-l-2 border-[#a67a48]' : ''} 
         transition-all duration-300 ease-in-out animate-comment-enter
@@ -306,7 +306,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleEdit}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-transparent"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-[#f5f0e0]"
               title="Edit comment"
             >
               <Edit className="h-3 w-3" />
@@ -316,7 +316,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleDelete}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-transparent"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-[#f5f0e0]"
               title="Delete comment"
             >
               <Trash className="h-3 w-3" />
@@ -344,7 +344,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   ref={editInputRef}
                   value={editedContent} 
                   onChange={(e) => setEditedContent(e.target.value)}
-                  className="min-h-[80px] bg-transparent border-[#a67a48] text-[#161718]"
+                  className="min-h-[80px] bg-white border-[#a67a48] text-[#161718]"
                 />
                 <div className="flex justify-end mt-2 space-x-2">
                   <Button 
@@ -429,7 +429,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
             placeholder="Write a reply..."
-            className="min-h-[60px] bg-transparent border-[#a67a48] text-[#161718]"
+            className="min-h-[60px] bg-white border-[#a67a48] text-[#161718]"
           />
           <div className="flex justify-end mt-2 space-x-2">
             <Button 
