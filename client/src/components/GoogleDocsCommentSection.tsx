@@ -105,27 +105,35 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         ) : (
           <div className="space-y-6">
             {sortedComments.length > 0 ? (
-              sortedComments.map((comment) => (
-                <GoogleDocsComment 
-                  key={`comment-${comment.id}`} 
-                  comment={comment} 
-                  postId={postId}
-                  onDelete={() => {
-                    refetchComments();
-                    queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
-                    queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+              sortedComments.map((comment, index) => (
+                <div 
+                  key={`comment-${comment.id}`}
+                  className="transition-all duration-300 animate-comment-enter"
+                  style={{ 
+                    animationDelay: `${index * 50}ms`,
+                    animationFillMode: 'both'
                   }}
-                  onUpdate={() => {
-                    refetchComments();
-                  }}
-                  onReply={() => {
-                    refetchComments();
-                    queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
-                    queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
-                  }}
-                  refetchComments={refetchComments}
-                  focusedCommentId={focusedCommentId}
-                />
+                >
+                  <GoogleDocsComment
+                    comment={comment} 
+                    postId={postId}
+                    onDelete={() => {
+                      refetchComments();
+                      queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
+                      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+                    }}
+                    onUpdate={() => {
+                      refetchComments();
+                    }}
+                    onReply={() => {
+                      refetchComments();
+                      queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
+                      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+                    }}
+                    refetchComments={refetchComments}
+                    focusedCommentId={focusedCommentId}
+                  />
+                </div>
               ))
             ) : (
               <div className="bg-[#f5f0e0] p-6 rounded-lg text-center shadow-sm">
