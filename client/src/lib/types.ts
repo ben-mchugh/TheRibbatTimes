@@ -25,10 +25,13 @@ export interface Comment {
   author: User;
   postId: number;
   createdAt: string;
+  updatedAt?: string;
   elementId?: string; // The ID of the HTML element this comment is attached to
   selectedText?: string; // The text that was selected when the comment was created
   selectionStart?: number; // The start position of the selection in the content
   selectionEnd?: number; // The end position of the selection in the content
+  parentId?: number | null; // ID of the parent comment if this is a reply
+  isEdited?: boolean; // Whether this comment has been edited
 }
 
 export interface CommentWithPosition extends Comment {

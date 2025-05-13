@@ -272,7 +272,27 @@ const CommentSection = ({
         <div className="space-y-4 overflow-y-auto">
           {comments && comments.length > 0 ? (
             comments.map((comment) => (
-              <CommentItem key={`comment-${comment.id}-${comment.postId}`} comment={comment} />
+              <CommentItem 
+                key={`comment-${comment.id}-${comment.postId}`} 
+                comment={comment} 
+                postId={postId}
+                onDelete={(commentId) => {
+                  refetchComments();
+                  // Also invalidate related post queries to update comment counts
+                  queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+                }}
+                onUpdate={(commentId, content) => {
+                  refetchComments();
+                }}
+                onReply={(commentId, content) => {
+                  refetchComments();
+                  // Also invalidate related post queries to update comment counts
+                  queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
+                  queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+                }}
+                refetchComments={refetchComments}
+              />
             ))
           ) : (
             <div className="bg-[#f5f0e0] p-4 rounded-lg text-center py-6">
