@@ -179,8 +179,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     // Create a new list of nodes as we process (since we'll modify the DOM)
     let currentNodes = [...nodePositions];
     
-    // Track which segments of text we've already highlighted to avoid duplicates
-    const highlightedRanges = new Set();
+    // Track which segments of text we've already highlighted with their comment IDs
+    // Using a map to store comment IDs for each range, allowing multiple comments on the same range
+    const highlightedRanges = new Map();
     
     for (const comment of sortedComments) {
       if (!comment.selectedText || comment.selectionStart === null || comment.selectionEnd === null) {
@@ -192,14 +193,14 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Create a range key to track this exact selection
       const rangeKey = `${comment.selectionStart}-${comment.selectionEnd}`;
       
-      // Skip if we already highlighted this exact range
-      if (highlightedRanges.has(rangeKey)) {
-        console.log(`Range ${rangeKey} already highlighted, skipping`);
-        continue;
+      // We no longer skip if a range is already highlighted
+      // Instead, we track which comments are on this range to apply proper CSS
+      if (!highlightedRanges.has(rangeKey)) {
+        highlightedRanges.set(rangeKey, []);
       }
       
-      // Otherwise, mark this range as processed
-      highlightedRanges.add(rangeKey);
+      // Add this comment ID to the range
+      highlightedRanges.get(rangeKey).push(comment.id);
       
       // Find nodes that contain the start and end of this selection
       let startNodeInfo = null;
@@ -240,10 +241,25 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         // Create highlight span
         const highlightSpan = document.createElement('span');
         highlightSpan.className = 'selection-highlight';
+        
+        // Get existing comments on this range
+        const rangeKey = `${comment.selectionStart}-${comment.selectionEnd}`;
+        const commentsOnRange = highlightedRanges.get(rangeKey);
+        
+        // Store the comment ID and all related comment IDs in data attributes
         highlightSpan.setAttribute('data-comment-id', String(comment.id));
+        highlightSpan.setAttribute('data-comment-ids', commentsOnRange.join(','));
+        
+        // Track comment depth for overlap styling
+        const depth = commentsOnRange.length;
+        if (depth > 1) {
+          highlightSpan.setAttribute('data-depth', String(depth));
+          highlightSpan.classList.add(`depth-${Math.min(depth, 3)}`);
+        }
+        
         highlightSpan.setAttribute('tabindex', '0');
         highlightSpan.setAttribute('role', 'button');
-        highlightSpan.setAttribute('aria-label', 'View comment on this text');
+        highlightSpan.setAttribute('aria-label', `View ${commentsOnRange.length > 1 ? commentsOnRange.length + ' comments' : 'comment'} on this text`);
         
         if (newCommentIds.includes(comment.id)) {
           highlightSpan.setAttribute('data-new', 'true');
@@ -296,6 +312,17 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               // Replace with highlighted version
               const newFragment = document.createDocumentFragment();
               if (beforeText) newFragment.appendChild(document.createTextNode(beforeText));
+              
+              // Add additional depth classes for overlapping comments
+              const rangeKey = `${comment.selectionStart}-${comment.selectionEnd}`;
+              const commentsOnRange = highlightedRanges.get(rangeKey);
+              const depth = commentsOnRange.length;
+              
+              // Add a special class for manual highlighting
+              if (depth > 1) {
+                highlightSpan.classList.add('manual-highlight');
+                highlightSpan.classList.add(`depth-${Math.min(depth, 3)}`);
+              }
               
               highlightSpan.textContent = selectedText;
               newFragment.appendChild(highlightSpan);

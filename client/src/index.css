@@ -24,12 +24,22 @@
   box-shadow: none;
   /* Special style for nested comments */
   text-decoration: underline wavy rgba(166, 122, 72, 0.3);
+  
+  /* Ensure appropriate blending for overlaps */
+  mix-blend-mode: multiply;
+  z-index: 3;
 }
 
 /* Special style for deeply nested highlights */
 .selection-highlight .selection-highlight .selection-highlight {
   background-color: rgba(220, 150, 80, 0.25);
   border-bottom: 1px dotted rgba(138, 90, 40, 0.5);
+  z-index: 4;
+}
+
+/* Add higher z-index for more deeply nested highlights */
+.selection-highlight .selection-highlight .selection-highlight .selection-highlight {
+  z-index: 5;
 }
 
 .selection-highlight:hover {
