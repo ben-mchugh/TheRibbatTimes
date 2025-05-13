@@ -119,7 +119,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   });
   
   // Process text selection-based comments and add highlight spans
-  // This implements a simplified but more robust highlighting approach
+  // This implements a pure string-based approach for maximum stability
   const renderPostContentWithHighlights = useCallback(() => {
     if (!post?.content) return post?.content || '';
     
@@ -130,170 +130,206 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     
     if (commentsWithSelection.length === 0) return post.content;
     
-    // Create a temp div to work with the content
+    // Create a map of the exact text and their context
+    // This is to distinguish between multiple instances of the same text
+    const textContextMap = new Map();
+    
+    // Get a plain text version of the post content
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = post.content;
-    
-    // Get the textContent for position calculations
     const plainText = tempDiv.textContent || '';
     
-    // Sort comments by their position in the text (earlier first)
+    // Sort comments by position (to process them in order)
     const sortedComments = [...commentsWithSelection].sort((a, b) => {
       return (a.selectionStart || 0) - (b.selectionStart || 0);
     });
     
-    // We'll use a special approach to handle text spanning multiple DOM nodes
-    // First, create an array of all text nodes in order
-    const textNodes = getTextNodesIn(tempDiv);
+    // A simple text-based approach with HTML manipulation
+    let modifiedContent = post.content;
     
-    // Helper function to get character position from node and offset
-    function getCharacterPosition(targetNode, targetOffset) {
-      let position = 0;
-      for (const node of textNodes) {
-        if (node === targetNode) {
-          return position + targetOffset;
-        }
-        position += node.textContent?.length || 0;
-      }
-      return -1;
-    }
-    
-    // Helper function to find node and offset for a character position
-    function findNodeForPosition(targetPosition) {
-      let cumulativeLength = 0;
-      
-      for (const node of textNodes) {
-        const nodeLength = node.textContent?.length || 0;
-        
-        if (cumulativeLength + nodeLength > targetPosition) {
-          // This node contains our position
-          return {
-            node,
-            offset: targetPosition - cumulativeLength
-          };
-        }
-        
-        cumulativeLength += nodeLength;
-      }
-      
-      // If we get here, we're at the end of the document
-      const lastNode = textNodes[textNodes.length - 1];
-      return {
-        node: lastNode,
-        offset: lastNode.textContent?.length || 0
-      };
-    }
-    
-    // Process each comment to add highlights
-    let highlightCount = 0;
-    
-    // We'll process comments in reverse order (from last to first position)
-    // to avoid position shifts as we modify the DOM
-    [...sortedComments].reverse().forEach(comment => {
+    // Process each comment to add a highlight
+    sortedComments.forEach(comment => {
       // Skip invalid comments
       if (!comment.selectedText || comment.selectionStart === undefined || comment.selectionEnd === undefined) {
         return;
       }
       
-      // Debug logging
       console.log(`Processing comment ${comment.id}: "${comment.selectedText}" at positions ${comment.selectionStart}-${comment.selectionEnd}`);
       
-      // Check if the positions make sense
-      const textAtPosition = plainText.substring(comment.selectionStart, comment.selectionEnd);
-      console.log(`Text at positions ${comment.selectionStart}-${comment.selectionEnd}: "${textAtPosition}"`);
+      // Exact text that was selected
+      const selectedText = comment.selectedText;
       
-      // If the text doesn't match the selection, find the actual text
-      if (textAtPosition !== comment.selectedText) {
-        // First try to find it nearby (within 100 chars)
-        const contextRange = 100;
-        const searchStart = Math.max(0, comment.selectionStart - contextRange);
-        const searchEnd = Math.min(plainText.length, comment.selectionEnd + contextRange);
-        const searchArea = plainText.substring(searchStart, searchEnd);
-        
-        const relativePos = searchArea.indexOf(comment.selectedText);
-        if (relativePos >= 0) {
-          // Found it nearby
-          comment.selectionStart = searchStart + relativePos;
-          comment.selectionEnd = comment.selectionStart + comment.selectedText.length;
-          console.log(`Adjusted positions to ${comment.selectionStart}-${comment.selectionEnd}`);
-        } else {
-          // Try to find it anywhere in the text
-          const pos = plainText.indexOf(comment.selectedText);
-          if (pos >= 0) {
-            comment.selectionStart = pos;
-            comment.selectionEnd = pos + comment.selectedText.length;
-            console.log(`Found text globally at positions ${comment.selectionStart}-${comment.selectionEnd}`);
-          } else {
-            console.log(`Could not find text "${comment.selectedText}" in the content, skipping highlight`);
-            return;
-          }
-        }
-      }
+      // Calculate context to identify the precise occurrence we want to highlight
+      // Get text before and after the selection (up to 20 chars)
+      const contextBefore = plainText.substring(
+        Math.max(0, comment.selectionStart - 20), 
+        comment.selectionStart
+      );
+      
+      const contextAfter = plainText.substring(
+        comment.selectionEnd,
+        Math.min(plainText.length, comment.selectionEnd + 20)
+      );
+      
+      // The full pattern we'll search for, with context
+      const fullPattern = `${contextBefore}${selectedText}${contextAfter}`;
+      
+      // Escape the text for use in HTML replacements
+      const escapeForHtml = (text) => {
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      };
+      
+      // Escape special characters for regex
+      const escapeRegExp = (string) => {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      };
+      
+      // Escaped versions for safety
+      const escapedText = escapeForHtml(selectedText);
+      const escapedContextBefore = escapeRegExp(escapeForHtml(contextBefore));
+      const escapedContextAfter = escapeRegExp(escapeForHtml(contextAfter));
+      
+      // Create the highlight HTML
+      const isNew = newCommentIds.includes(comment.id);
+      const highlightHtml = `<span class="selection-highlight" data-comment-id="${comment.id}" tabindex="0" role="button" ${isNew ? 'data-new="true"' : ''}>${escapedText}</span>`;
+      
+      // Regular expression pattern with context to find the exact instance
+      // This uses lookahead and lookbehind to ensure we find the exact text with matching context
+      let regexPattern;
       
       try {
-        // Find the DOM nodes corresponding to our start and end positions
-        const startNodeInfo = findNodeForPosition(comment.selectionStart);
-        const endNodeInfo = findNodeForPosition(comment.selectionEnd);
-        
-        // Create a range to highlight
-        const range = document.createRange();
-        range.setStart(startNodeInfo.node, startNodeInfo.offset);
-        range.setEnd(endNodeInfo.node, endNodeInfo.offset);
-        
-        // Create our highlight span
-        const highlightSpan = document.createElement('span');
-        highlightSpan.className = 'selection-highlight';
-        highlightSpan.setAttribute('data-comment-id', comment.id.toString());
-        highlightSpan.setAttribute('tabindex', '0');
-        highlightSpan.setAttribute('role', 'button');
-        
-        if (newCommentIds.includes(comment.id)) {
-          highlightSpan.setAttribute('data-new', 'true');
-        }
-        
-        // Apply the highlight
-        try {
-          range.surroundContents(highlightSpan);
-          highlightCount++;
-        } catch (e) {
-          console.log(`Failed to highlight range: ${e.message}`);
+        if (contextBefore && contextAfter) {
+          // If we have context on both sides, be precise
+          regexPattern = new RegExp(`(${escapedContextBefore})(${escapeRegExp(escapedText)})(${escapedContextAfter})`, 'g');
+          modifiedContent = modifiedContent.replace(regexPattern, `$1${highlightHtml}$3`);
+        } else {
+          // If we don't have context or it fails, try a direct replacement
+          // We'll give it a unique ID attribute so we can find and replace it properly
+          const uniqueKey = `highlightmarker-${Date.now()}-${comment.id}`;
           
-          // If surroundContents fails, the range likely crosses multiple nodes
-          // In this case, we'll use a simpler but less precise approach
-          // We'll highlight the entire nodes that contain our range
-          if (startNodeInfo.node === endNodeInfo.node) {
-            // If they're in the same node, we can use extractContents/insertNode
-            const textNode = startNodeInfo.node;
-            const parent = textNode.parentNode;
+          // First replace the text with a special marker, making sure it's inside text nodes only 
+          regexPattern = new RegExp(`(${escapeRegExp(escapedText)})(?![^<]*>)`, 'g');
+          
+          // Find all matches
+          const matches = [];
+          let match;
+          let tempContent = plainText;
+          let offset = 0;
+          
+          // Plain text search to find the position we want
+          while ((match = tempContent.indexOf(selectedText, offset)) !== -1) {
+            // Check if it's a match for our position
+            if (match <= comment.selectionStart && match + selectedText.length >= comment.selectionEnd) {
+              matches.push(match);
+              break; // We found our match
+            }
+            offset = match + 1;
+          }
+          
+          // If we found a match position, use it
+          if (matches.length > 0) {
+            const matchPos = matches[0];
             
-            if (parent) {
-              // Create a new range that selects just the text we want
-              const newRange = document.createRange();
-              newRange.setStart(textNode, startNodeInfo.offset);
-              newRange.setEnd(textNode, endNodeInfo.offset);
+            // Create a temporary div to parse the content
+            const tempParseDiv = document.createElement('div');
+            tempParseDiv.innerHTML = modifiedContent;
+            
+            // Find the text nodes
+            const textNodes = getTextNodesIn(tempParseDiv);
+            
+            // Track position through text nodes
+            let currentPos = 0;
+            let found = false;
+            
+            // Loop through text nodes to find our position
+            for (let i = 0; i < textNodes.length; i++) {
+              const node = textNodes[i];
+              const nodeText = node.textContent || '';
+              const nodeLength = nodeText.length;
               
-              // Extract the content and wrap it
-              const fragment = newRange.extractContents();
-              highlightSpan.appendChild(fragment);
+              // Check if this node contains our match
+              if (currentPos <= matchPos && matchPos < currentPos + nodeLength) {
+                // Found the node containing our text
+                const startOffset = matchPos - currentPos;
+                
+                if (startOffset + selectedText.length <= nodeLength) {
+                  // The selection fits within this single node - perfect!
+                  const parent = node.parentNode;
+                  
+                  // Split the text node at the start of the selection
+                  const beforeText = nodeText.substring(0, startOffset);
+                  const selectedContent = nodeText.substring(startOffset, startOffset + selectedText.length);
+                  const afterText = nodeText.substring(startOffset + selectedText.length);
+                  
+                  // Create the highlight span
+                  const span = document.createElement('span');
+                  span.className = 'selection-highlight';
+                  span.setAttribute('data-comment-id', comment.id.toString());
+                  span.setAttribute('tabindex', '0');
+                  span.setAttribute('role', 'button');
+                  if (isNew) {
+                    span.setAttribute('data-new', 'true');
+                  }
+                  span.textContent = selectedContent;
+                  
+                  // Replace the node with our before + span + after
+                  const fragment = document.createDocumentFragment();
+                  if (beforeText) {
+                    fragment.appendChild(document.createTextNode(beforeText));
+                  }
+                  fragment.appendChild(span);
+                  if (afterText) {
+                    fragment.appendChild(document.createTextNode(afterText));
+                  }
+                  
+                  parent.replaceChild(fragment, node);
+                  found = true;
+                  break;
+                }
+              }
               
-              // Insert it back
-              newRange.insertNode(highlightSpan);
-              highlightCount++;
+              currentPos += nodeLength;
+            }
+            
+            if (found) {
+              // We successfully replaced in the DOM, now get the HTML back
+              modifiedContent = tempParseDiv.innerHTML;
+            } else {
+              // Fallback to regex if DOM manipulation failed
+              let attempts = 0;
+              const doReplace = () => {
+                const replaceRegex = new RegExp(`(${escapeRegExp(escapedText)})(?![^<]*>)`, 'g');
+                const replacedContent = modifiedContent.replace(replaceRegex, (match, capture, index) => {
+                  attempts++;
+                  
+                  // Only replace the correct occurrence
+                  const textUptToMatch = tempDiv.textContent?.substring(0, index) || '';
+                  const matchPos = textUptToMatch.length;
+                  
+                  if (Math.abs(matchPos - comment.selectionStart) < 50 || attempts === 1) {
+                    return highlightHtml;
+                  }
+                  return match;
+                });
+                
+                return replacedContent;
+              };
+              
+              modifiedContent = doReplace();
             }
           }
         }
       } catch (e) {
-        console.log(`Error creating highlight for comment ${comment.id}: ${e.message}`);
+        console.error(`Error adding highlight for comment ${comment.id}:`, e);
       }
     });
     
-    // Remove any empty spans or broken nodes that might have been created
-    const cleanupSpans = tempDiv.querySelectorAll('span:empty');
-    cleanupSpans.forEach(span => span.remove());
-    
-    console.log(`Found and enhanced ${highlightCount} text highlights in the content`);
-    
-    return tempDiv.innerHTML;
+    return modifiedContent;
   }, [post?.content, comments, newCommentIds, getTextNodesIn]);
   
   // Utility function to escape regex special characters
