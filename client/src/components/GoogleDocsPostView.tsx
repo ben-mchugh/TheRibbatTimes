@@ -567,6 +567,11 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           // Focus the associated comment
           setFocusedCommentId(commentId);
           
+          // Make sure comments pane is shown when a highlight is clicked
+          if (!showComments) {
+            setShowComments(true);
+          }
+          
           // Find all highlights with the same ID and add pulse effects
           const allHighlights = document.querySelectorAll(`.selection-highlight[data-comment-id="${commentId}"]`);
           allHighlights.forEach(highlight => {
