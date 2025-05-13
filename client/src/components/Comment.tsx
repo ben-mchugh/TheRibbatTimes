@@ -292,35 +292,35 @@ const CommentItem = ({
             <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
             <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="ml-3 flex-1">
-            <div className="flex flex-row justify-between items-center">
+          <div className="ml-3 flex-1 relative">
+            {/* Action buttons in the absolute top right corner */}
+            <div className="absolute top-0 right-0 flex space-x-1">
+              <Button 
+                onClick={handleEdit}
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0]"
+                title="Edit comment"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              
+              <Button 
+                onClick={handleDelete}
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0]"
+                title="Delete comment"
+              >
+                <Trash className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="flex flex-row justify-between items-center pr-16"> {/* Added padding to make room for buttons */}
               <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
               <div className="flex items-center">
                 <span className="text-xs text-[#a67a48] mr-2">{formattedDate}</span>
                 {comment.isEdited && <span className="text-xs text-[#a67a48] italic mr-2">(edited)</span>}
-                
-                {/* Direct buttons instead of dropdown for better visibility */}
-                <div className="flex space-x-2">
-                  <Button 
-                    onClick={handleEdit}
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 flex items-center text-[#a67a48] hover:text-[#8a5a28]"
-                  >
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  
-                  <Button 
-                    onClick={handleDelete}
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 flex items-center text-[#a67a48] hover:text-[#8a5a28]"
-                  >
-                    <Trash className="h-4 w-4 mr-1" />
-                    Delete
-                  </Button>
-                </div>
               </div>
             </div>
             
@@ -366,21 +366,21 @@ const CommentItem = ({
             {!isEditing && !isReply && (
               <div className="mt-3 flex space-x-3">
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
                   onClick={handleReply}
-                  className="flex items-center text-sm text-[#a67a48] hover:text-[#8a5a28] border-[#a67a48] hover:bg-[#f5f0e0] hover:border-[#8a5a28]"
+                  className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 px-2 py-0"
                 >
-                  <Reply className="h-4 w-4 mr-2" />
+                  <Reply className="h-3 w-3 mr-1" />
                   Reply
                 </Button>
                 
                 {hasReplies && (
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     onClick={toggleReplies}
-                    className="flex items-center text-sm text-[#a67a48] hover:text-[#8a5a28] border-[#a67a48] hover:bg-[#f5f0e0] hover:border-[#8a5a28]"
+                    className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 px-2 py-0"
                     disabled={isLoadingReplies}
                   >
                     {isLoadingReplies ? (
@@ -388,9 +388,9 @@ const CommentItem = ({
                     ) : (
                       <>
                         {showReplies ? (
-                          <ChevronUp className="h-4 w-4 mr-2" />
+                          <ChevronUp className="h-3 w-3 mr-1" />
                         ) : (
-                          <ChevronDown className="h-4 w-4 mr-2" />
+                          <ChevronDown className="h-3 w-3 mr-1" />
                         )}
                         {showReplies ? 'Hide Replies' : 'Show Replies'}
                         {replies.length > 0 && !showReplies && ` (${replies.length})`}
