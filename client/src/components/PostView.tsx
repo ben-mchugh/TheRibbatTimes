@@ -123,7 +123,7 @@ const PostView = ({ postId }: PostViewProps) => {
     const inlineComments = sortedComments.filter(comment => comment.elementId);
     
     // Will store all comment positions
-    const positions: Array<{id: number; top: number; comment: Comment}> = [];
+    const positions: Array<{id: number; top: number; comment: Comment; zIndex: number}> = [];
     
     // Track occupied vertical space to prevent overlapping
     // Map of top position -> height of comment
@@ -268,11 +268,31 @@ const PostView = ({ postId }: PostViewProps) => {
         updateCommentPositions();
         const handleScroll = () => updateCommentPositions();
         
+        // Add click handlers to selection highlights after DOM is updated
+        const attachClickListeners = () => {
+          const highlightSpans = document.querySelectorAll('.selection-highlight');
+          highlightSpans.forEach(span => {
+            const commentId = parseInt(span.getAttribute('data-comment-id') || '0', 10);
+            if (commentId) {
+              // Create a proper click handler that uses our handleHighlightClick function
+              const clickHandler = () => handleHighlightClick(commentId);
+              
+              // Remove existing listeners if any to prevent duplicates
+              span.removeEventListener('click', clickHandler);
+              // Add the new click handler
+              span.addEventListener('click', clickHandler);
+            }
+          });
+        };
+        
         contentContainer.addEventListener('scroll', handleScroll);
         window.addEventListener('resize', handleScroll);
         
-        // Initial calculation after render
-        const timeoutId = setTimeout(updateCommentPositions, 200);
+        // Initial calculation after render with slight delay to ensure DOM is ready
+        const timeoutId = setTimeout(() => {
+          updateCommentPositions();
+          attachClickListeners(); // Attach click handlers after position update
+        }, 300);
         
         return () => {
           contentContainer.removeEventListener('scroll', handleScroll);
@@ -281,7 +301,7 @@ const PostView = ({ postId }: PostViewProps) => {
         };
       }
     }
-  }, [comments, updateCommentPositions]);
+  }, [comments, updateCommentPositions, handleHighlightClick]);
   
   // Handler for text selection comments
   const handleSelectionComment = useCallback((commentText: string, start: number, end: number) => {
@@ -416,48 +436,46 @@ const PostView = ({ postId }: PostViewProps) => {
   
   // Render functions
   const renderMarginComments = () => {
-    return marginComments.map(({ id, top, comment, zIndex }) => (
-      <div 
-        key={id}
-        data-comment-id={id}
-        className={`margin-comment mb-3 last:mb-0 p-3 border-l-2 border-[#a67a48] bg-[#f9f6ea] rounded ${id === focusedCommentId ? 'ring-2 ring-[#a67a48]' : ''}`}
-        style={{ 
-          position: 'absolute', 
-          top: `${top}px`,
-          right: '1rem',
-          width: '280px',
-          maxWidth: '280px',
-          zIndex: zIndex || 10,
-          transition: 'top 0.3s ease-out, box-shadow 0.2s ease'
-        }}
-      >
-        {/* Connector line to visually link comment to text */}
+    return marginComments.map(({ id, top, comment, zIndex }) => {
+      const isFocused = id === focusedCommentId;
+      
+      return (
         <div 
-          className="absolute w-2 border-t border-[#a67a48] opacity-30" 
-          style={{
-            left: '-2px',
-            top: '30px', // Position near top of comment box
+          key={id}
+          data-comment-id={id}
+          data-focused={isFocused ? "true" : "false"}
+          onClick={() => setFocusedCommentId(id)} // Make comment clickable to focus
+          className="margin-comment mb-3 last:mb-0 p-3"
+          style={{ 
+            position: 'absolute', 
+            top: `${top}px`,
+            right: '1rem',
+            width: '280px',
+            maxWidth: '280px',
+            zIndex: isFocused ? 100 : (zIndex || 10),
+            transition: 'top 0.3s ease-out, box-shadow 0.2s ease, background-color 0.2s ease'
           }}
-        ></div>
-        <div className="flex items-start">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
-            <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-          </Avatar>
-          <div className="ml-2 flex-1">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
-            </div>
-            <p className="text-sm mt-1 text-[#161718]">{comment.content}</p>
-            {comment.selectedText && (
-              <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-2 p-2 rounded italic">
-                "{comment.selectedText}"
+        >
+          <div className="flex items-start">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
+              <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+            </Avatar>
+            <div className="ml-2 flex-1">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
               </div>
-            )}
+              <p className="text-sm mt-1 text-[#161718]">{comment.content}</p>
+              {comment.selectedText && (
+                <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-2 p-2 rounded italic">
+                  "{comment.selectedText}"
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    ));
+      );
+    });
   };
 
   // Loading state
