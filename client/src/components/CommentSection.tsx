@@ -236,8 +236,7 @@ const CommentSection = ({
             ))
           ) : (
             <div className="bg-[#f5f0e0] p-4 rounded-lg text-center py-6">
-              <p className="text-[#161718] text-sm">No comments yet.</p>
-              <p className="text-[#a67a48] text-xs mt-1">Be the first to start the conversation!</p>
+              {/* Empty space for when no comments exist */}
             </div>
           )}
         </div>

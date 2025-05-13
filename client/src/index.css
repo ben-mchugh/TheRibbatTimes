@@ -166,22 +166,10 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
   
-  /* Visual cue for text selection */
+  /* No visual cues for text selection */
   .post-main-content p, .post-main-content h1, .post-main-content h2, 
   .post-main-content h3, .post-main-content h4, .post-main-content h5, 
   .post-main-content h6, .post-main-content li {
     position: relative;
-  }
-  
-  .post-main-content p:hover::after, .post-main-content li:hover::after {
-    content: '';
-    position: absolute;
-    right: -10px;
-    top: 50%;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background-color: rgba(166, 122, 72, 0.5);
-    transform: translateY(-50%);
   }
 }
