@@ -104,23 +104,14 @@ const PostView = ({ postId }: PostViewProps) => {
     }
   }, [focusedCommentId, comments]);
 
-  // Handler for clicking on highlighted text - very simple direct approach
+  // Handler for clicking on highlighted text
   const handleHighlightClick = useCallback((commentId: number) => {
-    console.log(`Highlighting text clicked for comment ID ${commentId}`);
-    
-    // Set the focused comment to highlight it
     setFocusedCommentId(commentId);
     
-    // Simply grab the comment element by its ID and scroll it into view - the simplest approach
-    const commentElement = document.getElementById(`comment-${commentId}`);
-    if (commentElement) {
-      // This is the simplest solution - just scroll the comment into view
-      commentElement.scrollIntoView({
-        behavior: 'smooth', 
-        block: 'center'
-      });
-      
-      // No need to add animation here - already handled by data-focused attribute
+    // Scroll to the comment in the scrollable container
+    const comment = document.querySelector(`.margin-comment[data-comment-id="${commentId}"]`);
+    if (comment) {
+      comment.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, []);
   
@@ -429,8 +420,8 @@ const PostView = ({ postId }: PostViewProps) => {
                   <span className="text-sm text-[#161718]">{formattedDate}</span>
                 </div>
                 
-                {/* Two-column layout for content and inline comments - set fixed height */}
-                <div className="flex relative min-h-[500px] max-h-[calc(90vh-200px)]">
+                {/* Two-column layout for content and inline comments */}
+                <div className="flex relative">
                   {/* Main content - takes 65% width */}
                   <div className="w-[65%] pr-6">
                     <div className="prose prose-headings:text-[#161718] prose-p:text-[#161718] prose-strong:text-[#161718] prose-em:text-[#161718] prose-li:text-[#161718] max-w-none relative">
@@ -442,16 +433,15 @@ const PostView = ({ postId }: PostViewProps) => {
                   </div>
                   
                   {/* Inline comments appear next to the related text - takes 35% width */}
-                  <div className="w-[35%] relative h-full flex flex-col">
-                    {/* Fixed height comments container with scrollbar - it will always show a scrollbar when needed */}
-                    <div id="commentScrollContainer" className="comments-container overflow-y-auto sticky top-0 pr-2 max-h-screen flex-1">
+                  <div className="w-[35%] relative">
+                    {/* Comments container with scrollbar - allows independent scrolling */}
+                    <div className="comments-container h-full overflow-y-auto sticky top-0 pr-2">
                       {marginComments.map(({ id, comment, zIndex }) => {
                         const isFocused = id === focusedCommentId;
                         
                         return (
                           <div 
                             key={id}
-                            id={`comment-${id}`}
                             data-comment-id={id}
                             data-focused={isFocused ? "true" : "false"}
                             className={`margin-comment static mb-4 ${isFocused ? 'ring-2 ring-[#a67a48] bg-[#fdf8e9]' : ''}`}
@@ -461,7 +451,15 @@ const PostView = ({ postId }: PostViewProps) => {
                             onClick={() => setFocusedCommentId(id)}
                           >
                             {/* Connector to show which text this comment corresponds to */}
-                            <div className="connector-line"></div>
+                            <div className="connector-line" style={{ 
+                              position: 'absolute',
+                              left: '-15px',
+                              width: '15px',
+                              height: '2px',
+                              top: '50%',
+                              backgroundColor: '#a67a48',
+                              transform: 'translateY(-50%)'
+                            }}></div>
                             
                             <div className="flex items-start">
                               <div className="flex-1">
