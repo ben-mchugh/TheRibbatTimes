@@ -108,10 +108,39 @@ const PostView = ({ postId }: PostViewProps) => {
   const handleHighlightClick = useCallback((commentId: number) => {
     setFocusedCommentId(commentId);
     
-    // Scroll to the comment in the scrollable container
-    const comment = document.querySelector(`.margin-comment[data-comment-id="${commentId}"]`);
-    if (comment) {
-      comment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Find the highlighted text element that was clicked
+    const highlightedText = document.querySelector(`.selection-highlight[data-comment-id="${commentId}"]`);
+    
+    // Find the corresponding comment element using ID
+    const commentElement = document.getElementById(`comment-${commentId}`);
+    
+    if (highlightedText && commentElement) {
+      // Get the position of the highlighted text relative to the viewport
+      const highlightRect = highlightedText.getBoundingClientRect();
+      const highlightY = highlightRect.top + (highlightRect.height / 2);
+      
+      // Get the comment container
+      const commentsContainer = document.querySelector('.comments-container');
+      if (commentsContainer) {
+        // Calculate how far to scroll to align the comment with the highlighted text
+        const commentRect = commentElement.getBoundingClientRect();
+        const commentHeight = commentRect.height;
+        const containerRect = commentsContainer.getBoundingClientRect();
+        
+        // Current scroll position plus the difference between comment position and highlight position
+        const commentTop = commentRect.top;
+        const containerTop = containerRect.top;
+        const scrollTop = commentsContainer.scrollTop;
+        
+        // Target scroll position: current scroll + (comment's distance from highlight)
+        const targetScrollTop = scrollTop + (commentTop - highlightY);
+        
+        // Smooth scroll to the position
+        commentsContainer.scrollTo({ 
+          top: targetScrollTop, 
+          behavior: 'smooth' 
+        });
+      }
     }
   }, []);
   
@@ -442,6 +471,7 @@ const PostView = ({ postId }: PostViewProps) => {
                         return (
                           <div 
                             key={id}
+                            id={`comment-${id}`}
                             data-comment-id={id}
                             data-focused={isFocused ? "true" : "false"}
                             className={`margin-comment static mb-4 ${isFocused ? 'ring-2 ring-[#a67a48] bg-[#fdf8e9]' : ''}`}
