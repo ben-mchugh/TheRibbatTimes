@@ -19,10 +19,12 @@ interface GoogleDocsPostViewProps {
 const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   const [showComments, setShowComments] = useState(true);
   const [focusedCommentId, setFocusedCommentId] = useState<number | null>(null);
+  const [contentHeight, setContentHeight] = useState<number>(0);
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const postContentRef = useRef<HTMLDivElement>(null);
+  const contentContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
   // Fetch post data
@@ -217,6 +219,27 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   }
   
   // Listen for click events on highlighted text
+  // Track content container height for comments section
+  useEffect(() => {
+    if (!contentContainerRef.current) return;
+    
+    // Create a ResizeObserver to track height changes
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        // Get the height of the content container minus padding
+        const height = entry.contentRect.height;
+        setContentHeight(height);
+      }
+    });
+    
+    // Start observing the content container
+    resizeObserver.observe(contentContainerRef.current);
+    
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [post]);
+
   useEffect(() => {
     const handleHighlightClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -266,7 +289,10 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col">
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Main content area */}
-        <div className={`flex-1 ${showComments ? 'md:w-2/3' : 'md:w-full'}`}>
+        <div 
+          ref={contentContainerRef}
+          className={`flex-1 ${showComments ? 'md:w-2/3' : 'md:w-full'}`}
+        >
           {isLoadingPost ? (
             <div className="bg-[#e0d3af] p-6 rounded-lg">
               <Skeleton className="h-10 w-3/4 mb-4" />
@@ -363,6 +389,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             setShowComments={setShowComments}
             refetchComments={refetchComments}
             focusedCommentId={focusedCommentId}
+            contentHeight={contentHeight}
           />
         </div>
       </div>
