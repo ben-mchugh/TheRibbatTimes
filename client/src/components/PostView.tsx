@@ -109,8 +109,25 @@ const PostView = ({ postId }: PostViewProps) => {
     setFocusedCommentId(commentId);
     
     // Scroll to the comment in the scrollable container
+    const commentsContainer = document.querySelector('.comments-container');
     const comment = document.querySelector(`.margin-comment[data-comment-id="${commentId}"]`);
-    if (comment) {
+    
+    if (comment && commentsContainer) {
+      // Ensure the comments container is scrolled to show the target comment
+      const containerRect = commentsContainer.getBoundingClientRect();
+      const commentRect = comment.getBoundingClientRect();
+      
+      // Calculate the scroll position to center the comment in the container
+      const scrollTop = comment.scrollTop + (commentRect.top - containerRect.top) - 
+                        (containerRect.height - commentRect.height) / 2;
+                        
+      // Scroll the container to reveal the comment
+      commentsContainer.scrollTo({
+        top: scrollTop,
+        behavior: 'smooth'
+      });
+      
+      // Apply a focus style to make it stand out
       comment.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     
@@ -261,6 +278,26 @@ const PostView = ({ postId }: PostViewProps) => {
           document.dispatchEvent(new CustomEvent('focusComment', { 
             detail: { commentId: ${comment.id} } 
           }));
+          
+          // Scroll the comments container to show this comment
+          const commentsContainer = document.querySelector('.comments-container');
+          const comment = document.querySelector('.margin-comment[data-comment-id="${comment.id}"]');
+          
+          if (comment && commentsContainer) {
+            // Get positions
+            const containerRect = commentsContainer.getBoundingClientRect();
+            const commentRect = comment.getBoundingClientRect();
+            
+            // Calculate scroll position to center the comment
+            const scrollTop = commentsContainer.scrollTop + (commentRect.top - containerRect.top) - 
+                             (containerRect.height - commentRect.height) / 2;
+                             
+            // Scroll to the comment
+            commentsContainer.scrollTo({
+              top: scrollTop,
+              behavior: 'smooth'
+            });
+          }
         `);
         
         // Replace the text node with our new structure

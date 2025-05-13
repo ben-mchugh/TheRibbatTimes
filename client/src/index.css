@@ -8,17 +8,22 @@
   border-bottom: 2px solid #a67a48;
   cursor: pointer;
   position: relative;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  padding: 0 2px;
+  border-radius: 2px;
 }
 
 .selection-highlight:hover {
   background-color: rgba(255, 217, 102, 0.7);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(166, 122, 72, 0.2);
 }
 
 .selection-highlight:focus {
   outline: none;
   background-color: rgba(255, 217, 102, 0.8);
   box-shadow: 0 0 0 2px rgba(166, 122, 72, 0.4);
+  transform: translateY(-1px);
 }
 
 /* Element highlight for comments */
@@ -88,6 +93,34 @@ div[data-focused="true"] {
 /* Animation when a text highlight is clicked */
 .selection-highlight.highlight-focus-pulse {
   animation: highlight-text-pulse 1.8s ease-out;
+}
+
+/* Enhanced connector line for comments when focused */
+div[data-focused="true"] .connector-line {
+  width: 20px !important;
+  height: 3px !important;
+  background-color: #8a5a28 !important;
+  transition: all 0.3s ease;
+}
+
+/* Styled scrollbar for the comments container */
+.comments-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.comments-container::-webkit-scrollbar-track {
+  background: rgba(224, 211, 175, 0.6);
+  border-radius: 10px;
+}
+
+.comments-container::-webkit-scrollbar-thumb {
+  background-color: rgba(166, 122, 72, 0.8);
+  border-radius: 10px;
+  border: 2px solid rgba(224, 211, 175, 0.4);
+}
+
+.comments-container::-webkit-scrollbar-thumb:hover {
+  background-color: #8a5a28;
 }
 
 :root {
@@ -262,7 +295,20 @@ div[data-focused="true"] {
     width: 7px;
     height: 1px;
     background-color: rgba(166, 122, 72, 0.5);
-    transition: background-color 0.2s ease, width 0.2s ease, height 0.2s ease;
+    transition: all 0.3s ease;
+  }
+  
+  /* Enhanced connector line effect on hover */
+  .margin-comment:hover::before {
+    width: 12px;
+    height: 2px;
+    background-color: rgba(166, 122, 72, 0.8);
+    animation: connector-pulse 1.5s infinite alternate;
+  }
+  
+  @keyframes connector-pulse {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
   }
   
   /* No visual cues for text selection */
