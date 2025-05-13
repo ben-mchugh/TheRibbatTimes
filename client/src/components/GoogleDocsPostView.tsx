@@ -664,12 +664,12 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           </Button>
         </a>
         
-        {/* Comments toggle button - simplified to just an icon with reduced opacity */}
+        {/* Comments toggle button - simplified to just an icon with normal opacity */}
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setShowComments(!showComments)}
-          className={`bg-[#f5f0e0]/80 hover:bg-[#f5f0e0] text-[#a67a48]/50 hover:text-[#8a5a28]/70 rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-50' : 'opacity-40'}`}
+          className={`bg-[#f5f0e0]/80 hover:bg-[#f5f0e0] text-[#a67a48] hover:text-[#8a5a28] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-100' : 'opacity-80'}`}
           title={showComments ? "Hide comments" : "Show comments"}
         >
           <MessageSquare className="h-5 w-5" />
