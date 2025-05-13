@@ -298,24 +298,29 @@ const CommentItem = ({
               <div className="flex items-center">
                 <span className="text-xs text-[#a67a48] mr-2">{formattedDate}</span>
                 {comment.isEdited && <span className="text-xs text-[#a67a48] italic mr-2">(edited)</span>}
-                {/* Always show dropdown menu for now to debug, we'll use isAuthor later */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleEdit}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleDelete}>
-                      <Trash className="h-4 w-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                
+                {/* Direct buttons instead of dropdown for better visibility */}
+                <div className="flex space-x-2">
+                  <Button 
+                    onClick={handleEdit}
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 flex items-center text-[#a67a48] hover:text-[#8a5a28]"
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleDelete}
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 flex items-center text-[#a67a48] hover:text-[#8a5a28]"
+                  >
+                    <Trash className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
               </div>
             </div>
             
@@ -359,23 +364,23 @@ const CommentItem = ({
             )}
             
             {!isEditing && !isReply && (
-              <div className="mt-2 flex space-x-2">
+              <div className="mt-3 flex space-x-3">
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="sm" 
                   onClick={handleReply}
-                  className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] p-0 h-6"
+                  className="flex items-center text-sm text-[#a67a48] hover:text-[#8a5a28] border-[#a67a48] hover:bg-[#f5f0e0] hover:border-[#8a5a28]"
                 >
-                  <Reply className="h-3 w-3 mr-1" />
+                  <Reply className="h-4 w-4 mr-2" />
                   Reply
                 </Button>
                 
                 {hasReplies && (
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={toggleReplies}
-                    className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] p-0 h-6"
+                    className="flex items-center text-sm text-[#a67a48] hover:text-[#8a5a28] border-[#a67a48] hover:bg-[#f5f0e0] hover:border-[#8a5a28]"
                     disabled={isLoadingReplies}
                   >
                     {isLoadingReplies ? (
@@ -383,9 +388,9 @@ const CommentItem = ({
                     ) : (
                       <>
                         {showReplies ? (
-                          <ChevronUp className="h-3 w-3 mr-1" />
+                          <ChevronUp className="h-4 w-4 mr-2" />
                         ) : (
-                          <ChevronDown className="h-3 w-3 mr-1" />
+                          <ChevronDown className="h-4 w-4 mr-2" />
                         )}
                         {showReplies ? 'Hide Replies' : 'Show Replies'}
                         {replies.length > 0 && !showReplies && ` (${replies.length})`}
