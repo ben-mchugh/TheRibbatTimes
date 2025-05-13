@@ -119,13 +119,13 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   });
   
   // Process text selection-based comments and add highlight spans
-  // We're taking a simple, direct approach to highlighting
+  // We're taking a direct approach using exact text matching
   const renderPostContentWithHighlights = useCallback(() => {
     if (!post?.content) return post?.content || '';
     
     // If no comments with selection data, just return the content
     const commentsWithSelection = comments.filter(
-      c => c.selectedText && c.selectedText.trim() !== ''
+      c => c.selectedText && c.selectedText !== ''
     );
     
     if (commentsWithSelection.length === 0) return post.content;
@@ -137,23 +137,69 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     const contentDiv = document.createElement('div');
     contentDiv.innerHTML = post.content;
     
-    // Get all text nodes in the content
+    // Get the full text content for searching
     const allTextNodes = getTextNodesIn(contentDiv);
     const fullText = contentDiv.textContent || '';
     
-    // Process each comment
-    let highlightCount = 0;
-    
+    // Keep a copy of the original positions so we know where to look
+    const originalPositions = new Map();
     commentsWithSelection.forEach(comment => {
+      if (comment.selectedText && comment.selectionStart !== undefined) {
+        originalPositions.set(comment.id, {
+          start: comment.selectionStart,
+          end: comment.selectionEnd
+        });
+      }
+    });
+    
+    // Process each comment - prioritize recent comments
+    let highlightCount = 0;
+    const sortedComments = [...commentsWithSelection].sort((a, b) => {
+      // Newest comments first
+      if (a.id && b.id) return b.id - a.id;
+      return 0;
+    });
+    
+    sortedComments.forEach(comment => {
       if (!comment.selectedText) return;
       
-      const selectedText = comment.selectedText.trim();
+      // For exact matching, use the unprocessed selectedText
+      const selectedText = comment.selectedText;
       
       // Debug info
       console.log(`Processing comment ${comment.id}: "${selectedText}"`);
       
-      // Find this text in the content
-      const textPos = fullText.indexOf(selectedText);
+      // Get the original position (if available)
+      const originalPos = originalPositions.get(comment.id);
+      let textPos = -1;
+      
+      // Try to find the text close to its original position first
+      if (originalPos && originalPos.start !== undefined) {
+        // Search for the text within a reasonable range of the original position
+        const contextStart = Math.max(0, originalPos.start - 50);
+        const contextEnd = Math.min(fullText.length, originalPos.end + 50);
+        const contextText = fullText.substring(contextStart, contextEnd);
+        
+        const localPos = contextText.indexOf(selectedText);
+        if (localPos >= 0) {
+          textPos = contextStart + localPos;
+        }
+      }
+      
+      // If not found near the original position, try a global search
+      if (textPos === -1) {
+        textPos = fullText.indexOf(selectedText);
+      }
+      
+      // If still not found, try with trimmed version as fallback
+      if (textPos === -1) {
+        const trimmedText = selectedText.trim();
+        textPos = fullText.indexOf(trimmedText);
+        if (textPos >= 0) {
+          console.log(`Using trimmed text: "${trimmedText}" at position ${textPos}`);
+        }
+      }
+      
       if (textPos === -1) {
         console.log(`Text "${selectedText}" not found in content`);
         return;
@@ -171,7 +217,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Mark this as processed
       processedTexts.set(selectionKey, comment.id);
       
-      // Find the node and position for this text
+      // Find the exact text in the DOM
       let currentPosition = 0;
       let startNode = null;
       let startOffset = 0;
@@ -210,6 +256,56 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // If we found valid positions
       if (startNode && endNode) {
         try {
+          // Get the actual text at these positions to verify
+          let verifyNode = startNode;
+          let verifyText = '';
+          
+          if (startNode === endNode) {
+            // If in same node, just get the text between our offsets
+            verifyText = startNode.textContent?.substring(startOffset, endOffset) || '';
+          } else {
+            // If spanning multiple nodes, we need to reconstruct the text
+            // (This is rare but can happen with HTML formatting)
+            let currentNode = startNode;
+            let currentNodeIdx = allTextNodes.indexOf(startNode);
+            
+            // Get text from start node
+            verifyText += startNode.textContent?.substring(startOffset) || '';
+            
+            // Get text from middle nodes (if any)
+            currentNodeIdx++;
+            while (currentNode !== endNode && currentNodeIdx < allTextNodes.length) {
+              currentNode = allTextNodes[currentNodeIdx];
+              if (currentNode !== endNode) {
+                verifyText += currentNode.textContent || '';
+              }
+              currentNodeIdx++;
+            }
+            
+            // Get text from end node
+            if (currentNode === endNode) {
+              verifyText += endNode.textContent?.substring(0, endOffset) || '';
+            }
+          }
+          
+          // Check if the text we'd be highlighting matches what we expect
+          if (verifyText !== selectedText) {
+            console.log(`Verification failed: expected "${selectedText}" but found "${verifyText}"`);
+            
+            // Try to find the exact text in this node
+            const nodeText = startNode.textContent || '';
+            const exactPos = nodeText.indexOf(selectedText);
+            
+            if (exactPos >= 0) {
+              console.log(`Found exact text "${selectedText}" at local offset ${exactPos}`);
+              startOffset = exactPos;
+              endOffset = exactPos + selectedText.length;
+            } else {
+              console.log(`Could not find exact text in node`);
+              return;
+            }
+          }
+          
           // Create a range to highlight
           const range = document.createRange();
           range.setStart(startNode, startOffset);
@@ -231,6 +327,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             // Apply the highlight
             range.surroundContents(highlightSpan);
             highlightCount++;
+            console.log(`Successfully highlighted text: "${selectedText}"`);
           } catch (e) {
             console.log(`Error highlighting: ${e.message}`);
             
@@ -255,8 +352,11 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               if (afterText) newFragment.appendChild(document.createTextNode(afterText));
               
               // Replace the original node
-              node.parentNode?.replaceChild(newFragment, node);
-              highlightCount++;
+              if (node.parentNode) {
+                node.parentNode.replaceChild(newFragment, node);
+                highlightCount++;
+                console.log(`Highlighted using extraction method: "${selectedContent}"`);
+              }
             }
           }
         } catch (e) {
@@ -289,20 +389,52 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         
         console.log(`Found ${highlightElements.length} highlight elements to enhance`);
         
-        // Add event listeners to each highlight
-        highlightElements.forEach(highlight => {
+        // Remove any existing event listeners by cloning and replacing each element
+        const elementsArray = Array.from(highlightElements);
+        elementsArray.forEach(highlight => {
+          const clone = highlight.cloneNode(true);
+          if (highlight.parentNode) {
+            highlight.parentNode.replaceChild(clone, highlight);
+          }
+        });
+        
+        // Get fresh references after replacement
+        const freshHighlights = document.querySelectorAll('.selection-highlight');
+        
+        // Add event listeners to each fresh highlight
+        freshHighlights.forEach(highlight => {
           const commentId = highlight.getAttribute('data-comment-id');
           
           if (!commentId) return;
           
-          // Add event listeners
+          // Make sure highlight has accessibility attributes
+          highlight.setAttribute('tabindex', '0');
+          highlight.setAttribute('role', 'button');
+          highlight.setAttribute('aria-label', 'View comment on this text');
+          
+          // Add event listeners with explicit event prevention
           highlight.addEventListener('click', (event) => {
+            // Prevent default browser behavior and stop propagation
+            event.preventDefault();
+            event.stopPropagation();
+            
             // Log click event for debugging
             console.log('Click event detected:', event);
             console.log('Target element:', event.target);
             console.log('Target HTML:', (event.target as Element).outerHTML);
             
-            // Try to find the highlighted element
+            // Direct highlight click
+            if ((event.target as Element).classList?.contains('selection-highlight')) {
+              console.log('Direct highlight element clicked');
+              const id = (event.target as Element).getAttribute('data-comment-id');
+              if (id) {
+                const commentIdNum = parseInt(id, 10);
+                setFocusedCommentId(commentIdNum);
+                return;
+              }
+            }
+            
+            // If not direct, try to find the parent highlight element
             console.log('Looking for parent highlight elements...');
             let currentElement = event.target as Element;
             while (currentElement && currentElement !== document.body) {
@@ -318,12 +450,23 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               currentElement = currentElement.parentElement as Element;
             }
           });
+          
+          // Add keyboard accessibility
+          highlight.addEventListener('keydown', (event) => {
+            if ((event as KeyboardEvent).key === 'Enter' || (event as KeyboardEvent).key === ' ') {
+              event.preventDefault();
+              const id = highlight.getAttribute('data-comment-id');
+              if (id) {
+                setFocusedCommentId(parseInt(id, 10));
+              }
+            }
+          });
         });
       } catch (err) {
         console.error('Error enhancing highlights:', err);
       }
     }, 100);
-  }, []);
+  }, [setFocusedCommentId]);
   
   // Apply highlight enhancements after render
   useEffect(() => {

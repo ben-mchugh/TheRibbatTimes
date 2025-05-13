@@ -24,6 +24,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
     text: string;
     start: number;
     end: number;
+    exactText: string; // Stores the exact selected text without trimming
   } | null>(null);
   
   const menuRef = useRef<HTMLDivElement>(null);
@@ -33,60 +34,96 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
   
   // Handle text selection and right-click context menu
   useEffect(() => {
-    // Helper function to reliably determine text positions
+    // Get all text nodes in an element
+    function getTextNodesIn(node: Node): Text[] {
+      const textNodes: Text[] = [];
+      
+      function getTextNodes(node: Node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          textNodes.push(node as Text);
+        } else {
+          for (let i = 0; i < node.childNodes.length; i++) {
+            getTextNodes(node.childNodes[i]);
+          }
+        }
+      }
+      
+      getTextNodes(node);
+      return textNodes;
+    }
+    
+    // Calculate selection position in text
     const calculateSelectionPositions = (selection: Selection, postContent: Element) => {
+      // Always capture the exact selected text before trimming
+      const exactText = selection.toString();
+      
       // Get the selected text
-      const selectedText = selection.toString().trim();
+      const selectedText = exactText.trim();
       if (!selectedText) {
         console.log("Empty selection detected");
-        return { text: "", start: 0, end: 0 };
+        return { text: "", exactText: "", start: 0, end: 0 };
       }
       
       console.log(`User selected text: "${selectedText}"`);
       
-      // Much simpler approach - use the full content text and search for the selected text directly
-      const postText = postContent.textContent || '';
+      // Use all text nodes for precise calculation
+      const allTextNodes = getTextNodesIn(postContent);
+      let cumulativeLength = 0;
+      let startPosition = -1;
       
-      // Simple approach: find the text in the content
-      const position = postText.indexOf(selectedText);
-      if (position >= 0) {
-        console.log(`Found selected text at position ${position}-${position + selectedText.length}`);
+      // Get the range from the selection
+      const range = selection.getRangeAt(0);
+      
+      // Find the exact position by scanning text nodes
+      for (let i = 0; i < allTextNodes.length; i++) {
+        const node = allTextNodes[i];
+        const nodeLength = node.textContent?.length || 0;
+        
+        // Check if this node contains the selection start
+        if (startPosition === -1 && node === range.startContainer) {
+          startPosition = cumulativeLength + range.startOffset;
+        }
+        
+        // Move to next node
+        cumulativeLength += nodeLength;
+      }
+      
+      // If we found a valid start position
+      if (startPosition !== -1) {
+        const endPosition = startPosition + exactText.length;
+        
+        console.log(`Found selection at positions ${startPosition}-${endPosition}`);
         return {
           text: selectedText,
+          exactText,
+          start: startPosition,
+          end: endPosition
+        };
+      }
+      
+      // Fallback method if above fails
+      console.log("Using fallback method for selection positions");
+      
+      // Get the full text content
+      const fullText = postContent.textContent || '';
+      
+      // Find the text in the content
+      const position = fullText.indexOf(selectedText);
+      if (position >= 0) {
+        return {
+          text: selectedText,
+          exactText,
           start: position,
           end: position + selectedText.length
         };
       }
       
-      // If the exact match isn't found, log this issue
-      console.log(`WARNING: Could not find exact match for "${selectedText}" - trying alternative approaches`);
-      
-      // Try removing surrounding whitespace
-      const trimmedText = selectedText.replace(/^\s+|\s+$/g, '');
-      const trimmedPosition = postText.indexOf(trimmedText);
-      if (trimmedPosition >= 0) {
-        console.log(`Found trimmed text at position ${trimmedPosition}-${trimmedPosition + trimmedText.length}`);
-        return {
-          text: trimmedText,
-          start: trimmedPosition,
-          end: trimmedPosition + trimmedText.length
-        };
-      }
-      
-      // Fallback to the traditional range-based method
-      const range = selection.getRangeAt(0);
-      const precedingRange = document.createRange();
-      precedingRange.setStart(postContent, 0);
-      precedingRange.setEnd(range.startContainer, range.startOffset);
-      const startPos = precedingRange.toString().length;
-      const endPos = startPos + selectedText.length;
-      
-      console.log(`Fallback positions: ${startPos}-${endPos}`);
-      
+      // Last resort fallback
       return {
         text: selectedText,
-        start: startPos,
-        end: endPos
+        exactText,
+        start: 0,
+        end: selectedText.length
       };
     };
     
@@ -229,9 +266,10 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       return;
     }
     
+    // Use the exact selection text rather than the trimmed version for highlighting
     onAddComment({
       content: commentText,
-      selectedText: selectionData.text,
+      selectedText: selectionData.exactText, // Use exact text for proper highlighting
       selectionStart: selectionData.start,
       selectionEnd: selectionData.end
     });
