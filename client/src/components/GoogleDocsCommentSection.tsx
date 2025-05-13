@@ -65,15 +65,15 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   } : {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#a67a48] bg-transparent">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-transparent">
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#a67a48] bg-[#161718]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-[#161718]">
         <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
       </div>
       
       {/* Comments list with dynamic height matching content container */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-transparent"
+        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-[#161718]"
         style={containerStyle}
       >
         {isLoading ? (
