@@ -58,8 +58,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   });
 
   // Prepare style for comments container with dynamic height
-  const containerStyle = contentHeight ? {
+  // Only set a height if we have a valid positive height value
+  const containerStyle = contentHeight && contentHeight > 100 ? {
     height: `${contentHeight}px`,
+    maxHeight: `${contentHeight}px`, // Ensure it doesn't grow beyond this height
   } : {};
 
   return (

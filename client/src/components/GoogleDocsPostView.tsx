@@ -221,19 +221,27 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   // Listen for click events on highlighted text
   // Track content container height for comments section
   useEffect(() => {
-    if (!contentContainerRef.current) return;
+    if (!contentContainerRef.current || !postContentRef.current) return;
+    
+    // Function to calculate and set the content height
+    const updateHeight = () => {
+      // Get the height of the post content element rather than the container
+      const height = postContentRef.current?.offsetHeight || 0;
+      // Add a small buffer to account for padding
+      const adjustedHeight = height > 0 ? height + 32 : 0;
+      setContentHeight(adjustedHeight);
+    };
+    
+    // Initial height calculation
+    updateHeight();
     
     // Create a ResizeObserver to track height changes
-    const resizeObserver = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        // Get the height of the content container minus padding
-        const height = entry.contentRect.height;
-        setContentHeight(height);
-      }
+    const resizeObserver = new ResizeObserver(() => {
+      updateHeight();
     });
     
-    // Start observing the content container
-    resizeObserver.observe(contentContainerRef.current);
+    // Start observing the post content, not the entire container
+    resizeObserver.observe(postContentRef.current);
     
     return () => {
       resizeObserver.disconnect();
