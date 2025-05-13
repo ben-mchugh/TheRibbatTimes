@@ -335,13 +335,28 @@ const PostView = ({ postId }: PostViewProps) => {
   }, [comments, post]);
   
   // Helper function to get all text nodes in a given element
+  // More accurate implementation for handling nested text nodes
   function getTextNodesIn(node: Node): Text[] {
     const textNodes: Text[] = [];
     
     function getTextNodes(node: Node) {
+      // Skip script and style elements
+      if (
+        node.nodeType === Node.ELEMENT_NODE && 
+        (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE' || 
+         (node as Element).classList?.contains('selection-highlight'))
+      ) {
+        return;
+      }
+      
+      // Get text nodes
       if (node.nodeType === Node.TEXT_NODE) {
-        textNodes.push(node as Text);
+        // Only include non-empty text nodes
+        if (node.textContent && node.textContent.trim().length > 0) {
+          textNodes.push(node as Text);
+        }
       } else {
+        // Process children
         const children = node.childNodes;
         for (let i = 0; i < children.length; i++) {
           getTextNodes(children[i]);
