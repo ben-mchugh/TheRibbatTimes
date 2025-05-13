@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import GoogleDocsCommentSection from './GoogleDocsCommentSection';
 import GoogleDocsTextSelection from './GoogleDocsTextSelection';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, MessageSquare } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Helper function to escape special characters in string for RegExp
@@ -649,12 +649,25 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   }
   
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col">
+    <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col relative">
+      {/* Close button for the entire post view */}
+      <div className="absolute top-2 right-2 z-40">
+        <a href="/">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0]/50"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </a>
+      </div>
+      
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Main content area */}
         <div 
           ref={contentContainerRef}
-          className={`flex-1 ${showComments ? 'md:w-2/3' : 'md:w-full'}`}
+          className={`flex-1 ${showComments ? 'md:w-2/3' : 'md:w-full'} transition-all duration-300`}
         >
           {isLoadingPost ? (
             <div className="bg-[#e0d3af] p-6 rounded-lg">
@@ -707,40 +720,37 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             </div>
           )}
           
-          {/* Comments toggle button - mobile only */}
-          {isMobile && (
-            <div className="mt-4 flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowComments(!showComments)}
-                className="flex items-center text-[#a67a48] border-[#a67a48]"
-              >
-                {showComments ? (
-                  <>
-                    <ChevronRight className="h-4 w-4 mr-1" />
-                    Hide Comments
-                  </>
-                ) : (
-                  <>
-                    <ChevronLeft className="h-4 w-4 mr-1" />
-                    Show Comments
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
+          {/* Comments toggle button - on both mobile and desktop */}
+          <div className="mt-4 flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowComments(!showComments)}
+              className="flex items-center text-[#a67a48] border-[#a67a48] hover:bg-[#f5f0e0]/50"
+            >
+              {showComments ? (
+                <>
+                  <ChevronRight className="h-4 w-4 mr-1" />
+                  Hide Comments
+                </>
+              ) : (
+                <>
+                  <MessageSquare className="h-4 w-4 mr-1" />
+                  Show Comments
+                </>
+              )}
+            </Button>
+          </div>
         </div>
         
-        {/* Comments panel - slide in/out on mobile */}
+        {/* Comments panel - collapsible on both mobile and desktop */}
         <div 
           className={`
-            ${showComments ? 'block' : 'hidden md:block'} 
+            ${showComments ? 'block' : 'hidden'} 
             md:w-1/3 md:max-w-xs md:border-l border-[#a67a48]
             fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
             w-full md:w-auto z-30 md:z-auto bg-[#f9f5e8] md:bg-transparent
-            transition-transform duration-300 ease-in-out
-            ${showComments ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
+            transition-all duration-300 ease-in-out
             flex flex-col md:h-full
           `}
         >

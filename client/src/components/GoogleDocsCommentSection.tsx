@@ -72,7 +72,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           variant="ghost" 
           size="sm" 
           onClick={() => setShowComments(false)} 
-          className="md:hidden text-[#161718] hover:text-[#a67a48]"
+          className="text-[#161718] hover:text-[#a67a48]"
+          title="Close comments panel"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>

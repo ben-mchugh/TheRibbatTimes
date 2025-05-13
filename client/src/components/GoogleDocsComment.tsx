@@ -372,7 +372,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             )}
             
             {comment.selectedText && !isEditing && (
-              <div className="mt-2 text-xs text-[#a67a48] italic">
+              <div className="mt-2 text-xs text-[#888888] italic">
                 <span>"{comment.selectedText}"</span>
               </div>
             )}
