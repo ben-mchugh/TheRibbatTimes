@@ -65,15 +65,12 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   } : {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#a67a48] bg-transparent">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-transparent">
-        <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
-      </div>
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#a67a48] bg-[#f1f1f1]/20">
       
       {/* Comments list with dynamic height matching content container */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-transparent"
+        className="comments-container overflow-y-auto px-3 py-4 space-y-5 bg-transparent"
         style={containerStyle}
       >
         {isLoading ? (
@@ -128,9 +125,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 </div>
               ))
             ) : (
-              <div className="bg-[#f5f0e0] p-6 rounded-lg text-center shadow-lg opacity-100">
-                <p className="text-[#a67a48] font-medium">No comments yet</p>
-                <p className="text-sm text-[#a67a48]/80 mt-2">Select text and right-click to add the first comment</p>
+              <div className="opacity-0">
+                {/* No comments message removed */}
               </div>
             )}
           </div>
