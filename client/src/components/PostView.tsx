@@ -23,7 +23,11 @@ const PostView = ({ postId }: PostViewProps) => {
     id: number;
     top: number;
     comment: Comment;
+    zIndex?: number; // Used for stacking priority
   }>>([]);
+  
+  // Track which comment is currently focused (when highlighted text is clicked)
+  const [focusedCommentId, setFocusedCommentId] = useState<number | null>(null);
 
   // Hooks
   const { currentUser } = useAuth();
@@ -82,6 +86,19 @@ const PostView = ({ postId }: PostViewProps) => {
     staleTime: 2000 // Consider data stale after 2 seconds
   });
 
+  // Handler for clicking on highlighted text - brings associated comment to focus
+  const handleHighlightClick = useCallback((commentId: number) => {
+    setFocusedCommentId(commentId);
+    // Trigger a re-calculation of comment positions with the new focused comment
+    updateCommentPositions();
+    
+    // Optionally scroll to ensure the comment is visible
+    const comment = document.querySelector(`.margin-comment[data-comment-id="${commentId}"]`);
+    if (comment) {
+      comment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, []);
+  
   // Comment position calculation
   const updateCommentPositions = useCallback(() => {
     if (!comments.length) return;
@@ -113,8 +130,23 @@ const PostView = ({ postId }: PostViewProps) => {
     const occupiedSpaces: Array<{top: number; bottom: number}> = [];
     
     // Helper function to find a non-overlapping position
-    const findNonOverlappingPosition = (idealTop: number, commentHeight: number = 120): number => {
-      // Check for overlaps with the ideal position
+    // This function now considers the focused comment
+    const findNonOverlappingPosition = (
+      idealTop: number, 
+      commentHeight: number = 120,
+      commentId: number
+    ): { top: number, zIndex: number } => {
+      const isFocused = commentId === focusedCommentId;
+      
+      // If this is the focused comment, it gets priority at its ideal position
+      if (isFocused) {
+        return { 
+          top: idealTop, 
+          zIndex: 100 // Higher z-index to stay on top
+        };
+      }
+      
+      // For other comments, check if they overlap with the ideal position
       let isOverlapping = false;
       let overlapBottom = 0;
       
@@ -136,7 +168,7 @@ const PostView = ({ postId }: PostViewProps) => {
           top: idealTop,
           bottom: idealTop + commentHeight
         });
-        return idealTop;
+        return { top: idealTop, zIndex: 10 };
       }
       
       // Position it after the last overlapping comment
@@ -147,12 +179,12 @@ const PostView = ({ postId }: PostViewProps) => {
         top: newTop,
         bottom: newTop + commentHeight
       });
-      return newTop;
+      return { top: newTop, zIndex: 10 };
     };
     
     // Process each type of comment
     
-    // First handle standard element-based comments
+    // First handle standard element-based comments (if any)
     for (const comment of inlineComments) {
       // Guard against undefined elementId
       const elementId = comment.elementId || '';
@@ -164,17 +196,23 @@ const PostView = ({ postId }: PostViewProps) => {
       if (!containerRect) continue;
       
       const idealTop = rect.top - containerRect.top;
-      const finalTop = findNonOverlappingPosition(idealTop); 
+      const result = findNonOverlappingPosition(idealTop, 120, comment.id); 
       
       positions.push({
         id: comment.id,
-        top: finalTop,
-        comment
+        top: result.top,
+        comment,
+        zIndex: result.zIndex
       });
     }
     
+    // Process selection-based comments - sorted by their position in document
+    const sortedSelectionComments = [...selectionComments].sort((a, b) => {
+      return (a.selectionStart || 0) - (b.selectionStart || 0);
+    });
+    
     // Then handle selection-based comments
-    for (const comment of selectionComments) {
+    for (const comment of sortedSelectionComments) {
       // Find the highlighted span with this comment's selection
       const highlightSpan = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`);
       
@@ -183,18 +221,17 @@ const PostView = ({ postId }: PostViewProps) => {
         const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
         if (!containerRect) continue;
         
-        // Calculate the middle point of the highlighted text
-        const commentHeight = 120; // Approximate height of comment box
-        const highlightMidpoint = rect.top + (rect.height / 2) - containerRect.top;
+        // Get the text position relative to container
+        const highlightTop = rect.top - containerRect.top;
         
-        // Position the comment so its middle aligns with the highlight's middle
-        const idealTop = highlightMidpoint - (commentHeight / 2);
-        const finalTop = findNonOverlappingPosition(idealTop, commentHeight);
+        // Calculate position - align comment with the top of highlighted text
+        const { top, zIndex } = findNonOverlappingPosition(highlightTop, 120, comment.id);
         
         positions.push({
           id: comment.id,
-          top: finalTop,
-          comment
+          top,
+          comment,
+          zIndex
         });
       }
     }
