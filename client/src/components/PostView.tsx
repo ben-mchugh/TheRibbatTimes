@@ -443,6 +443,13 @@ const PostView = ({ postId }: PostViewProps) => {
                   
                   {/* Inline comments appear next to the related text - takes 35% width */}
                   <div className="w-[35%] relative">
+                    {/* Show message if no comments are available */}
+                    {marginComments.length === 0 && (
+                      <div className="text-sm text-[#a67a48] italic px-4 mt-2">
+                        No comments yet. Try selecting text to add a comment!
+                      </div>
+                    )}
+                    
                     {marginComments.map(({ id, top, comment }) => (
                       <div 
                         key={id} 
