@@ -70,7 +70,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       {/* Comments list with dynamic height matching content container */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto px-3 py-4 space-y-5 bg-transparent"
+        className="comments-container overflow-y-auto px-3 py-4 space-y-5"
         style={containerStyle}
       >
         {isLoading ? (
@@ -133,14 +133,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         )}
       </div>
       
-      {/* Instructions for commenting */}
-      <div className="px-4 py-3 border-t border-[#a67a48] bg-[#f5f0e0]/60">
-        <div className="flex items-center justify-center space-x-2">
-          <p className="text-sm text-[#a67a48] font-medium">
-            To add a comment, select text and right-click
-          </p>
-        </div>
-      </div>
+      {/* Instructions removed for cleaner minimalist design */}
     </div>
   );
 };
