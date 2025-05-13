@@ -52,10 +52,15 @@
 
 /* Comments container styles */
 .comments-container {
-  position: relative;
-  max-height: 80vh;
+  position: sticky;
+  top: 2rem;
+  max-height: 85vh;
+  min-height: 50vh;
   scrollbar-width: thin;
   scrollbar-color: #a67a48 #e0d3af;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .comments-container::-webkit-scrollbar {

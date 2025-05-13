@@ -443,7 +443,7 @@ const PostView = ({ postId }: PostViewProps) => {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-[#161718] bg-opacity-80">
       <div className="flex items-center justify-center min-h-screen py-8">
-        <div className="relative post-card w-full max-w-6xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto bg-[#e0d3af]">
+        <div className="relative post-card w-full max-w-6xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto bg-[#e0d3af]" style={{ maxHeight: "calc(100vh - 4rem)" }}>
           {/* Add the text selection menu component */}
           <TextSelectionMenu onAddComment={handleSelectionComment} />
           <Link href="/">
@@ -483,8 +483,8 @@ const PostView = ({ postId }: PostViewProps) => {
                   
                   {/* Inline comments appear next to the related text - takes 35% width */}
                   <div className="w-[35%] relative">
-                    {/* Comments container with scrollbar - allows independent scrolling */}
-                    <div className="comments-container h-full overflow-y-auto sticky top-0 pr-2">
+                    {/* Comments container with scrollbar - follows content with sticky positioning */}
+                    <div className="comments-container max-h-[85vh] overflow-y-auto sticky top-6 pr-2">
                       {marginComments.map(({ id, comment, zIndex }) => {
                         const isFocused = id === focusedCommentId;
                         
