@@ -47,7 +47,24 @@
   z-index: 10;
 }
 
-/* No indicator dot on highlights */
+/* Add a subtle indicator that there's a comment */
+.selection-highlight::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -1px;
+  width: 4px;
+  height: 4px;
+  background-color: rgba(166, 122, 72, 0.6);
+  border-radius: 50%;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+.selection-highlight:hover::after {
+  opacity: 0.8;
+  background-color: rgba(166, 122, 72, 0.8);
+}
 
 /* Element highlight for comments */
 .comment-highlight {
