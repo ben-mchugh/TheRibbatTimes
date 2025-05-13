@@ -82,7 +82,8 @@
 /* Comments container styles */
 .comments-container {
   position: relative;
-  /* Removed max-height constraint to allow unlimited comments */
+  /* Allow dynamic height to match content pane */
+  transition: height 0.3s ease-in-out;
   scrollbar-width: thin;
   scrollbar-color: #a67a48 #e0d3af;
 }

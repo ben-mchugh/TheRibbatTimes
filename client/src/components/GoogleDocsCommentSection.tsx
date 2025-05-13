@@ -14,6 +14,7 @@ interface GoogleDocsCommentSectionProps {
   setShowComments: (show: boolean) => void;
   refetchComments: () => void;
   focusedCommentId: number | null;
+  contentHeight?: number; // Optional height to match content container
 }
 
 const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
@@ -23,7 +24,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   showComments,
   setShowComments,
   refetchComments,
-  focusedCommentId
+  focusedCommentId,
+  contentHeight
 }) => {
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
@@ -55,6 +57,11 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
+  // Prepare style for comments container with dynamic height
+  const containerStyle = contentHeight ? {
+    height: `${contentHeight}px`,
+  } : {};
+
   return (
     <div className="gdocs-comment-section w-full h-full flex flex-col border-l border-[#a67a48]">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-[#f5f0e0]/60">
@@ -69,10 +76,11 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         </Button>
       </div>
       
-      {/* Comments list */}
+      {/* Comments list with dynamic height matching content container */}
       <div 
         ref={commentsRef}
-        className="comments-container flex-1 overflow-y-auto px-4 py-6 space-y-6"
+        className="comments-container overflow-y-auto px-4 py-6 space-y-6"
+        style={containerStyle}
       >
         {isLoading ? (
           <div className="space-y-6">
