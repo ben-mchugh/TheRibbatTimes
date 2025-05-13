@@ -421,7 +421,7 @@ const PostView = ({ postId }: PostViewProps) => {
                 </div>
                 
                 {/* Two-column layout for content and inline comments */}
-                <div className="flex relative">
+                <div className="flex relative min-h-[500px]">
                   {/* Main content - takes 65% width */}
                   <div className="w-[65%] pr-6">
                     <div className="prose prose-headings:text-[#161718] prose-p:text-[#161718] prose-strong:text-[#161718] prose-em:text-[#161718] prose-li:text-[#161718] max-w-none relative">
@@ -433,9 +433,9 @@ const PostView = ({ postId }: PostViewProps) => {
                   </div>
                   
                   {/* Inline comments appear next to the related text - takes 35% width */}
-                  <div className="w-[35%] relative">
-                    {/* Comments container with scrollbar - allows independent scrolling */}
-                    <div className="comments-container h-full overflow-y-auto sticky top-0 pr-2">
+                  <div className="w-[35%] relative h-full flex flex-col">
+                    {/* Comments container with scrollbar - matches height of the content */}
+                    <div className="comments-container overflow-y-auto sticky top-0 pr-2 flex-1">
                       {marginComments.map(({ id, comment, zIndex }) => {
                         const isFocused = id === focusedCommentId;
                         
@@ -451,15 +451,7 @@ const PostView = ({ postId }: PostViewProps) => {
                             onClick={() => setFocusedCommentId(id)}
                           >
                             {/* Connector to show which text this comment corresponds to */}
-                            <div className="connector-line" style={{ 
-                              position: 'absolute',
-                              left: '-15px',
-                              width: '15px',
-                              height: '2px',
-                              top: '50%',
-                              backgroundColor: '#a67a48',
-                              transform: 'translateY(-50%)'
-                            }}></div>
+                            <div className="connector-line"></div>
                             
                             <div className="flex items-start">
                               <div className="flex-1">
