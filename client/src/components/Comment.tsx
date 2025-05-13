@@ -8,9 +8,10 @@ import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Edit, Trash, Reply, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash, Reply, Check, X, ChevronDown, ChevronUp, MoreVertical } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -287,36 +288,36 @@ const CommentItem = ({
         } ${isReply ? 'border-l-2 border-[#a67a48]' : ''}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
       >
+        {/* Explicit action buttons in the top right corner */}
+        <div className="absolute top-2 right-2 flex space-x-2 z-10">
+          <Button 
+            onClick={handleEdit}
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 py-0 flex items-center gap-1 text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48]"
+          >
+            <Edit className="h-3 w-3" />
+            Edit
+          </Button>
+          
+          <Button 
+            onClick={handleDelete}
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 py-0 flex items-center gap-1 text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48]"
+          >
+            <Trash className="h-3 w-3" />
+            Delete
+          </Button>
+        </div>
+        
         <div className="flex items-start">
           <Avatar className="h-10 w-10 flex-shrink-0">
             <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
             <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="ml-3 flex-1 relative">
-            {/* Action buttons in the absolute top right corner */}
-            <div className="absolute top-0 right-0 flex space-x-1">
-              <Button 
-                onClick={handleEdit}
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0]"
-                title="Edit comment"
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              
-              <Button 
-                onClick={handleDelete}
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0]"
-                title="Delete comment"
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <div className="flex flex-row justify-between items-center pr-16"> {/* Added padding to make room for buttons */}
+          <div className="ml-3 flex-1">
+            <div className="flex flex-row justify-between items-center">
               <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
               <div className="flex items-center">
                 <span className="text-xs text-[#a67a48] mr-2">{formattedDate}</span>
