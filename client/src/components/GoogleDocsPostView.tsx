@@ -652,8 +652,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col">
-      {/* Top bar with controls */}
-      <div className="flex justify-between items-center mb-4">
+      {/* Sticky top bar with controls that stays visible when scrolling */}
+      <div className="flex justify-between items-center mb-4 sticky top-0 z-50 bg-gradient-to-b from-[#161718] to-[#161718]/95 py-3 px-2 rounded-md shadow-md">
         <Button
           variant="ghost"
           size="sm" 
