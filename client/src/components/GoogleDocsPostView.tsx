@@ -610,12 +610,22 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           // Focus the associated comment
           setFocusedCommentId(commentId);
           
-          // Find all highlights with the same ID and add pulse effects
-          const allHighlights = document.querySelectorAll(`.selection-highlight[data-comment-id="${commentId}"]`);
+          // Find all highlights with the same ID (both primary and in overlapping highlights)
+          // We need to find both exact matches and data-comment-ids that contain this ID
+          const exactHighlights = document.querySelectorAll(`.selection-highlight[data-comment-id="${commentId}"]`);
+          
+          // Also find overlapping highlights that contain this ID in their data-comment-ids attribute
+          const overlappingSelector = `.selection-highlight[data-comment-ids*="${commentId}"]`;
+          const overlappingHighlights = document.querySelectorAll(overlappingSelector);
+          
+          // Combine the two sets of highlight elements
+          const allHighlights = [...Array.from(exactHighlights), ...Array.from(overlappingHighlights)];
+          
+          // Add pulse effects to all matching highlights
           allHighlights.forEach(highlight => {
             highlight.classList.remove('highlight-focus-pulse');
             // Trigger a reflow to restart the animation
-            void highlight.offsetWidth;
+            void (highlight as HTMLElement).offsetWidth;
             highlight.classList.add('highlight-focus-pulse');
           });
           
