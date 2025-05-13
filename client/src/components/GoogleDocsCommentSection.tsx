@@ -65,14 +65,14 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   } : {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col rounded-l-lg shadow-md">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-[#f5f0e0]">
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l border-[#a67a48]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-[#f5f0e0]/60">
         <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={() => setShowComments(false)} 
-          className="text-[#161718] hover:text-[#a67a48]"
+          className="md:hidden text-[#161718] hover:text-[#a67a48]"
         >
           <ChevronLeft className="h-5 w-5" />
         </Button>
@@ -146,8 +146,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       </div>
       
       {/* Instructions for commenting */}
-      <div className="px-4 py-3 border-t border-[#a67a48] bg-[#f5f0e0]">
-        <div className="flex items-center justify-center">
+      <div className="px-4 py-3 border-t border-[#a67a48] bg-[#f5f0e0]/60">
+        <div className="flex items-center justify-center space-x-2">
           <p className="text-sm text-[#a67a48] font-medium">
             To add a comment, select text and right-click
           </p>

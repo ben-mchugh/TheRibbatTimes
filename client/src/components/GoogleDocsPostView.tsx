@@ -9,8 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import GoogleDocsCommentSection from './GoogleDocsCommentSection';
 import GoogleDocsTextSelection from './GoogleDocsTextSelection';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, MessageSquare } from 'lucide-react';
-import { useLocation } from 'wouter';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Helper function to escape special characters in string for RegExp
@@ -23,7 +22,7 @@ interface GoogleDocsPostViewProps {
 }
 
 const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   const [focusedCommentId, setFocusedCommentId] = useState<number | null>(null);
   const [contentHeight, setContentHeight] = useState<number>(0);
   const { currentUser } = useAuth();
@@ -32,7 +31,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   const postContentRef = useRef<HTMLDivElement>(null);
   const contentContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const [, setLocation] = useLocation();
   
   // Fetch post data
   const { 
@@ -179,9 +177,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     // Create a new list of nodes as we process (since we'll modify the DOM)
     let currentNodes = [...nodePositions];
     
-    // Track which segments of text we've already highlighted with their comment IDs
-    // Using a map to store comment IDs for each range, allowing multiple comments on the same range
-    const highlightedRanges = new Map();
+    // Track which segments of text we've already highlighted to avoid duplicates
+    const highlightedRanges = new Set();
     
     for (const comment of sortedComments) {
       if (!comment.selectedText || comment.selectionStart === null || comment.selectionEnd === null) {
@@ -193,14 +190,14 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Create a range key to track this exact selection
       const rangeKey = `${comment.selectionStart}-${comment.selectionEnd}`;
       
-      // We no longer skip if a range is already highlighted
-      // Instead, we track which comments are on this range to apply proper CSS
-      if (!highlightedRanges.has(rangeKey)) {
-        highlightedRanges.set(rangeKey, []);
+      // Skip if we already highlighted this exact range
+      if (highlightedRanges.has(rangeKey)) {
+        console.log(`Range ${rangeKey} already highlighted, skipping`);
+        continue;
       }
       
-      // Add this comment ID to the range
-      highlightedRanges.get(rangeKey).push(comment.id);
+      // Otherwise, mark this range as processed
+      highlightedRanges.add(rangeKey);
       
       // Find nodes that contain the start and end of this selection
       let startNodeInfo = null;
@@ -241,25 +238,10 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         // Create highlight span
         const highlightSpan = document.createElement('span');
         highlightSpan.className = 'selection-highlight';
-        
-        // Get existing comments on this range
-        const rangeKey = `${comment.selectionStart}-${comment.selectionEnd}`;
-        const commentsOnRange = highlightedRanges.get(rangeKey);
-        
-        // Store the comment ID and all related comment IDs in data attributes
         highlightSpan.setAttribute('data-comment-id', String(comment.id));
-        highlightSpan.setAttribute('data-comment-ids', commentsOnRange.join(','));
-        
-        // Track comment depth for overlap styling
-        const depth = commentsOnRange.length;
-        if (depth > 1) {
-          highlightSpan.setAttribute('data-depth', String(depth));
-          highlightSpan.classList.add(`depth-${Math.min(depth, 3)}`);
-        }
-        
         highlightSpan.setAttribute('tabindex', '0');
         highlightSpan.setAttribute('role', 'button');
-        highlightSpan.setAttribute('aria-label', `View ${commentsOnRange.length > 1 ? commentsOnRange.length + ' comments' : 'comment'} on this text`);
+        highlightSpan.setAttribute('aria-label', 'View comment on this text');
         
         if (newCommentIds.includes(comment.id)) {
           highlightSpan.setAttribute('data-new', 'true');
@@ -312,17 +294,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               // Replace with highlighted version
               const newFragment = document.createDocumentFragment();
               if (beforeText) newFragment.appendChild(document.createTextNode(beforeText));
-              
-              // Add additional depth classes for overlapping comments
-              const rangeKey = `${comment.selectionStart}-${comment.selectionEnd}`;
-              const commentsOnRange = highlightedRanges.get(rangeKey);
-              const depth = commentsOnRange.length;
-              
-              // Add a special class for manual highlighting
-              if (depth > 1) {
-                highlightSpan.classList.add('manual-highlight');
-                highlightSpan.classList.add(`depth-${Math.min(depth, 3)}`);
-              }
               
               highlightSpan.textContent = selectedText;
               newFragment.appendChild(highlightSpan);
@@ -564,23 +535,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           console.log(`${attr.name}: ${attr.value}`);
         }
         
-        // Check for multiple comments first
-        const commentIdsAttr = clickedElement.getAttribute('data-comment-ids');
-        let commentId: number;
-        
-        if (commentIdsAttr && commentIdsAttr.includes(',')) {
-          // For overlapping comments, get the IDs
-          console.log(`Multiple comments found: ${commentIdsAttr}`);
-          const idArray = commentIdsAttr.split(',').map(id => Number(id.trim()));
-          
-          // Use the first ID for now - in a future version, we could show a menu to select
-          commentId = idArray[0];
-          console.log(`Selected primary comment ID: ${commentId}`);
-        } else {
-          // Single comment case
-          commentId = Number(clickedElement.getAttribute('data-comment-id'));
-        }
-        
+        const commentId = Number(clickedElement.getAttribute('data-comment-id'));
         if (!isNaN(commentId)) {
           console.log(`Highlight clicked for comment ID: ${commentId}`);
           
@@ -610,22 +565,12 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           // Focus the associated comment
           setFocusedCommentId(commentId);
           
-          // Find all highlights with the same ID (both primary and in overlapping highlights)
-          // We need to find both exact matches and data-comment-ids that contain this ID
-          const exactHighlights = document.querySelectorAll(`.selection-highlight[data-comment-id="${commentId}"]`);
-          
-          // Also find overlapping highlights that contain this ID in their data-comment-ids attribute
-          const overlappingSelector = `.selection-highlight[data-comment-ids*="${commentId}"]`;
-          const overlappingHighlights = document.querySelectorAll(overlappingSelector);
-          
-          // Combine the two sets of highlight elements
-          const allHighlights = [...Array.from(exactHighlights), ...Array.from(overlappingHighlights)];
-          
-          // Add pulse effects to all matching highlights
+          // Find all highlights with the same ID and add pulse effects
+          const allHighlights = document.querySelectorAll(`.selection-highlight[data-comment-id="${commentId}"]`);
           allHighlights.forEach(highlight => {
             highlight.classList.remove('highlight-focus-pulse');
             // Trigger a reflow to restart the animation
-            void (highlight as HTMLElement).offsetWidth;
+            void highlight.offsetWidth;
             highlight.classList.add('highlight-focus-pulse');
           });
           
@@ -705,29 +650,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col">
-      {/* Sticky top bar with controls that stays visible when scrolling */}
-      <div className="flex justify-between items-center mb-4 sticky top-0 z-50 bg-gradient-to-b from-[#161718] to-[#161718]/95 py-3 px-2 rounded-md shadow-md">
-        <Button
-          variant="ghost"
-          size="sm" 
-          onClick={() => setLocation('/')}
-          className="flex items-center text-[#a67a48] hover:text-[#8a5a28]"
-        >
-          <X className="h-4 w-4 mr-1" />
-          <span>Close</span>
-        </Button>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowComments(!showComments)}
-          className={`flex items-center ${showComments ? 'bg-[#f5f0e0] text-[#a67a48]' : 'text-[#a67a48]'} border-[#a67a48]`}
-        >
-          <MessageSquare className="h-4 w-4 mr-1" />
-          <span>{showComments ? 'Hide Comments' : 'Show Comments'}</span>
-        </Button>
-      </div>
-      
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Main content area */}
         <div 
@@ -784,15 +706,42 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               />
             </div>
           )}
+          
+          {/* Comments toggle button - mobile only */}
+          {isMobile && (
+            <div className="mt-4 flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowComments(!showComments)}
+                className="flex items-center text-[#a67a48] border-[#a67a48]"
+              >
+                {showComments ? (
+                  <>
+                    <ChevronRight className="h-4 w-4 mr-1" />
+                    Hide Comments
+                  </>
+                ) : (
+                  <>
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Show Comments
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
         
-        {/* Comments panel - slide in/out based on showComments state */}
+        {/* Comments panel - slide in/out on mobile */}
         <div 
           className={`
-            ${showComments ? 'block' : 'hidden'} 
-            transition-all duration-300 ease-in-out
-            w-full md:w-1/3 max-w-sm border-l border-[#a67a48]
-            flex flex-col h-full bg-[#f9f5e8] rounded-l-lg shadow-md
+            ${showComments ? 'block' : 'hidden md:block'} 
+            md:w-1/3 md:max-w-xs md:border-l border-[#a67a48]
+            fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
+            w-full md:w-auto z-30 md:z-auto bg-[#f9f5e8] md:bg-transparent
+            transition-transform duration-300 ease-in-out
+            ${showComments ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
+            flex flex-col md:h-full
           `}
         >
           <GoogleDocsCommentSection
