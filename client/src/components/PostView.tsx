@@ -181,10 +181,15 @@ const PostView = ({ postId }: PostViewProps) => {
     
     // Add comments in the order they appear in the text
     for (const comment of sortedSelectionComments) {
+      // Calculate zIndex based on comment position - to ensure comments stack properly
+      // Comments lower in document get higher z-index so they appear above earlier comments
+      const relativePosition = comment.selectionStart || 0; 
+      const baseZIndex = relativePosition / 100; // Scale down to reasonable values
+      
       commentPositions.push({
         id: comment.id,
         comment,
-        zIndex: comment.id === focusedCommentId ? 100 : 10
+        zIndex: comment.id === focusedCommentId ? 1000 : Math.floor(10 + baseZIndex)
       });
     }
     
@@ -194,7 +199,23 @@ const PostView = ({ postId }: PostViewProps) => {
   // Update positions when comments change
   useEffect(() => {
     if (comments?.length) {
+      // Initial update
       updateCommentPositions();
+      
+      // Also update whenever the window is scrolled or resized
+      // This ensures comments stay positioned correctly relative to the text
+      const handlePositionUpdate = () => {
+        updateCommentPositions();
+      };
+      
+      window.addEventListener('scroll', handlePositionUpdate, { passive: true });
+      window.addEventListener('resize', handlePositionUpdate);
+      
+      // Clean up listeners
+      return () => {
+        window.removeEventListener('scroll', handlePositionUpdate);
+        window.removeEventListener('resize', handlePositionUpdate);
+      };
     }
   }, [comments, updateCommentPositions]);
   
@@ -484,7 +505,7 @@ const PostView = ({ postId }: PostViewProps) => {
                   {/* Inline comments appear next to the related text - takes 35% width */}
                   <div className="w-[35%] relative">
                     {/* Comments container with scrollbar - follows content with sticky positioning */}
-                    <div className="comments-container max-h-[85vh] overflow-y-auto sticky top-6 pr-2">
+                    <div className="comments-container overflow-y-auto sticky top-6 pr-2" style={{ maxHeight: "calc(95vh - 8rem)" }}>
                       {marginComments.map(({ id, comment, zIndex }) => {
                         const isFocused = id === focusedCommentId;
                         
@@ -493,9 +514,12 @@ const PostView = ({ postId }: PostViewProps) => {
                             key={id}
                             data-comment-id={id}
                             data-focused={isFocused ? "true" : "false"}
-                            className={`margin-comment static mb-4 ${isFocused ? 'ring-2 ring-[#a67a48] bg-[#fdf8e9]' : ''}`}
+                            className={`margin-comment mb-4 ${isFocused ? 'ring-2 ring-[#a67a48] bg-[#fdf8e9]' : ''}`}
                             style={{
-                              zIndex: isFocused ? 100 : (zIndex || 10),
+                              zIndex: isFocused ? 1000 : (zIndex || 10),
+                              position: 'relative', // Ensure proper stacking
+                              transform: isFocused ? 'translateY(-2px)' : 'none',
+                              transition: 'all 0.2s ease-in-out'
                             }}
                             onClick={() => {
                               setFocusedCommentId(id);
