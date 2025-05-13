@@ -255,7 +255,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             )}
             
             <Textarea
-              className="w-full min-h-[80px] px-3 py-2 text-sm border border-[#a67a48] bg-white rounded focus:outline-none focus:ring-1 focus:ring-[#a67a48]"
+              className="w-full min-h-[80px] px-3 py-2 text-sm border border-[#a67a48] bg-white text-[#161718] rounded focus:outline-none focus:ring-1 focus:ring-[#a67a48]"
               placeholder="Add a comment..."
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}

@@ -302,20 +302,20 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleEdit}
               variant="outline"
               size="sm"
-              className="h-7 px-2 py-0 flex items-center gap-1 text-xs font-medium text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
+              title="Edit comment"
             >
               <Edit className="h-3 w-3" />
-              Edit
             </Button>
             
             <Button 
               onClick={handleDelete}
               variant="outline"
               size="sm"
-              className="h-7 px-2 py-0 flex items-center gap-1 text-xs font-medium text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
+              title="Delete comment"
             >
               <Trash className="h-3 w-3" />
-              Delete
             </Button>
           </div>
         )}
@@ -340,7 +340,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   ref={editInputRef}
                   value={editedContent} 
                   onChange={(e) => setEditedContent(e.target.value)}
-                  className="min-h-[80px] bg-white border-[#a67a48]"
+                  className="min-h-[80px] bg-white border-[#a67a48] text-[#161718]"
                 />
                 <div className="flex justify-end mt-2 space-x-2">
                   <Button 
@@ -379,10 +379,11 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   variant="ghost" 
                   size="sm" 
                   onClick={handleReply}
-                  className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 px-2 py-0"
+                  className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 p-0"
+                  title="Reply to comment"
                 >
-                  <Reply className="h-3 w-3 mr-1" />
-                  Reply
+                  <Reply className="h-3 w-3" />
+                  <span className="ml-1">Reply</span>
                 </Button>
                 
                 {hasReplies && (
@@ -390,20 +391,23 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={toggleReplies}
-                    className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 px-2 py-0"
+                    className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 p-0"
                     disabled={isLoadingReplies}
+                    title={showReplies ? "Hide replies" : "Show replies"}
                   >
                     {isLoadingReplies ? (
                       <span>Loading...</span>
                     ) : (
                       <>
                         {showReplies ? (
-                          <ChevronUp className="h-3 w-3 mr-1" />
+                          <ChevronUp className="h-3 w-3" />
                         ) : (
-                          <ChevronDown className="h-3 w-3 mr-1" />
+                          <ChevronDown className="h-3 w-3" />
                         )}
-                        {showReplies ? 'Hide replies' : 'Show replies'}
-                        {replies.length > 0 && !showReplies && ` (${replies.length})`}
+                        <span className="ml-1">
+                          {showReplies ? 'Hide replies' : 'Show replies'}
+                          {replies.length > 0 && !showReplies && ` (${replies.length})`}
+                        </span>
                       </>
                     )}
                   </Button>
@@ -421,7 +425,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
             placeholder="Write a reply..."
-            className="min-h-[60px] bg-white border-[#a67a48]"
+            className="min-h-[60px] bg-white border-[#a67a48] text-[#161718]"
           />
           <div className="flex justify-end mt-2 space-x-2">
             <Button 
