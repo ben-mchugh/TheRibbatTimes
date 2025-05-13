@@ -18,10 +18,10 @@ interface PostViewProps {
 
 const PostView = ({ postId }: PostViewProps) => {
   console.log('PostView initialized with postId:', postId);
-  // State hooks for margin comments positioning
+  
+  // State hooks for margin comments
   const [marginComments, setMarginComments] = useState<Array<{
     id: number;
-    top: number;
     comment: Comment;
     zIndex: number; // Used for stacking priority
   }>>([]);
@@ -33,9 +33,7 @@ const PostView = ({ postId }: PostViewProps) => {
   const { currentUser } = useAuth();
   const { toast } = useToast();
   
-  // We'll move this effect after we declare the comments variable
-  
-  // Data fetching with direct approach like we did for comments
+  // Data fetching
   const { data: post, isLoading: postLoading, error: postError } = useQuery<Post>({
     queryKey: ['/api/posts', postId],
     queryFn: async () => {
@@ -52,16 +50,15 @@ const PostView = ({ postId }: PostViewProps) => {
       console.log(`Fetched post ${postId}:`, {
         id: data.id,
         title: data.title,
-        author: data.author?.displayName || 'Unknown',
-        createdAt: data.createdAt || 'Unknown date'
+        author: data.authorName,
+        createdAt: data.createdAt
       });
       return data;
     },
-    refetchOnWindowFocus: true,
-    staleTime: 5000, // Consider data stale after 5 seconds
+    refetchOnWindowFocus: false,
   });
 
-  // Reset our approach with comments - explicit fetch with no cache manipulation
+  // Comments data fetching
   const { 
     data: comments = [], 
     isLoading: commentsLoading, 
@@ -88,11 +85,11 @@ const PostView = ({ postId }: PostViewProps) => {
     staleTime: 2000 // Consider data stale after 2 seconds
   });
   
-  // Effect to recalculate positions when a comment is focused
+  // Effect to update focused comment highlight
   useEffect(() => {
     if (focusedCommentId !== null && comments?.length > 0) {
       const timer = setTimeout(() => {
-        // Use a callback to ensure we're working with the latest state
+        // Update the z-index of the focused comment
         setMarginComments(prevComments => {
           return prevComments.map(item => {
             if (item.id === focusedCommentId) {
@@ -107,25 +104,22 @@ const PostView = ({ postId }: PostViewProps) => {
     }
   }, [focusedCommentId, comments]);
 
-  // Handler for clicking on highlighted text - brings associated comment to focus
+  // Handler for clicking on highlighted text
   const handleHighlightClick = useCallback((commentId: number) => {
     setFocusedCommentId(commentId);
-    // We'll let the focusedCommentId effect trigger the update instead of calling directly
     
-    // Optionally scroll to ensure the comment is visible
+    // Scroll to the comment in the scrollable container
     const comment = document.querySelector(`.margin-comment[data-comment-id="${commentId}"]`);
     if (comment) {
       comment.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, []);
   
-  // Comment position calculation
+  // Organize comments by their position in the text
   const updateCommentPositions = useCallback(() => {
     if (!comments.length) return;
     
-    // Check for comments with selection information (not just elementId)
-    // Sort comments by their position in the text (start position)
-    // This ensures comments are processed in the order they appear in the document
+    // Sort comments by their position in the text
     const sortedComments = [...comments].sort((a, b) => {
       const aStart = a.selectionStart || 0;
       const bStart = b.selectionStart || 0;
@@ -139,310 +133,157 @@ const PostView = ({ postId }: PostViewProps) => {
       comment.selectedText
     );
     
-    // Legacy element-based comments
+    // Legacy element-based comments (if any)
     const inlineComments = sortedComments.filter(comment => comment.elementId);
     
-    // Will store all comment positions
-    const positions: Array<{id: number; top: number; comment: Comment; zIndex: number}> = [];
+    // Will store all comment data in sequence
+    const commentPositions = [];
     
-    // Track occupied vertical space to prevent overlapping
-    // Map of top position -> height of comment
-    const occupiedSpaces: Array<{top: number; bottom: number}> = [];
-    
-    // Helper function to find a non-overlapping position
-    // This function now considers the focused comment
-    const findNonOverlappingPosition = (
-      idealTop: number, 
-      commentHeight: number = 120,
-      commentId: number
-    ): { top: number, zIndex: number } => {
-      const isFocused = commentId === focusedCommentId;
-      
-      // If this is the focused comment, it gets priority at its ideal position
-      if (isFocused) {
-        return { 
-          top: idealTop, 
-          zIndex: 100 // Higher z-index to stay on top
-        };
-      }
-      
-      // For other comments, check if they overlap with the ideal position
-      let isOverlapping = false;
-      let overlapBottom = 0;
-      
-      for (const space of occupiedSpaces) {
-        // Check various overlap conditions
-        const topOverlaps = idealTop >= space.top && idealTop <= space.bottom;
-        const bottomOverlaps = (idealTop + commentHeight) >= space.top && (idealTop + commentHeight) <= space.bottom;
-        const spansAcross = idealTop <= space.top && (idealTop + commentHeight) >= space.bottom;
-        
-        if (topOverlaps || bottomOverlaps || spansAcross) {
-          isOverlapping = true;
-          overlapBottom = Math.max(overlapBottom, space.bottom);
-        }
-      }
-      
-      if (!isOverlapping) {
-        // No overlap, we can use the ideal position
-        occupiedSpaces.push({
-          top: idealTop,
-          bottom: idealTop + commentHeight
-        });
-        return { top: idealTop, zIndex: 10 };
-      }
-      
-      // Position it after the last overlapping comment
-      const newTop = overlapBottom + 12; // Add margin between comments
-      
-      // Add this position to occupied spaces and return it
-      occupiedSpaces.push({
-        top: newTop,
-        bottom: newTop + commentHeight
-      });
-      return { top: newTop, zIndex: 10 };
-    };
-    
-    // Set up event listener for focus comments
-    useEffect(() => {
-      const handleFocusComment = (event: Event) => {
-        const detail = (event as CustomEvent).detail;
-        if (detail && detail.commentId) {
-          setFocusedCommentId(detail.commentId);
-          // We'll rely on the focusedCommentId update to trigger the recalculation
-          // instead of calling the function directly from an event handler
-        }
-      };
-
-      document.addEventListener('focusComment', handleFocusComment);
-      
-      return () => {
-        document.removeEventListener('focusComment', handleFocusComment);
-      };
-    }, []);
-    
-    // Process each type of comment
-    
-    // First handle standard element-based comments (if any)
+    // Process element-based comments first (if any)
     for (const comment of inlineComments) {
-      // Guard against undefined elementId
-      const elementId = comment.elementId || '';
-      const targetElement = document.getElementById(elementId);
-      if (!targetElement) continue;
-      
-      const rect = targetElement.getBoundingClientRect();
-      const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
-      if (!containerRect) continue;
-      
-      const idealTop = rect.top - containerRect.top;
-      const result = findNonOverlappingPosition(idealTop, 120, comment.id); 
-      
-      positions.push({
+      commentPositions.push({
         id: comment.id,
-        top: result.top,
         comment,
-        zIndex: result.zIndex
+        zIndex: comment.id === focusedCommentId ? 100 : 10
       });
     }
     
-    // Process selection-based comments - sorted by their position in document
-    // Sort by their vertical position in the document
+    // Process selection-based comments sorted by their position in document
     const sortedSelectionComments = [...selectionComments].sort((a, b) => {
       return (a.selectionStart || 0) - (b.selectionStart || 0);
     });
     
-    // Then handle selection-based comments
+    // Add comments in the order they appear in the text
     for (const comment of sortedSelectionComments) {
-      // Find the highlighted span with this comment's selection
-      const highlightSpan = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`);
-      
-      if (highlightSpan) {
-        const rect = highlightSpan.getBoundingClientRect();
-        const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
-        if (!containerRect) continue;
-        
-        // Get the text position relative to container - align with top of highlight
-        const highlightTop = rect.top - containerRect.top;
-        
-        // Calculate position - align comment with the top of highlighted text
-        const { top, zIndex } = findNonOverlappingPosition(highlightTop, 120, comment.id);
-        
-        positions.push({
-          id: comment.id,
-          top,
-          comment,
-          zIndex
-        });
-      }
+      commentPositions.push({
+        id: comment.id,
+        comment,
+        zIndex: comment.id === focusedCommentId ? 100 : 10
+      });
     }
     
-    // Sort positions by their vertical order for a clean stacking
-    const sortedPositions = positions.sort((a, b) => a.top - b.top);
-    setMarginComments(sortedPositions);
-  }, [comments]);
-  
+    setMarginComments(commentPositions);
+  }, [comments, focusedCommentId]);
+
   // Update positions when comments change
   useEffect(() => {
     if (comments?.length) {
-      const contentContainer = document.querySelector('.post-content-container');
-      if (contentContainer) {
-        // Use setTimeout to ensure we don't call the function from within the effect body
-        // which is safer for React's hooks rules
-        const timeoutId = setTimeout(() => {
-          // Calculate comment positions by replicating core functionality
-          if (!comments.length) return;
-          
-          // This avoids directly calling updateCommentPositions in the effect or handlers
-          const processComments = () => {
-            if (!comments.length) return;
-            
-            // Process the comments and update their positions (copied from updateCommentPositions)
-            // Check for comments with selection information
-            const sortedComments = [...comments].sort((a, b) => {
-              const aStart = a.selectionStart || 0;
-              const bStart = b.selectionStart || 0;
-              return aStart - bStart;
-            });
-            
-            // Will store all comment positions
-            const positions: Array<{id: number; top: number; comment: Comment; zIndex: number}> = [];
-            
-            // Track occupied vertical space to prevent overlapping
-            const occupiedSpaces: Array<{top: number; bottom: number}> = [];
-            
-            // Get the offset values needed for positioning
-            const contentRect = contentContainer.getBoundingClientRect();
-            const commentWidth = 280; // Width of comment box in pixels
-            
-            // Process each comment to find its vertical position
-            for (const comment of sortedComments) {
-              let commentTop = 0;
-              
-              if (comment.selectionStart !== null && comment.selectionEnd !== null) {
-                // For text-selection based comments, find the selected element
-                const highlightEl = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`);
-                
-                if (highlightEl) {
-                  const highlightRect = highlightEl.getBoundingClientRect();
-                  
-                  // Center the comment vertically relative to the highlight
-                  // Apply vertical offset to ensure exact alignment with the highlighted text
-                  const verticalCenter = (highlightRect.top + highlightRect.bottom) / 2;
-                  commentTop = verticalCenter - contentRect.top - 20; // Subtract 20px to align better
-                } else {
-                  // Fallback if highlight not found
-                  commentTop = 100 + positions.length * 30;
-                }
-              } else if (comment.elementId) {
-                // For element-based comments
-                const targetEl = document.getElementById(comment.elementId);
-                if (targetEl) {
-                  const targetRect = targetEl.getBoundingClientRect();
-                  commentTop = targetRect.top - contentRect.top;
-                } else {
-                  // Fallback position
-                  commentTop = 100 + positions.length * 30;
-                }
-              } else {
-                // Generic comments with no specific position
-                commentTop = 100 + positions.length * 30;
-              }
-              
-              // Adjust if this comment would overlap with existing comments
-              for (const space of occupiedSpaces) {
-                const commentHeight = 120; // Approximate height of a comment
-                const buffer = 10; // Space between comments
-                
-                // Check for collision with existing comment
-                if (commentTop >= space.top - buffer && commentTop <= space.bottom + buffer) {
-                  // Move it below the existing comment
-                  commentTop = space.bottom + buffer;
-                }
-              }
-              
-              // Add this comment's occupied space
-              const commentHeight = 120; // Approximate height of a comment
-              occupiedSpaces.push({
-                top: commentTop, 
-                bottom: commentTop + commentHeight
-              });
-              
-              // Set z-index based on if this comment is currently focused
-              const zIndex = comment.id === focusedCommentId ? 100 : 10;
-              
-              // Save the comment position
-              positions.push({
-                id: comment.id,
-                top: commentTop,
-                comment,
-                zIndex
-              });
-            }
-            
-            // Update state with the new positions
-            setMarginComments(positions);
-          };
-          
-          // Process comments initially
-          processComments();
-          
-          // Add click handlers to selection highlights after DOM is updated
-          const attachClickListeners = () => {
-            const highlightSpans = document.querySelectorAll('.selection-highlight');
-            highlightSpans.forEach(span => {
-              const commentId = parseInt(span.getAttribute('data-comment-id') || '0', 10);
-              if (commentId) {
-                // Create a new handler each time to avoid stale closure issues
-                // Use a DOM Event type to satisfy TypeScript
-                const clickHandler = (e: Event) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setFocusedCommentId(commentId);
-                };
-                
-                // Remove any existing handlers by cloning the node
-                const newSpan = span.cloneNode(true);
-                if (span.parentNode) {
-                  span.parentNode.replaceChild(newSpan, span);
-                }
-                
-                // Add the click handler to the new node
-                newSpan.addEventListener('click', clickHandler);
-              }
-            });
-          };
-          
-          // Attach click listeners
-          attachClickListeners();
-          
-          // Add scroll and resize handlers
-          const handleDOMEvents = () => {
-            // Re-process comments when scrolling/resizing
-            processComments();
-          };
-          
-          contentContainer.addEventListener('scroll', handleDOMEvents);
-          window.addEventListener('resize', handleDOMEvents);
-          
-          // Clean up function stored in a variable to avoid using updateCommentPositions in cleanup
-          const cleanup = () => {
-            contentContainer.removeEventListener('scroll', handleDOMEvents);
-            window.removeEventListener('resize', handleDOMEvents);
-          };
-          
-          // Store the cleanup function on the content container element
-          (contentContainer as any)._commentCleanup = cleanup;
-        }, 300);
+      updateCommentPositions();
+    }
+  }, [comments, updateCommentPositions]);
+  
+  // Listen for click events on highlighted text
+  useEffect(() => {
+    const handleFocusComment = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (detail && detail.commentId) {
+        setFocusedCommentId(detail.commentId);
+      }
+    };
+    
+    document.addEventListener('focusComment', handleFocusComment as EventListener);
+    
+    return () => {
+      document.removeEventListener('focusComment', handleFocusComment as EventListener);
+    };
+  }, []);
+  
+  // Function to render the post content with highlighted text for comments
+  const renderPostContentWithHighlights = useCallback(() => {
+    if (!post?.content || !comments.length) return post?.content || '';
+    
+    // Create a temporary div to hold the HTML content
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = post.content;
+    
+    // Process text selection-based comments
+    comments.forEach(comment => {
+      // Skip comments without selection info
+      if (!comment.selectionStart || !comment.selectionEnd || !comment.selectedText) return;
+      
+      // Find the relevant text node containing the selection
+      const textNodes = getTextNodesIn(tempDiv);
+      let characterCount = 0;
+      let foundNode = null;
+      let beforeSelection = null;
+      let afterSelection = null;
+      
+      // Locate the text node that contains our selection
+      for (const node of textNodes) {
+        const nodeLength = node.textContent?.length || 0;
+        const selectionStartsInNode = characterCount <= comment.selectionStart && 
+                                     (characterCount + nodeLength) >= comment.selectionStart;
         
-        return () => {
-          clearTimeout(timeoutId);
-          // Execute any previously stored cleanup function
-          if ((contentContainer as any)._commentCleanup) {
-            (contentContainer as any)._commentCleanup();
-          }
-        };
+        if (selectionStartsInNode) {
+          foundNode = node;
+          
+          // Calculate relative offsets within this node
+          const startOffset = comment.selectionStart - characterCount;
+          let endOffset = startOffset + (comment.selectionEnd - comment.selectionStart);
+          
+          // Ensure we don't exceed the node's length
+          endOffset = Math.min(endOffset, nodeLength);
+          
+          // Extract the text before, during, and after the selection
+          const fullText = node.textContent || '';
+          beforeSelection = fullText.substring(0, startOffset);
+          const selectedText = fullText.substring(startOffset, endOffset);
+          afterSelection = fullText.substring(endOffset);
+          
+          break;
+        }
+        
+        characterCount += nodeLength;
+      }
+      
+      // If we found the node containing the selection
+      if (foundNode && beforeSelection !== null) {
+        // Create the highlight span
+        const span = document.createElement('span');
+        span.classList.add('selection-highlight');
+        span.dataset.commentId = comment.id.toString();
+        span.textContent = comment.selectedText;
+        span.setAttribute('tabindex', '0');
+        
+        // Add click handler via inline attribute (will be converted to an event listener)
+        span.setAttribute('onclick', `
+          // Focus this comment and update its position
+          document.dispatchEvent(new CustomEvent('focusComment', { 
+            detail: { commentId: ${comment.id} } 
+          }));
+        `);
+        
+        // Replace the text node with our new structure
+        const fragment = document.createDocumentFragment();
+        if (beforeSelection) fragment.appendChild(document.createTextNode(beforeSelection));
+        fragment.appendChild(span);
+        if (afterSelection) fragment.appendChild(document.createTextNode(afterSelection));
+        
+        foundNode.parentElement?.replaceChild(fragment, foundNode);
+      }
+    });
+    
+    return tempDiv.innerHTML;
+  }, [comments, post]);
+  
+  // Helper function to get all text nodes in a given element
+  function getTextNodesIn(node: Node): Text[] {
+    const textNodes: Text[] = [];
+    
+    function getTextNodes(node: Node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        textNodes.push(node as Text);
+      } else {
+        const children = node.childNodes;
+        for (let i = 0; i < children.length; i++) {
+          getTextNodes(children[i]);
+        }
       }
     }
-  }, [comments, focusedCommentId]);
+    
+    getTextNodes(node);
+    return textNodes;
+  }
   
   // Handler for text selection comments
   const handleSelectionComment = useCallback((commentText: string, start: number, end: number) => {
@@ -480,198 +321,54 @@ const PostView = ({ postId }: PostViewProps) => {
       toast({
         title: 'Comment added',
         description: 'Your comment has been added to the selected text.',
+        variant: 'default',
       });
     }
   }, [currentUser, toast]);
 
-  // HTML content processing with highlights for comments
-  const renderPostContentWithHighlights = useCallback(() => {
-    const html = post?.content || '';
-    if (!html) return '';
-    
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    
-    const elements = tempDiv.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote');
-    
-    elements.forEach((el, index) => {
-      if (!el.id) {
-        el.id = `content-element-${index}`;
-      }
-      
-      // Highlight elements with comments
-      if (comments.some(comment => comment.elementId === el.id)) {
-        el.classList.add('comment-highlight');
-      }
-    });
-    
-    // Process selection-based comments
-    comments.forEach(comment => {
-      if (comment.selectedText && comment.selectionStart !== undefined && comment.selectionEnd !== undefined) {
-        // Find all text nodes in the post content
-        const textNodes = Array.from(tempDiv.querySelectorAll('*'))
-          .filter(node => node.childNodes.length > 0)
-          .flatMap(node => Array.from(node.childNodes))
-          .filter(node => node.nodeType === Node.TEXT_NODE);
-        
-        // We need to find the node containing our selection
-        let currentPosition = 0;
-        let foundNode = null;
-        let foundNodeStartPosition = 0;
-        
-        for (const node of textNodes) {
-          const nodeLength = node.textContent?.length || 0;
-          
-          // Check if this node contains the selection
-          if (comment.selectionStart >= currentPosition && 
-              comment.selectionStart < currentPosition + nodeLength) {
-            foundNode = node;
-            foundNodeStartPosition = currentPosition;
-            break;
-          }
-          
-          currentPosition += nodeLength;
-        }
-        
-        // If we found the node, highlight the selection
-        if (foundNode && foundNode.parentElement) {
-          const nodeText = foundNode.textContent || '';
-          const selectionStartInNode = comment.selectionStart - foundNodeStartPosition;
-          const selectionEndInNode = Math.min(comment.selectionEnd - foundNodeStartPosition, nodeText.length);
-          
-          // Split the text and add the highlight span
-          const beforeSelection = nodeText.substring(0, selectionStartInNode);
-          const selection = nodeText.substring(selectionStartInNode, selectionEndInNode);
-          const afterSelection = nodeText.substring(selectionEndInNode);
-          
-          const span = document.createElement('span');
-          span.classList.add('selection-highlight');
-          span.setAttribute('data-comment-id', comment.id.toString());
-          span.setAttribute('role', 'button');
-          span.setAttribute('tabindex', '0');
-          span.setAttribute('title', 'Click to view this comment');
-          span.textContent = selection;
-          
-          // Add the click handler script for this span
-          // This will be executed when the real DOM is updated
-          span.setAttribute('onclick', `
-            // Focus this comment and update its position
-            document.dispatchEvent(new CustomEvent('focusComment', { 
-              detail: { commentId: ${comment.id} } 
-            }));
-          `);
-          
-          // Replace the text node with our new structure
-          const fragment = document.createDocumentFragment();
-          if (beforeSelection) fragment.appendChild(document.createTextNode(beforeSelection));
-          fragment.appendChild(span);
-          if (afterSelection) fragment.appendChild(document.createTextNode(afterSelection));
-          
-          foundNode.parentElement.replaceChild(fragment, foundNode);
-        }
-      }
-    });
-    
-    return tempDiv.innerHTML;
-  }, [comments, post]);
-  
-  // Render functions
-  const renderMarginComments = () => {
-    return marginComments.map(({ id, top, comment, zIndex }) => {
-      const isFocused = id === focusedCommentId;
-      
-      return (
-        <div 
-          key={id}
-          data-comment-id={id}
-          data-focused={isFocused ? "true" : "false"}
-          onClick={() => setFocusedCommentId(id)} // Make comment clickable to focus
-          className="margin-comment mb-3 last:mb-0 p-3"
-          style={{ 
-            position: 'absolute', 
-            top: `${top}px`,
-            right: '1rem',
-            width: '280px',
-            maxWidth: '280px',
-            zIndex: isFocused ? 100 : (zIndex || 10),
-            transition: 'top 0.3s ease-out, box-shadow 0.2s ease, background-color 0.2s ease'
-          }}
-        >
-          <div className="flex items-start">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
-              <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-            </Avatar>
-            <div className="ml-2 flex-1">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
-              </div>
-              <p className="text-sm mt-1 text-[#161718]">{comment.content}</p>
-              {comment.selectedText && (
-                <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-2 p-2 rounded italic">
-                  "{comment.selectedText}"
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    });
-  };
-
-  // Loading state
-  if (postLoading) {
+  // Safety checks for required data
+  if (!post && !postLoading) {
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="relative bg-[#e0d3af] w-full max-w-5xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto p-12">
-            <Skeleton className="absolute top-4 right-4 h-6 w-6 rounded-full" />
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full md:w-3/4 pr-0 md:pr-8">
-                <Skeleton className="h-8 w-3/4 mb-4" />
-                <div className="flex items-center mb-6">
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                  <Skeleton className="h-4 w-24 ml-2" />
-                  <Skeleton className="h-4 w-16 ml-4" />
-                </div>
-                <div className="space-y-4">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-3/4" />
-                </div>
-              </div>
-              <div className="w-full md:w-1/4 mt-8 md:mt-0 border-t md:border-t-0 md:border-l pt-8 md:pt-0 md:pl-8">
-                <Skeleton className="h-6 w-24 mb-4" />
-                <div className="space-y-4">
-                  <Skeleton className="h-20 w-full rounded-lg" />
-                  <Skeleton className="h-20 w-full rounded-lg" />
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="bg-[#e0d3af] p-8 rounded-lg shadow-lg">
+          <h1 className="text-2xl font-bold text-[#161718] mb-4">Post Not Found</h1>
+          <p className="text-[#161718] mb-6">The post you're looking for doesn't exist or has been removed.</p>
+          <Link href="/">
+            <Button variant="default" className="bg-[#a67a48] hover:bg-[#8a5a28] text-white">
+              Return Home
+            </Button>
+          </Link>
         </div>
       </div>
     );
   }
 
-  // Error state
-  if (postError || !post) {
+  // Loading state
+  if (postLoading) {
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-neutral-900 bg-opacity-75">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="relative bg-[#e0d3af] w-full max-w-5xl mx-auto rounded-lg shadow-xl p-12">
-            <Link href="/">
-              <Button variant="ghost" className="absolute top-4 right-4 text-[#161718]">
-                <X className="h-6 w-6" />
-              </Button>
-            </Link>
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-[#a67a48] mb-4">Error Loading Post</h2>
-              <p className="text-[#161718] mb-6">The post you're looking for could not be loaded.</p>
-              <Link href="/">
-                <Button style={{ backgroundColor: '#a67a48' }}>Return to Home</Button>
-              </Link>
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-[#161718] bg-opacity-80">
+        <div className="flex items-center justify-center min-h-screen py-8">
+          <div className="relative w-full max-w-6xl mx-auto rounded-lg shadow-xl max-h-[90vh] overflow-y-auto bg-[#e0d3af] p-12">
+            <Skeleton className="h-12 mb-4" />
+            <div className="flex items-center mb-6">
+              <Skeleton className="h-8 w-8 rounded-full mr-2" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+            <div className="flex">
+              <div className="w-[65%] pr-6">
+                <Skeleton className="h-4 mb-3 w-full" />
+                <Skeleton className="h-4 mb-3 w-full" />
+                <Skeleton className="h-4 mb-3 w-[90%]" />
+                <Skeleton className="h-4 mb-8 w-[95%]" />
+                
+                <Skeleton className="h-4 mb-3 w-full" />
+                <Skeleton className="h-4 mb-3 w-[88%]" />
+                <Skeleton className="h-4 mb-3 w-[92%]" />
+              </div>
+              <div className="w-[35%]">
+                <Skeleton className="h-32 mb-4 w-full rounded-md" />
+                <Skeleton className="h-32 w-full rounded-md" />
+              </div>
             </div>
           </div>
         </div>
@@ -733,47 +430,58 @@ const PostView = ({ postId }: PostViewProps) => {
                         className="post-main-content"
                       />
                     </div>
-                    
-                    {/* No tips or helper text as per requirements */}
                   </div>
                   
                   {/* Inline comments appear next to the related text - takes 35% width */}
                   <div className="w-[35%] relative">
-                    
-                    {marginComments.map(({ id, top, comment, zIndex }) => {
-                      const isFocused = id === focusedCommentId;
-                      
-                      return (
-                        <div 
-                          key={id}
-                          data-comment-id={id}
-                          className={`margin-comment ${isFocused ? 'ring-2 ring-[#a67a48] bg-[#fdf8e9]' : ''}`}
-                          style={{ 
-                            top: `${top}px`,
-                            zIndex: isFocused ? 100 : (zIndex || 10),
-                          }}
-                          onClick={() => setFocusedCommentId(id)}
-                        >
-                          <div className="flex items-start">
-                            <div className="flex-1">
-                              <div className="flex items-center mb-1">
-                                <Avatar className="h-6 w-6 mr-2">
-                                  <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
-                                  <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
-                                </Avatar>
-                                <span className="text-xs font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
-                              </div>
-                              <p className="text-xs text-[#161718]">{comment.content}</p>
-                              {comment.selectedText && (
-                                <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-1 p-1 rounded italic">
-                                  "{comment.selectedText}"
+                    {/* Comments container with scrollbar - allows independent scrolling */}
+                    <div className="comments-container h-full overflow-y-auto sticky top-0 pr-2">
+                      {marginComments.map(({ id, comment, zIndex }) => {
+                        const isFocused = id === focusedCommentId;
+                        
+                        return (
+                          <div 
+                            key={id}
+                            data-comment-id={id}
+                            data-focused={isFocused ? "true" : "false"}
+                            className={`margin-comment static mb-4 ${isFocused ? 'ring-2 ring-[#a67a48] bg-[#fdf8e9]' : ''}`}
+                            style={{
+                              zIndex: isFocused ? 100 : (zIndex || 10),
+                            }}
+                            onClick={() => setFocusedCommentId(id)}
+                          >
+                            {/* Connector to show which text this comment corresponds to */}
+                            <div className="connector-line" style={{ 
+                              position: 'absolute',
+                              left: '-15px',
+                              width: '15px',
+                              height: '2px',
+                              top: '50%',
+                              backgroundColor: '#a67a48',
+                              transform: 'translateY(-50%)'
+                            }}></div>
+                            
+                            <div className="flex items-start">
+                              <div className="flex-1">
+                                <div className="flex items-center mb-1">
+                                  <Avatar className="h-6 w-6 mr-2">
+                                    <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
+                                    <AvatarFallback>{comment.author?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                                  </Avatar>
+                                  <span className="text-xs font-medium text-[#161718]">{comment.author?.displayName || 'Anonymous'}</span>
                                 </div>
-                              )}
+                                <p className="text-xs text-[#161718]">{comment.content}</p>
+                                {comment.selectedText && (
+                                  <div className="text-xs bg-[#e9dfc8] text-[#a67a48] mt-1 p-1 rounded italic">
+                                    "{comment.selectedText}"
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
                 
@@ -799,7 +507,7 @@ const PostView = ({ postId }: PostViewProps) => {
                 comments={comments} 
                 isLoading={commentsLoading} 
                 showComments={true} 
-                setShowComments={() => {}}
+                setShowComments={() => {}} 
                 refetchComments={refetchComments}
               />
             </div>

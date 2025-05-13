@@ -28,11 +28,10 @@
   background-color: rgba(230, 220, 190, 0.3);
 }
 
-/* Margin comment styling with connector lines */
+/* Margin comment styling */
 .margin-comment {
-  position: absolute;
-  right: 1rem;
-  max-width: 280px;
+  position: relative;
+  max-width: 100%;
   border-radius: 0.5rem;
   padding: 0.75rem;
   background-color: #fff;
@@ -46,27 +45,37 @@
   transform: translateY(-2px);
 }
 
-.margin-comment:before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -10px;
-  width: 10px;
-  height: 2px;
-  background-color: #a67a48;
-  transform: translateY(-50%);
+/* Comments container styles */
+.comments-container {
+  position: relative;
+  max-height: 80vh;
+  scrollbar-width: thin;
+  scrollbar-color: #a67a48 #e0d3af;
 }
 
-.margin-comment:after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -3px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+.comments-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comments-container::-webkit-scrollbar-track {
+  background: #e0d3af30;
+  border-radius: 10px;
+}
+
+.comments-container::-webkit-scrollbar-thumb {
   background-color: #a67a48;
-  transform: translateY(-50%);
+  border-radius: 10px;
+}
+
+/* Highlight animation when a comment is focused */
+@keyframes highlight-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(166, 122, 72, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(166, 122, 72, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(166, 122, 72, 0); }
+}
+
+div[data-focused="true"] {
+  animation: highlight-pulse 1.5s ease-out;
 }
 
 :root {
