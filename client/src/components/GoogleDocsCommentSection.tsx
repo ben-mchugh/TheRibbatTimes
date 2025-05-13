@@ -55,10 +55,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         </Button>
       </div>
       
-      {/* Comments list - increased height with min-height */}
+      {/* Comments list with full height */}
       <div 
         ref={commentsRef}
-        className="comments-container flex-1 overflow-y-auto p-4 space-y-4 min-h-[400px]"
+        className="comments-container flex-1 overflow-y-auto p-4 space-y-4 h-full"
       >
         {isLoading ? (
           <div className="space-y-4">
