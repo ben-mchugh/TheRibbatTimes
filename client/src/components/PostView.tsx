@@ -23,7 +23,7 @@ const PostView = ({ postId }: PostViewProps) => {
     id: number;
     top: number;
     comment: Comment;
-    zIndex?: number; // Used for stacking priority
+    zIndex: number; // Used for stacking priority
   }>>([]);
   
   // Track which comment is currently focused (when highlighted text is clicked)
@@ -182,6 +182,24 @@ const PostView = ({ postId }: PostViewProps) => {
       return { top: newTop, zIndex: 10 };
     };
     
+    // Set up event listener for focus comments
+    useEffect(() => {
+      const handleFocusComment = (event: Event) => {
+        const detail = (event as CustomEvent).detail;
+        if (detail && detail.commentId) {
+          setFocusedCommentId(detail.commentId);
+          // Recalculate positions with the new focused comment
+          updateCommentPositions();
+        }
+      };
+
+      document.addEventListener('focusComment', handleFocusComment);
+      
+      return () => {
+        document.removeEventListener('focusComment', handleFocusComment);
+      };
+    }, [updateCommentPositions]);
+    
     // Process each type of comment
     
     // First handle standard element-based comments (if any)
@@ -207,6 +225,7 @@ const PostView = ({ postId }: PostViewProps) => {
     }
     
     // Process selection-based comments - sorted by their position in document
+    // Sort by their vertical position in the document
     const sortedSelectionComments = [...selectionComments].sort((a, b) => {
       return (a.selectionStart || 0) - (b.selectionStart || 0);
     });
@@ -221,7 +240,7 @@ const PostView = ({ postId }: PostViewProps) => {
         const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
         if (!containerRect) continue;
         
-        // Get the text position relative to container
+        // Get the text position relative to container - align with top of highlight
         const highlightTop = rect.top - containerRect.top;
         
         // Calculate position - align comment with the top of highlighted text
@@ -367,7 +386,19 @@ const PostView = ({ postId }: PostViewProps) => {
           const span = document.createElement('span');
           span.classList.add('selection-highlight');
           span.setAttribute('data-comment-id', comment.id.toString());
+          span.setAttribute('role', 'button');
+          span.setAttribute('tabindex', '0');
+          span.setAttribute('title', 'Click to view this comment');
           span.textContent = selection;
+          
+          // Add the click handler script for this span
+          // This will be executed when the real DOM is updated
+          span.setAttribute('onclick', `
+            // Focus this comment and update its position
+            document.dispatchEvent(new CustomEvent('focusComment', { 
+              detail: { commentId: ${comment.id} } 
+            }));
+          `);
           
           // Replace the text node with our new structure
           const fragment = document.createDocumentFragment();
@@ -385,18 +416,29 @@ const PostView = ({ postId }: PostViewProps) => {
   
   // Render functions
   const renderMarginComments = () => {
-    return marginComments.map(({ id, top, comment }) => (
+    return marginComments.map(({ id, top, comment, zIndex }) => (
       <div 
-        key={id} 
-        className="margin-comment mb-3 last:mb-0 p-3 border-l-2 border-[#a67a48] bg-[#f9f6ea] rounded" 
+        key={id}
+        data-comment-id={id}
+        className={`margin-comment mb-3 last:mb-0 p-3 border-l-2 border-[#a67a48] bg-[#f9f6ea] rounded ${id === focusedCommentId ? 'ring-2 ring-[#a67a48]' : ''}`}
         style={{ 
           position: 'absolute', 
           top: `${top}px`,
           right: '1rem',
           width: '280px',
-          maxWidth: '280px'
+          maxWidth: '280px',
+          zIndex: zIndex || 10,
+          transition: 'top 0.3s ease-out, box-shadow 0.2s ease'
         }}
       >
+        {/* Connector line to visually link comment to text */}
+        <div 
+          className="absolute w-2 border-t border-[#a67a48] opacity-30" 
+          style={{
+            left: '-2px',
+            top: '30px', // Position near top of comment box
+          }}
+        ></div>
         <div className="flex items-start">
           <Avatar className="h-8 w-8">
             <AvatarImage src={comment.author?.photoURL} alt={comment.author?.displayName || 'User'} />
