@@ -265,40 +265,6 @@ export class DatabaseStorage implements IStorage {
     } as Comment;
   }
 
-  async updateComment(id: number, commentData: Partial<Comment>): Promise<Comment | undefined> {
-    // Check if the comment exists
-    const existingComment = await this.getComment(id);
-    
-    if (!existingComment) {
-      return undefined;
-    }
-    
-    // Update the comment
-    const [updatedComment] = await db
-      .update(comments)
-      .set({
-        ...commentData,
-        updatedAt: new Date()
-      })
-      .where(eq(comments.id, id))
-      .returning();
-    
-    if (updatedComment) {
-      // Get the author information
-      const [author] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, updatedComment.authorId));
-      
-      return {
-        ...updatedComment,
-        author
-      } as Comment;
-    }
-    
-    return undefined;
-  }
-
   async deleteComment(id: number): Promise<boolean> {
     // Get the comment to get its post id
     const [commentToDelete] = await db

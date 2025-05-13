@@ -500,46 +500,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Edit an existing comment
-  app.patch('/api/comments/:id', authenticateUser, async (req, res) => {
-    try {
-      const commentId = parseInt(req.params.id);
-      const comment = await storage.getComment(commentId);
-      
-      if (!comment) {
-        return res.status(404).json({ message: 'Comment not found' });
-      }
-      
-      // Check if the current user is the author of the comment
-      if (comment.authorId !== req.user.id) {
-        return res.status(403).json({ message: 'You do not have permission to edit this comment' });
-      }
-      
-      // Update comment content
-      const updatedData = { 
-        ...comment,
-        content: req.body.content
-      };
-      
-      const updatedComment = await storage.updateComment(commentId, updatedData);
-      
-      if (!updatedComment) {
-        return res.status(404).json({ message: 'Comment not found after update' });
-      }
-      
-      const author = await storage.getUser(updatedComment.authorId);
-      
-      res.json({
-        ...updatedComment,
-        author: author || { displayName: 'Unknown', email: '', photoURL: '' }
-      });
-    } catch (error) {
-      console.error('Update comment error:', error);
-      res.status(400).json({ message: 'Invalid comment data' });
-    }
-  });
-  
-  // Delete a comment
   app.delete('/api/comments/:id', authenticateUser, async (req, res) => {
     try {
       const commentId = parseInt(req.params.id);
@@ -549,57 +509,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Comment not found' });
       }
       
-      // Check if the current user is the author of the comment
       if (comment.authorId !== req.user.id) {
         return res.status(403).json({ message: 'You do not have permission to delete this comment' });
       }
       
-      const result = await storage.deleteComment(commentId);
-      
-      if (!result) {
-        return res.status(500).json({ message: 'Failed to delete comment' });
-      }
-      
+      await storage.deleteComment(commentId);
       res.json({ message: 'Comment deleted successfully' });
     } catch (error) {
       console.error('Delete comment error:', error);
       res.status(500).json({ message: 'Failed to delete comment' });
     }
   });
-  
-  // Reply to a comment
-  app.post('/api/comments/:id/replies', authenticateUser, async (req, res) => {
-    try {
-      const parentCommentId = parseInt(req.params.id);
-      const parentComment = await storage.getComment(parentCommentId);
-      
-      if (!parentComment) {
-        return res.status(404).json({ message: 'Parent comment not found' });
-      }
-      
-      // Create a reply comment with reference to parent
-      const replyData: InsertComment & { authorId: number, parentCommentId: number } = {
-        content: req.body.content,
-        postId: parentComment.postId,
-        parentCommentId: parentCommentId,
-        authorId: req.user.id
-      };
-      
-      const reply = await storage.createComment(replyData);
-      
-      const author = await storage.getUser(reply.authorId);
-      
-      res.status(201).json({
-        ...reply,
-        author: author || { displayName: 'Unknown', email: '', photoURL: '' }
-      });
-    } catch (error) {
-      console.error('Create reply error:', error);
-      res.status(400).json({ message: 'Invalid reply data' });
-    }
-  });
-  
-
 
   const httpServer = createServer(app);
   return httpServer;

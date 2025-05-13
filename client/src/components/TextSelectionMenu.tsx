@@ -8,25 +8,6 @@ interface TextSelectionMenuProps {
   onAddComment: (text: string, start: number, end: number) => void;
 }
 
-// Helper function to get all text nodes in an element
-function getTextNodesIn(node: Node): Text[] {
-  const textNodes: Text[] = [];
-  
-  function getTextNodes(node: Node) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      textNodes.push(node as Text);
-    } else {
-      const childNodes = node.childNodes;
-      for (let i = 0; i < childNodes.length; i++) {
-        getTextNodes(childNodes[i]);
-      }
-    }
-  }
-  
-  getTextNodes(node);
-  return textNodes;
-}
-
 const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -67,34 +48,10 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
       
       // Get indices relative to the post content
       const postContentText = postContent.textContent || '';
-      
-      // Get the exact range and content
-      const startContainer = range.startContainer;
-      const endContainer = range.endContainer;
-      
-      // More precisely compute the position in the document
-      let selectionStart = 0;
-      let selectionEnd = 0;
-      
-      // Get all text nodes in the post content
-      const textNodes = getTextNodesIn(postContent);
-      let currentPosition = 0;
-      
-      for (const node of textNodes) {
-        // If we found our start container
-        if (node === startContainer || node.contains(startContainer)) {
-          selectionStart = currentPosition + range.startOffset;
-        }
-        
-        // If we found our end container
-        if (node === endContainer || node.contains(endContainer)) {
-          selectionEnd = currentPosition + range.endOffset;
-          break; // We're done once we've found the end
-        }
-        
-        // Move our position tracker forward
-        currentPosition += node.textContent?.length || 0;
-      }
+      const selectionOffset = range.startOffset;
+      const contentBeforeSelection = postContentText.substring(0, postContentText.indexOf(selectedText));
+      const selectionStart = contentBeforeSelection.length;
+      const selectionEnd = selectionStart + selectedText.length;
       
       setSelectionInfo({
         start: selectionStart,

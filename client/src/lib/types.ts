@@ -29,7 +29,6 @@ export interface Comment {
   selectedText?: string; // The text that was selected when the comment was created
   selectionStart?: number; // The start position of the selection in the content
   selectionEnd?: number; // The end position of the selection in the content
-  parentCommentId?: number; // Reference to parent comment if this is a reply
 }
 
 export interface CommentWithPosition extends Comment {

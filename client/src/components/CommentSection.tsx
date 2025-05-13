@@ -271,39 +271,9 @@ const CommentSection = ({
       ) : (
         <div className="space-y-4 overflow-y-auto">
           {comments && comments.length > 0 ? (
-            // First filter for parent comments (those without parentCommentId)
-            comments
-              .filter(comment => !comment.parentCommentId)
-              .map((comment) => {
-                // Find any replies to this comment
-                const replies = comments.filter(reply => 
-                  reply.parentCommentId === comment.id
-                );
-                
-                return (
-                  <div key={`comment-thread-${comment.id}`} className="comment-thread">
-                    {/* Render the parent comment */}
-                    <CommentItem 
-                      key={`comment-${comment.id}-${comment.postId}`}
-                      comment={comment} 
-                      onCommentUpdate={refetchComments}
-                    />
-                    
-                    {/* Render any replies indented */}
-                    {replies.length > 0 && (
-                      <div className="replies-container ml-8 mt-3 border-l-2 border-[#e4d5b0] pl-4">
-                        {replies.map(reply => (
-                          <CommentItem 
-                            key={`reply-${reply.id}-${reply.postId}`}
-                            comment={reply}
-                            onCommentUpdate={refetchComments}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
+            comments.map((comment) => (
+              <CommentItem key={`comment-${comment.id}-${comment.postId}`} comment={comment} />
+            ))
           ) : (
             <div className="bg-[#f5f0e0] p-4 rounded-lg text-center py-6">
               {/* Empty space for when no comments exist */}
