@@ -207,47 +207,47 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
       {/* Floating comment box */}
       {isCommentDialogOpen && (
         <div 
-          className="fixed z-50 bg-[#f5f0e0] border border-[#a67a48] rounded-lg shadow-xl"
+          className="fixed z-50 bg-[#f9f6ea] border border-[#a67a48] rounded shadow-lg"
           style={{
             top: `${commentPosition.top}px`,
             left: `${commentPosition.left}px`,
-            width: '350px',
+            width: '320px',
             maxHeight: '350px',
           }}
           ref={menuRef}
         >
           <div className="p-4">
-            <div className="flex justify-between items-center mb-2">
+            <div className="flex justify-between items-center mb-3">
               <h3 className="text-[#161718] font-semibold">Add Comment</h3>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 rounded-full text-[#161718] hover:bg-[#a67a48] hover:text-[#f5f0e0]"
+                className="h-6 w-6 p-0 rounded-full text-[#161718] hover:bg-[#f0e9d5] hover:text-[#a67a48] transition-colors"
                 onClick={() => setIsCommentDialogOpen(false)}
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
             
-            <div className="text-[#a67a48] text-sm mb-3">
-              Commenting on: <span className="italic">"{selectedText.substring(0, 60)}{selectedText.length > 60 ? '...' : ''}"</span>
+            <div className="bg-[#e9dfc8] p-3 mb-3 rounded text-sm text-[#161718] border-l-2 border-[#a67a48]">
+              <span className="text-[#a67a48] font-medium">Selected text:</span> <span className="italic">"{selectedText.substring(0, 60)}{selectedText.length > 60 ? '...' : ''}"</span>
             </div>
             
             <Textarea
-              className="w-full min-h-[120px] px-3 py-2 text-sm text-[#161718] border border-[#a67a48] bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#a67a48] focus:border-[#a67a48]"
+              className="w-full min-h-[100px] px-3 py-2 text-sm text-[#161718] border border-[#a67a48] bg-white rounded focus:outline-none focus:ring-1 focus:ring-[#a67a48] focus:border-[#a67a48]"
               placeholder="Write your comment here..."
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               autoFocus
             />
             
-            <div className="flex justify-end gap-2 mt-4">
+            <div className="flex justify-end gap-2 mt-3">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="border-[#a67a48] text-[#a67a48] hover:bg-[#a67a48] hover:text-[#f5f0e0]"
+                className="border-[#a67a48] text-[#a67a48] hover:bg-[#f0e9d5] transition-colors"
                 onClick={() => setIsCommentDialogOpen(false)}
               >
                 Cancel
@@ -255,7 +255,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
               <Button 
                 type="button"
                 size="sm"
-                className="bg-[#a67a48] text-[#f5f0e0] hover:bg-[#8a5d2e]"
+                className="bg-[#a67a48] text-white hover:bg-[#9a6f41] transition-colors"
                 onClick={handleSubmitComment}
               >
                 Submit
