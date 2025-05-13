@@ -289,20 +289,24 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''}`}>
       <div 
         ref={commentRef}
-        className={`bg-[#f5f0e0] p-4 rounded-lg mb-2 relative ${
+        className={`bg-[#f5f0e0] p-4 rounded-lg mb-2 relative group ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#ebddbe]' : ''
-        } ${isReply ? 'border-l-2 border-[#a67a48]' : ''}`}
+        } ${isReply ? 'border-l-2 border-[#a67a48]' : ''} 
+        transition-all duration-300 ease-in-out animate-comment-enter
+        ${isFocused ? 'animate-comment-focus border border-[#a67a48]' : ''}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
         data-comment-id={comment.id}
+        data-focused={isFocused ? "true" : "false"}
       >
-        {/* Action buttons in the top right */}
+        
+        {/* Add action buttons below the header in a fixed position */}
         {isAuthor && (
-          <div className="absolute top-2 right-2 flex space-x-1 z-10">
+          <div className="flex absolute top-10 right-4 space-x-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button 
               onClick={handleEdit}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-[#f5f0e0]"
               title="Edit comment"
             >
               <Edit className="h-3 w-3" />
@@ -312,7 +316,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleDelete}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-[#f5f0e0]"
               title="Delete comment"
             >
               <Trash className="h-3 w-3" />

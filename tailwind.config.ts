@@ -82,10 +82,33 @@ export default {
             height: "0",
           },
         },
+        "comment-enter": {
+          "0%": {
+            opacity: "0",
+            transform: "translateY(10px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "comment-focus": {
+          "0%": {
+            boxShadow: "0 0 0 0 rgba(166, 122, 72, 0.5)",
+          },
+          "70%": {
+            boxShadow: "0 0 0 8px rgba(166, 122, 72, 0)",
+          },
+          "100%": {
+            boxShadow: "0 0 0 0 rgba(166, 122, 72, 0)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "comment-enter": "comment-enter 0.4s ease-out",
+        "comment-focus": "comment-focus 1s ease-in-out infinite",
       },
     },
   },
