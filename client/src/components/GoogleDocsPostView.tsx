@@ -129,96 +129,149 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     
     if (commentsWithSelection.length === 0) return post.content;
     
-    // Create a new approach that works with rich HTML content
-    // First, let's extract just the text content to build a mapping
+    // Create a temporary div to work with the HTML content
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = post.content;
     
-    // Extract all text to build a flat string for character positions
-    function extractTextContent(node: Node): string {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return node.textContent || '';
-      }
-      
-      let text = '';
-      for (let i = 0; i < node.childNodes.length; i++) {
-        text += extractTextContent(node.childNodes[i]);
-      }
-      return text;
-    }
-    
-    // Get the flat text representation
-    const flatText = extractTextContent(tempDiv);
-    console.log('Flat text length:', flatText.length);
-    
-    // Now let's apply highlights to this HTML content
+    // Final content after all transformations
     let modifiedContent = post.content;
     
-    // Sort comments by start position in reverse order to avoid offset issues
+    // 1. First pass: Extract all text content as a continuous string
+    // This helps us determine where text nodes are and how they align with selections
+    const textNodesMap = new Map<number, {node: Text, startIndex: number, endIndex: number}>();
+    let totalTextIndex = 0;
+    
+    function mapTextNodes(node: Node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const textNode = node as Text;
+        const textLength = textNode.textContent?.length || 0;
+        if (textLength > 0) {
+          textNodesMap.set(totalTextIndex, {
+            node: textNode,
+            startIndex: totalTextIndex,
+            endIndex: totalTextIndex + textLength
+          });
+          totalTextIndex += textLength;
+        }
+      } else {
+        for (let i = 0; i < node.childNodes.length; i++) {
+          mapTextNodes(node.childNodes[i]);
+        }
+      }
+    }
+    
+    // Map all text nodes in the document
+    mapTextNodes(tempDiv);
+    
+    // 2. Process each comment to add highlights
+    // Sort comments by end position in ascending order to avoid offset issues
     const sortedComments = [...commentsWithSelection].sort((a, b) => 
-      (b.selectionStart || 0) - (a.selectionStart || 0)
+      (a.selectionEnd || 0) - (b.selectionEnd || 0)
     );
     
-    // Process each comment to add highlights
+    // For each comment, identify if it matches one or more text nodes
     sortedComments.forEach(comment => {
       if (!comment.selectedText || comment.selectionStart === undefined || comment.selectionEnd === undefined) {
         return;
       }
       
-      // For debugging
-      console.log(`Processing comment ${comment.id} with selection "${comment.selectedText}" at positions ${comment.selectionStart}-${comment.selectionEnd}`);
+      console.log(`Processing comment ${comment.id}: "${comment.selectedText}" at positions ${comment.selectionStart}-${comment.selectionEnd}`);
       
-      // Verify the selection actually matches what we expect
-      const actualSelectedText = flatText.substring(comment.selectionStart, comment.selectionEnd);
-      console.log(`Expected text: "${comment.selectedText}", Actual text: "${actualSelectedText}"`);
+      // Approach 1: Direct node replacement for simple cases
+      // Find all text nodes that overlap with the comment's selection
+      const overlappingNodes: {node: Text, startOffset: number, endOffset: number}[] = [];
       
-      try {
-        // Create a regex to find this specific text at the correct position
-        // This is a more advanced approach that searches for the HTML pattern
-        const htmlRegex = new RegExp(
-          `(.{0,20})(${escapeRegExp(comment.selectedText)})(.{0,20})`,
-          'g'
-        );
-        
-        let lastMatch: RegExpExecArray | null;
-        let bestMatch: RegExpExecArray | null = null;
-        let closestPosition = Infinity;
-        
-        // Find the match closest to the stored position
-        while ((lastMatch = htmlRegex.exec(modifiedContent)) !== null) {
-          const matchPosition = lastMatch.index + lastMatch[1].length;
-          const positionDiff = Math.abs(matchPosition - comment.selectionStart);
+      for (const [_, nodeInfo] of textNodesMap) {
+        // Check if this text node overlaps with the selection
+        if (comment.selectionEnd > nodeInfo.startIndex && comment.selectionStart < nodeInfo.endIndex) {
+          // Calculate the relative offsets within this text node
+          const startOffset = Math.max(0, comment.selectionStart - nodeInfo.startIndex);
+          const endOffset = Math.min(nodeInfo.endIndex - nodeInfo.startIndex, comment.selectionEnd - nodeInfo.startIndex);
           
-          if (positionDiff < closestPosition) {
-            closestPosition = positionDiff;
-            bestMatch = lastMatch;
+          if (startOffset < endOffset) {
+            overlappingNodes.push({
+              node: nodeInfo.node,
+              startOffset,
+              endOffset
+            });
           }
         }
+      }
+      
+      if (overlappingNodes.length > 0) {
+        console.log(`Found ${overlappingNodes.length} overlapping nodes for comment ${comment.id}`);
         
-        if (bestMatch) {
-          const matchText = bestMatch[2];
-          const matchStartIndex = bestMatch.index + bestMatch[1].length;
+        // For each overlapping node, modify the content
+        overlappingNodes.forEach(({node, startOffset, endOffset}) => {
+          const parent = node.parentNode;
+          if (!parent) return;
+          
+          const text = node.textContent || '';
+          const beforeText = text.substring(0, startOffset);
+          const highlightedText = text.substring(startOffset, endOffset);
+          const afterText = text.substring(endOffset);
+          
+          if (highlightedText.trim() === '') return; // Skip empty text
+          
           const isNew = newCommentIds.includes(comment.id);
           
-          // Create the replacement HTML
-          const replacement = `<span class="selection-highlight" data-comment-id="${comment.id}" ${isNew ? 'data-new="true"' : ''} tabindex="0">${matchText}</span>`;
+          // Create new nodes
+          const beforeNode = document.createTextNode(beforeText);
+          const highlightNode = document.createElement('span');
+          highlightNode.className = 'selection-highlight';
+          highlightNode.setAttribute('data-comment-id', comment.id.toString());
+          if (isNew) highlightNode.setAttribute('data-new', 'true');
+          highlightNode.setAttribute('tabindex', '0');
+          highlightNode.setAttribute('role', 'button');
+          highlightNode.textContent = highlightedText;
+          const afterNode = document.createTextNode(afterText);
           
-          // Replace the text with the highlighted version
-          modifiedContent = 
-            modifiedContent.substring(0, matchStartIndex) + 
-            replacement + 
-            modifiedContent.substring(matchStartIndex + matchText.length);
+          // Replace the original node with our new nodes
+          if (beforeText) parent.insertBefore(beforeNode, node);
+          parent.insertBefore(highlightNode, node);
+          if (afterText) parent.insertBefore(afterNode, node);
+          parent.removeChild(node);
           
-          console.log(`Successfully highlighted comment ${comment.id}`);
-        } else {
-          console.log(`Could not find match for comment ${comment.id} text "${comment.selectedText}"`);
+          console.log(`Successfully highlighted text: "${highlightedText}" for comment ${comment.id}`);
+        });
+      } else {
+        // Approach 2: If the precise text node approach fails, use regex replacement as a fallback
+        try {
+          // Try to find the text using a regex pattern
+          const escapedText = escapeRegExp(comment.selectedText);
+          const regex = new RegExp(`(^|>)([^<]*?)(${escapedText})([^<]*?)(<|$)`, 'g');
+          
+          let match;
+          let found = false;
+          let htmlContent = tempDiv.innerHTML;
+          
+          while ((match = regex.exec(htmlContent)) !== null && !found) {
+            const isNew = newCommentIds.includes(comment.id);
+            
+            // Create the highlighted span
+            const replacement = `$1$2<span class="selection-highlight" data-comment-id="${comment.id}" ${isNew ? 'data-new="true"' : ''} tabindex="0" role="button">${match[3]}</span>$4$5`;
+            
+            // Apply the replacement
+            htmlContent = htmlContent.substring(0, match.index) + 
+              match[0].replace(match[3], `<span class="selection-highlight" data-comment-id="${comment.id}" ${isNew ? 'data-new="true"' : ''} tabindex="0" role="button">${match[3]}</span>`) + 
+              htmlContent.substring(match.index + match[0].length);
+            
+            found = true;
+            console.log(`Used fallback method to highlight text for comment ${comment.id}`);
+          }
+          
+          if (found) {
+            tempDiv.innerHTML = htmlContent;
+          } else {
+            console.log(`Could not find match for comment ${comment.id} text "${comment.selectedText}"`);
+          }
+        } catch (err) {
+          console.error(`Error processing comment ${comment.id}:`, err);
         }
-      } catch (err) {
-        console.error(`Error processing comment ${comment.id}:`, err);
       }
     });
     
-    return modifiedContent;
+    return tempDiv.innerHTML;
   }, [post?.content, comments, newCommentIds]);
   
   // Utility function to escape regex special characters
@@ -280,22 +333,44 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   useEffect(() => {
     const handleHighlightClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target && target.classList.contains('selection-highlight')) {
-        const commentId = Number(target.dataset.commentId);
+      const highlightElement = target.closest('.selection-highlight') as HTMLElement;
+      
+      if (highlightElement) {
+        const commentId = Number(highlightElement.dataset.commentId);
         if (!isNaN(commentId)) {
           console.log(`Highlight clicked for comment ID: ${commentId}`);
+          
+          // Remove the "new" marker if present
+          if (highlightElement.hasAttribute('data-new')) {
+            highlightElement.removeAttribute('data-new');
+            
+            // Also remove the comment ID from the newCommentIds array
+            setNewCommentIds(prev => prev.filter(id => id !== commentId));
+          }
           
           // Focus the associated comment
           setFocusedCommentId(commentId);
           
           // Apply highlight effect
-          target.classList.add('highlight-focus-pulse');
+          highlightElement.classList.add('highlight-focus-pulse');
           setTimeout(() => {
-            target.classList.remove('highlight-focus-pulse');
+            highlightElement.classList.remove('highlight-focus-pulse');
           }, 2000);
           
           // Ensure comments panel is open
           setShowComments(true);
+          
+          // Scroll the comment into view in the sidebar
+          setTimeout(() => {
+            const commentElement = document.querySelector(`.gdocs-comment[data-comment-id="${commentId}"]`);
+            if (commentElement) {
+              commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              commentElement.setAttribute('data-focused', 'true');
+              setTimeout(() => {
+                commentElement.removeAttribute('data-focused');
+              }, 3000);
+            }
+          }, 100); // Small delay to ensure comment section is open
         }
       }
     };
@@ -306,7 +381,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     return () => {
       document.removeEventListener('click', handleHighlightClick);
     };
-  }, []);
+  }, [setNewCommentIds, setFocusedCommentId, setShowComments]);
   
   // Effect to re-apply event handlers after content rendering
   useEffect(() => {
