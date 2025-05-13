@@ -183,8 +183,13 @@ const PostView = ({ postId }: PostViewProps) => {
         const containerRect = document.querySelector('.post-content-container')?.getBoundingClientRect();
         if (!containerRect) continue;
         
-        const idealTop = rect.top - containerRect.top;
-        const finalTop = findNonOverlappingPosition(idealTop);
+        // Calculate the middle point of the highlighted text
+        const commentHeight = 120; // Approximate height of comment box
+        const highlightMidpoint = rect.top + (rect.height / 2) - containerRect.top;
+        
+        // Position the comment so its middle aligns with the highlight's middle
+        const idealTop = highlightMidpoint - (commentHeight / 2);
+        const finalTop = findNonOverlappingPosition(idealTop, commentHeight);
         
         positions.push({
           id: comment.id,
@@ -515,7 +520,7 @@ const PostView = ({ postId }: PostViewProps) => {
                           className="absolute w-2 border-t border-[#a67a48] opacity-30" 
                           style={{
                             left: '-2px',
-                            top: '15px',
+                            top: '60px', // Position in middle of comment box
                           }}
                         ></div>
                         <div className="flex items-start">
