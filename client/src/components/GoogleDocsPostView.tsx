@@ -109,7 +109,14 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   
   // Process text selection-based comments and add highlight spans
   const renderPostContentWithHighlights = useCallback(() => {
-    if (!post?.content || !comments.length) return post?.content || '';
+    if (!post?.content) return post?.content || '';
+    
+    // If no comments with selection data, just return the content
+    const commentsWithSelection = comments.filter(
+      c => c.selectedText && c.selectionStart !== undefined && c.selectionEnd !== undefined
+    );
+    
+    if (commentsWithSelection.length === 0) return post.content;
     
     // Create a temporary div to hold the content
     const tempDiv = document.createElement('div');
@@ -129,8 +136,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       const nodeLength = nodeText.length;
       
       // Check each comment to see if it applies to this text node
-      comments.forEach(comment => {
-        if (!comment.selectedText || comment.selectionStart === null || comment.selectionEnd === null) {
+      commentsWithSelection.forEach(comment => {
+        if (!comment.selectedText || comment.selectionStart === undefined || comment.selectionEnd === undefined) {
           return;
         }
         
@@ -141,26 +148,29 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         const nodeStartPos = charCount;
         const nodeEndPos = charCount + nodeLength;
         
-        // Selection is completely within this text node
-        if (selStart >= nodeStartPos && selEnd <= nodeEndPos) {
-          const startOffset = selStart - nodeStartPos;
-          const endOffset = selEnd - nodeStartPos;
+        // Check if selection overlaps with this text node
+        if (selEnd > nodeStartPos && selStart < nodeEndPos) {
+          // Calculate the portion of the selection that falls within this node
+          const startOffset = Math.max(0, selStart - nodeStartPos);
+          const endOffset = Math.min(nodeLength, selEnd - nodeStartPos);
           
-          // Get the text to be highlighted
-          const selectedText = nodeText.substring(startOffset, endOffset);
-          
-          // Create the highlight span HTML
-          const spanHtml = `<span class="selection-highlight" data-comment-id="${comment.id}" tabindex="0">${selectedText}</span>`;
-          
-          // Add to insertions map
-          if (!insertions.has(textNode)) {
-            insertions.set(textNode, []);
+          if (startOffset < endOffset) { // Make sure we have a valid range
+            // Get the text to be highlighted
+            const selectedText = nodeText.substring(startOffset, endOffset);
+            
+            // Create the highlight span HTML
+            const spanHtml = `<span class="selection-highlight" data-comment-id="${comment.id}" tabindex="0">${selectedText}</span>`;
+            
+            // Add to insertions map
+            if (!insertions.has(textNode)) {
+              insertions.set(textNode, []);
+            }
+            insertions.get(textNode)?.push({
+              offset: startOffset,
+              html: spanHtml,
+              replacing: selectedText
+            });
           }
-          insertions.get(textNode)?.push({
-            offset: startOffset,
-            html: spanHtml,
-            replacing: selectedText
-          });
         }
       });
       
@@ -248,12 +258,15 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     };
   }, [post]);
 
+  // Effect to add click handler to highlighted text spans
   useEffect(() => {
     const handleHighlightClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (target && target.classList.contains('selection-highlight')) {
         const commentId = Number(target.dataset.commentId);
         if (!isNaN(commentId)) {
+          console.log(`Highlight clicked for comment ID: ${commentId}`);
+          
           // Focus the associated comment
           setFocusedCommentId(commentId);
           
@@ -276,6 +289,23 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       document.removeEventListener('click', handleHighlightClick);
     };
   }, []);
+  
+  // Effect to re-apply event handlers after content rendering
+  useEffect(() => {
+    if (postContentRef.current) {
+      // Find all highlight spans and ensure they have proper tabindex and role attributes
+      const highlights = postContentRef.current.querySelectorAll('.selection-highlight');
+      
+      highlights.forEach((span) => {
+        const element = span as HTMLElement;
+        element.setAttribute('tabindex', '0');
+        element.setAttribute('role', 'button');
+        element.setAttribute('aria-label', 'Comment on this text');
+      });
+      
+      console.log(`Found and enhanced ${highlights.length} text highlights in the content`);
+    }
+  }, [post?.content, comments]);
   
   // Format the post date
   const formattedDate = post?.createdAt 
