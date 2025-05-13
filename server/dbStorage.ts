@@ -4,6 +4,57 @@ import { eq, desc, and } from "drizzle-orm";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
+  // Comment replies operations - needed for Google Docs functionality
+  async getCommentReplies(commentId: number): Promise<Comment[]> {
+    const commentReplies = await db.select()
+      .from(comments)
+      .where(eq(comments.parentId, commentId))
+      .orderBy(comments.createdAt);
+      
+    // Enrich with author data
+    const repliesWithAuthors = await Promise.all(commentReplies.map(async (reply) => {
+      const [author] = await db.select()
+        .from(users)
+        .where(eq(users.id, reply.authorId));
+        
+      return {...reply, author};
+    }));
+    
+    return repliesWithAuthors;
+  }
+  
+  // Update comment - needed for Google Docs functionality
+  async updateComment(id: number, commentData: Partial<Comment>): Promise<Comment | undefined> {
+    // First check if the comment exists
+    const [existingComment] = await db.select()
+      .from(comments)
+      .where(eq(comments.id, id));
+      
+    if (!existingComment) {
+      return undefined;
+    }
+    
+    // Set isEdited to true if updating content
+    if (commentData.content) {
+      commentData.isEdited = true;
+    }
+    
+    // Update the comment
+    const [updatedComment] = await db.update(comments)
+      .set({ 
+        ...commentData,
+        updatedAt: new Date() 
+      })
+      .where(eq(comments.id, id))
+      .returning();
+      
+    // Get author data
+    const [author] = await db.select()
+      .from(users)
+      .where(eq(users.id, updatedComment.authorId));
+      
+    return {...updatedComment, author};
+  }
   // User operations
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));

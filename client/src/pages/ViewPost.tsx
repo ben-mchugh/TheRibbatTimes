@@ -1,5 +1,5 @@
 import { useParams } from 'wouter';
-import PostView from '@/components/PostView';
+import GoogleDocsPostView from '@/components/GoogleDocsPostView';
 
 export default function ViewPost() {
   const { id } = useParams();
@@ -8,5 +8,5 @@ export default function ViewPost() {
     return <div>Post not found</div>;
   }
   
-  return <PostView postId={parseInt(id)} />;
+  return <GoogleDocsPostView postId={parseInt(id)} />;
 }
