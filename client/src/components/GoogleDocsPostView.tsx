@@ -119,6 +119,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   });
   
   // Process text selection-based comments and add highlight spans
+  // This implementation uses a simpler approach focusing on string replacements
   const renderPostContentWithHighlights = useCallback(() => {
     if (!post?.content) return post?.content || '';
     
@@ -129,163 +130,91 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     
     if (commentsWithSelection.length === 0) return post.content;
     
-    // Completely new approach: Avoid DOM manipulations and use HTML string replacements
-    // This will handle overlapping comments better
-    
-    // Step 1: Extract text content without HTML tags
+    // Get a plain text version of the post content to help find text positions
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = post.content;
+    const plainText = tempDiv.textContent || '';
     
-    // Get the plain text version of the HTML content for mapping
-    let plainText = tempDiv.textContent || '';
+    // Create a simple HTML string replacement approach
+    // We'll use the original HTML content to ensure HTML tags are preserved
+    let html = post.content;
     
-    // Verify that stored selections are correct
-    commentsWithSelection.forEach(comment => {
-      if (comment.selectionStart === undefined || comment.selectionEnd === undefined || !comment.selectedText) {
+    // Track which exact texts we've already highlighted to avoid double-highlighting
+    // This addresses a key issue where multiple comments highlight the same text
+    const highlightedTexts = new Set();
+    
+    // Sort comments by their position in the text (earlier first)
+    const sortedComments = [...commentsWithSelection].sort((a, b) => {
+      return (a.selectionStart || 0) - (b.selectionStart || 0);
+    });
+    
+    // Process each comment to highlight its text
+    sortedComments.forEach(comment => {
+      // Skip invalid selections
+      if (!comment.selectedText || comment.selectionStart === undefined || comment.selectionEnd === undefined) {
         return;
       }
       
-      // Log selection ranges for debugging
-      console.log(`Selection for comment ${comment.id}: "${comment.selectedText}" at ${comment.selectionStart}-${comment.selectionEnd}`);
-      const actualText = plainText.substring(comment.selectionStart, comment.selectionEnd);
-      console.log(`Text at those positions: "${actualText}"`);
+      // Log each comment's selection details for debugging
+      console.log(`Processing comment ${comment.id}: "${comment.selectedText}" at positions ${comment.selectionStart}-${comment.selectionEnd}`);
       
-      // If the stored selection doesn't match what's at those positions, adjust it
-      if (actualText !== comment.selectedText && comment.selectedText.length > 0) {
-        console.log(`Selection mismatch for comment ${comment.id}, searching...`);
-        
-        // Try to find the exact text in the content
-        const textIndex = plainText.indexOf(comment.selectedText);
-        if (textIndex >= 0) {
-          console.log(`Found text at position ${textIndex}, adjusting selection`);
-          comment.selectionStart = textIndex;
-          comment.selectionEnd = textIndex + comment.selectedText.length;
-        }
-      }
-    });
-    
-    // Step 2: Build a map of all the positions that need highlighting
-    // We'll track the start and end of each comment's selection
-    const highlightPositions: {
-      position: number;
-      type: 'start' | 'end';
-      commentId: number;
-      isNew: boolean;
-    }[] = [];
-    
-    // Add all comment boundaries to the positions array
-    commentsWithSelection.forEach(comment => {
-      if (comment.selectionStart === undefined || comment.selectionEnd === undefined || !comment.selectedText) {
-        return;
-      }
+      // Verify if the text at the specified positions matches the expected selection
+      const textAtPosition = plainText.substring(comment.selectionStart, comment.selectionEnd);
+      console.log(`Text at positions ${comment.selectionStart}-${comment.selectionEnd}: "${textAtPosition}"`);
       
-      highlightPositions.push({
-        position: comment.selectionStart,
-        type: 'start',
-        commentId: comment.id,
-        isNew: newCommentIds.includes(comment.id)
-      });
+      // Set the text we'll actually search for and highlight
+      let textToHighlight = comment.selectedText;
       
-      highlightPositions.push({
-        position: comment.selectionEnd,
-        type: 'end',
-        commentId: comment.id,
-        isNew: newCommentIds.includes(comment.id)
-      });
-    });
-    
-    // Sort the positions by their index in the text
-    // This ensures we process everything in the right order
-    highlightPositions.sort((a, b) => {
-      // If positions are equal, prioritize end tags before start tags
-      // This handles nested or overlapping tags correctly
-      if (a.position === b.position) {
-        return a.type === 'end' ? -1 : 1;
-      }
-      return a.position - b.position;
-    });
-    
-    // If there are no positions to highlight, return the original content
-    if (highlightPositions.length === 0) {
-      return post.content;
-    }
-    
-    // Step 3: Create a more precise text-to-html position mapping by parsing the HTML
-    // We'll build a character-by-character mapping of text positions to HTML positions
-    const textToHtmlMapping: {textPos: number, htmlPos: number}[] = [];
-    
-    // Initialize with position 0
-    textToHtmlMapping.push({ textPos: 0, htmlPos: 0 });
-    
-    // Process each character in the HTML to build the mapping
-    const htmlContent = post.content;
-    let currentTextPos = 0;
-    let inTag = false;
-    let inEntity = false; // Track HTML entities like &nbsp;
-    
-    for (let i = 0; i < htmlContent.length; i++) {
-      const char = htmlContent[i];
-      
-      if (char === '<') {
-        inTag = true;
-      } else if (char === '>') {
-        inTag = false;
-      } else if (char === '&' && !inTag) {
-        inEntity = true;
-        // Don't increment text position for entity start
-      } else if (char === ';' && inEntity) {
-        inEntity = false;
-        // Add a single character for the entire entity
-        currentTextPos++;
-        textToHtmlMapping.push({ textPos: currentTextPos, htmlPos: i + 1 });
-      } else if (!inTag && !inEntity) {
-        // This is a regular text character (not in a tag or entity)
-        currentTextPos++;
-        textToHtmlMapping.push({ textPos: currentTextPos, htmlPos: i + 1 });
-      }
-    }
-    
-    // Step 4: Use the mapping to insert highlight spans
-    // We'll work backward to avoid position shifts
-    const resultParts: string[] = [];
-    let lastPos = htmlContent.length;
-    
-    // Reverse both arrays to work from the end
-    const reversedPositions = [...highlightPositions].reverse();
-    const reversedMapping = [...textToHtmlMapping].reverse();
-    
-    // For each highlight position, find the corresponding HTML position
-    reversedPositions.forEach(pos => {
-      // Find the closest mapping entry for this text position
-      const mappingEntry = reversedMapping.find(entry => entry.textPos <= pos.position);
-      
-      if (mappingEntry) {
-        // Calculate HTML position
-        const htmlPos = mappingEntry.htmlPos;
-        
-        // Insert the appropriate tag
-        if (pos.type === 'end') {
-          // End tag - closing span
-          const part = htmlContent.substring(htmlPos, lastPos);
-          resultParts.unshift('</span>');
-          resultParts.unshift(part);
+      // Verify our selection is legitimate or try to fix it
+      if (textAtPosition !== textToHighlight) {
+        // The text at the stored position doesn't match - try to find it
+        const position = plainText.indexOf(textToHighlight);
+        if (position >= 0) {
+          console.log(`Found "${textToHighlight}" at position ${position} instead`);
+          
+          // Update our selection position with the correct location
+          comment.selectionStart = position;
+          comment.selectionEnd = position + textToHighlight.length;
         } else {
-          // Start tag - opening span with comment ID
-          const part = htmlContent.substring(htmlPos, lastPos);
-          resultParts.unshift(`<span class="selection-highlight" data-comment-id="${pos.commentId}" ${pos.isNew ? 'data-new="true"' : ''} tabindex="0" role="button">`);
-          resultParts.unshift(part);
+          console.log(`Could not find "${textToHighlight}" in the content, skipping highlight`);
+          return; // Skip this comment if we can't find the text
         }
-        
-        lastPos = htmlPos;
       }
+      
+      // Check if this text has already been highlighted
+      if (highlightedTexts.has(textToHighlight)) {
+        console.log(`Text "${textToHighlight}" already highlighted, skipping to avoid overlap`);
+        return;
+      }
+      
+      // For a direct string replacement approach with HTML content:
+      // 1. First escape any special regex characters in the text
+      const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escapedText = escapeRegExp(textToHighlight);
+      
+      // 2. Create a regex that only matches complete text nodes (not inside tags)
+      // This uses a negative lookahead to ensure we're not inside a tag
+      const regex = new RegExp(`(${escapedText})(?![^<]*>)`, 'g');
+      
+      // 3. Replace the text with a highlighted version
+      const isNew = newCommentIds.includes(comment.id);
+      const replacement = `<span class="selection-highlight" data-comment-id="${comment.id}" tabindex="0" role="button" ${isNew ? 'data-new="true"' : ''}>$1</span>`;
+      
+      html = html.replace(regex, replacement);
+      
+      // Add this text to our set of already highlighted texts
+      highlightedTexts.add(textToHighlight);
+      
+      // Count how many highlights this created
+      const count = (html.match(new RegExp(`data-comment-id="${comment.id}"`, 'g')) || []).length;
+      console.log(`Created ${count} highlight(s) for comment ${comment.id}`);
     });
     
-    // Add any remaining content at the beginning
-    if (lastPos > 0) {
-      resultParts.unshift(htmlContent.substring(0, lastPos));
-    }
+    // Count total highlights
+    const totalHighlights = (html.match(/<span class="selection-highlight"/g) || []).length;
+    console.log(`Created ${totalHighlights} total highlights in the content`);
     
-    return resultParts.join('');
+    return html;
   }, [post?.content, comments, newCommentIds]);
   
   // Utility function to escape regex special characters
@@ -348,18 +277,27 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     const handleHighlightClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       
+      // Debug the click event
+      console.log("Click event detected:", e);
+      console.log("Target element:", target);
+      console.log("Target HTML:", target.outerHTML);
+      
       // Improved highlight detection that handles nested elements correctly
       // First check if the target itself is a highlight element
       let clickedElement = null;
       
       if (target.classList?.contains('selection-highlight')) {
         clickedElement = target;
+        console.log("Direct highlight element clicked");
       } else {
         // Then check all parent elements (for nested highlights)
         let parent = target.parentElement;
+        console.log("Looking for parent highlight elements...");
         while (parent) {
+          console.log("Checking parent:", parent);
           if (parent.classList?.contains('selection-highlight')) {
             clickedElement = parent;
+            console.log("Found highlight element in parent chain");
             break;
           }
           parent = parent.parentElement;
@@ -367,9 +305,29 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       }
       
       if (clickedElement) {
+        console.log("Clicked highlight element:", clickedElement);
+        console.log("Highlight HTML:", clickedElement.outerHTML);
+        
+        // Log all attributes
+        console.log("Highlight attributes:");
+        for (let i = 0; i < clickedElement.attributes.length; i++) {
+          const attr = clickedElement.attributes[i];
+          console.log(`${attr.name}: ${attr.value}`);
+        }
+        
         const commentId = Number(clickedElement.getAttribute('data-comment-id'));
         if (!isNaN(commentId)) {
           console.log(`Highlight clicked for comment ID: ${commentId}`);
+          
+          // Find the comment in our data to compare
+          const matchingComment = comments.find(c => c.id === commentId);
+          if (matchingComment) {
+            console.log("Comment data:", matchingComment);
+            console.log(`Expected text: "${matchingComment.selectedText}"`);
+            console.log(`Actual text in highlight: "${clickedElement.textContent}"`);
+          } else {
+            console.log("No matching comment found in data");
+          }
           
           // Stop event propagation to prevent handling clicks multiple times
           // This is important for nested highlights
@@ -378,6 +336,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           // Remove the "new" marker if present
           if (clickedElement.hasAttribute('data-new')) {
             clickedElement.removeAttribute('data-new');
+            console.log("Removed 'data-new' attribute");
             
             // Also remove the comment ID from the newCommentIds array
             setNewCommentIds(prev => prev.filter(id => id !== commentId));

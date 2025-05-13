@@ -33,48 +33,56 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
   
   // Handle text selection and right-click context menu
   useEffect(() => {
-    // Helper function to accurately calculate text positions
+    // Helper function to reliably determine text positions
     const calculateSelectionPositions = (selection: Selection, postContent: Element) => {
+      // Get the selected text
       const selectedText = selection.toString().trim();
-      const range = selection.getRangeAt(0);
+      if (!selectedText) {
+        console.log("Empty selection detected");
+        return { text: "", start: 0, end: 0 };
+      }
+      
+      console.log(`User selected text: "${selectedText}"`);
+      
+      // Much simpler approach - use the full content text and search for the selected text directly
       const postText = postContent.textContent || '';
       
-      // Create a range for all text before the selection
+      // Simple approach: find the text in the content
+      const position = postText.indexOf(selectedText);
+      if (position >= 0) {
+        console.log(`Found selected text at position ${position}-${position + selectedText.length}`);
+        return {
+          text: selectedText,
+          start: position,
+          end: position + selectedText.length
+        };
+      }
+      
+      // If the exact match isn't found, log this issue
+      console.log(`WARNING: Could not find exact match for "${selectedText}" - trying alternative approaches`);
+      
+      // Try removing surrounding whitespace
+      const trimmedText = selectedText.replace(/^\s+|\s+$/g, '');
+      const trimmedPosition = postText.indexOf(trimmedText);
+      if (trimmedPosition >= 0) {
+        console.log(`Found trimmed text at position ${trimmedPosition}-${trimmedPosition + trimmedText.length}`);
+        return {
+          text: trimmedText,
+          start: trimmedPosition,
+          end: trimmedPosition + trimmedText.length
+        };
+      }
+      
+      // Fallback to the traditional range-based method
+      const range = selection.getRangeAt(0);
       const precedingRange = document.createRange();
       precedingRange.setStart(postContent, 0);
       precedingRange.setEnd(range.startContainer, range.startOffset);
       const startPos = precedingRange.toString().length;
-      
-      // Use the actual selection range length for more accuracy
       const endPos = startPos + selectedText.length;
       
-      // Verify the selection accuracy
-      const actualText = postText.substring(startPos, endPos);
-      console.log(`Selection verification: Expected "${selectedText}", Found "${actualText}"`);
+      console.log(`Fallback positions: ${startPos}-${endPos}`);
       
-      // If there's a mismatch, try to find the exact text
-      if (actualText !== selectedText && selectedText.length > 0) {
-        // Look for the exact text in a reasonable range around the initial position
-        const contextRange = 200; // Search window
-        const searchStart = Math.max(0, startPos - contextRange);
-        const searchEnd = Math.min(postText.length, endPos + contextRange);
-        const searchText = postText.substring(searchStart, searchEnd);
-        
-        const exactIndex = searchText.indexOf(selectedText);
-        if (exactIndex >= 0) {
-          // Found the exact text - use precise positions
-          const adjustedStart = searchStart + exactIndex;
-          const adjustedEnd = adjustedStart + selectedText.length;
-          console.log(`Adjusted selection positions: ${adjustedStart}-${adjustedEnd}`);
-          return {
-            text: selectedText,
-            start: adjustedStart,
-            end: adjustedEnd
-          };
-        }
-      }
-      
-      // Default to original calculation if adjustment not needed or failed
       return {
         text: selectedText,
         start: startPos,
