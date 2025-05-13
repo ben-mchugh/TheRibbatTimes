@@ -42,6 +42,25 @@
   z-index: 5;
 }
 
+/* Depth-specific styles for overlapping highlights */
+.selection-highlight.depth-2 {
+  background-color: rgba(255, 180, 80, 0.3);
+  text-decoration: underline wavy rgba(166, 122, 72, 0.4);
+  z-index: 3;
+}
+
+.selection-highlight.depth-3 {
+  background-color: rgba(220, 150, 80, 0.35);
+  border-bottom: 1px dotted rgba(138, 90, 40, 0.6);
+  z-index: 4;
+}
+
+/* Special styling for manual highlights that might appear in different DOM structure */
+.selection-highlight.manual-highlight {
+  position: relative;
+  display: inline-block;
+}
+
 .selection-highlight:hover {
   background-color: rgba(255, 217, 102, 0.4);
   transform: translateY(0);

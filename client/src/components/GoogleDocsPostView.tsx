@@ -564,7 +564,23 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           console.log(`${attr.name}: ${attr.value}`);
         }
         
-        const commentId = Number(clickedElement.getAttribute('data-comment-id'));
+        // Check for multiple comments first
+        const commentIdsAttr = clickedElement.getAttribute('data-comment-ids');
+        let commentId: number;
+        
+        if (commentIdsAttr && commentIdsAttr.includes(',')) {
+          // For overlapping comments, get the IDs
+          console.log(`Multiple comments found: ${commentIdsAttr}`);
+          const idArray = commentIdsAttr.split(',').map(id => Number(id.trim()));
+          
+          // Use the first ID for now - in a future version, we could show a menu to select
+          commentId = idArray[0];
+          console.log(`Selected primary comment ID: ${commentId}`);
+        } else {
+          // Single comment case
+          commentId = Number(clickedElement.getAttribute('data-comment-id'));
+        }
+        
         if (!isNaN(commentId)) {
           console.log(`Highlight clicked for comment ID: ${commentId}`);
           
