@@ -9,7 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import GoogleDocsCommentSection from './GoogleDocsCommentSection';
 import GoogleDocsTextSelection from './GoogleDocsTextSelection';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, MessageSquare } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 // Helper function to escape special characters in string for RegExp
@@ -22,7 +23,7 @@ interface GoogleDocsPostViewProps {
 }
 
 const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(false);
   const [focusedCommentId, setFocusedCommentId] = useState<number | null>(null);
   const [contentHeight, setContentHeight] = useState<number>(0);
   const { currentUser } = useAuth();
@@ -31,6 +32,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   const postContentRef = useRef<HTMLDivElement>(null);
   const contentContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const [, setLocation] = useLocation();
   
   // Fetch post data
   const { 
@@ -650,6 +652,29 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col">
+      {/* Top bar with controls */}
+      <div className="flex justify-between items-center mb-4">
+        <Button
+          variant="ghost"
+          size="sm" 
+          onClick={() => setLocation('/')}
+          className="flex items-center text-[#a67a48] hover:text-[#8a5a28]"
+        >
+          <X className="h-4 w-4 mr-1" />
+          <span>Close</span>
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowComments(!showComments)}
+          className={`flex items-center ${showComments ? 'bg-[#f5f0e0] text-[#a67a48]' : 'text-[#a67a48]'} border-[#a67a48]`}
+        >
+          <MessageSquare className="h-4 w-4 mr-1" />
+          <span>{showComments ? 'Hide Comments' : 'Show Comments'}</span>
+        </Button>
+      </div>
+      
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Main content area */}
         <div 
