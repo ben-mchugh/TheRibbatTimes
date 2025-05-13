@@ -16,7 +16,7 @@ interface GoogleDocsTextSelectionProps {
 }
 
 const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelectionProps) => {
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isContextMenuVisible, setIsContextMenuVisible] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [commentText, setCommentText] = useState('');
@@ -31,33 +31,76 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
   const { toast } = useToast();
   const { currentUser } = useAuth();
   
-  // Handle text selection
+  // Handle text selection and right-click context menu
   useEffect(() => {
-    const handleTextSelection = () => {
+    const handleContextMenu = (e: MouseEvent) => {
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
-        if (!popupRef.current?.contains(document.activeElement)) {
-          setIsMenuVisible(false);
-        }
-        return;
+        return; // Let the default browser context menu handle this case
       }
       
       const selectedText = selection.toString().trim();
       if (!selectedText) {
-        if (!popupRef.current?.contains(document.activeElement)) {
-          setIsMenuVisible(false);
-        }
-        return;
+        return; // Let the default browser context menu handle this case
       }
-      
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
       
       // Find the post content container
       const postContent = document.querySelector('.post-content');
       if (!postContent) return;
       
       // Check if selection is within post content
+      const range = selection.getRangeAt(0);
+      if (!postContent.contains(range.commonAncestorContainer)) return;
+      
+      // Prevent default context menu
+      e.preventDefault();
+      
+      // Calculate character positions
+      const allText = postContent.textContent || '';
+      const precedingRange = document.createRange();
+      precedingRange.setStart(postContent, 0);
+      precedingRange.setEnd(range.startContainer, range.startOffset);
+      const startPos = precedingRange.toString().length;
+      const endPos = startPos + selectedText.length;
+      
+      // Set custom context menu position at cursor
+      setMenuPosition({
+        top: e.clientY,
+        left: e.clientX
+      });
+      
+      // Store selection data
+      setSelectionData({
+        text: selectedText,
+        start: startPos,
+        end: endPos
+      });
+      
+      // Show the context menu
+      setIsContextMenuVisible(true);
+    };
+    
+    // Handle text selection (keeping track of the current selection)
+    const handleTextSelection = () => {
+      const selection = window.getSelection();
+      
+      // If there's no selection or popup is already open, ignore
+      if (
+        !selection || 
+        selection.isCollapsed || 
+        isPopupVisible || 
+        isContextMenuVisible
+      ) return;
+      
+      const selectedText = selection.toString().trim();
+      if (!selectedText) return;
+      
+      // Find the post content container
+      const postContent = document.querySelector('.post-content');
+      if (!postContent) return;
+      
+      // Check if selection is within post content
+      const range = selection.getRangeAt(0);
       if (!postContent.contains(range.commonAncestorContainer)) return;
       
       // Calculate character positions
@@ -68,50 +111,38 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       const startPos = precedingRange.toString().length;
       const endPos = startPos + selectedText.length;
       
-      // Set menu position to appear at the end of the selection
-      setMenuPosition({
-        top: rect.bottom + window.scrollY + 5, // Position below the selection
-        left: rect.right + window.scrollX - 20 // Align with right edge of selection
-      });
-      
       // Store selection data
       setSelectionData({
         text: selectedText,
         start: startPos,
         end: endPos
       });
-      
-      // Show the menu
-      setIsMenuVisible(true);
     };
     
     // Add event listeners
+    document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('mouseup', handleTextSelection);
-    document.addEventListener('keyup', handleTextSelection);
     
     // Cleanup
     return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('mouseup', handleTextSelection);
-      document.removeEventListener('keyup', handleTextSelection);
     };
-  }, []);
+  }, [isPopupVisible, isContextMenuVisible]);
   
   // Handle clicks outside the menu/popup
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as Node;
+      // Context menu handling
+      if (isContextMenuVisible && menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsContextMenuVisible(false);
+      }
       
-      // Check if click is outside both menu and popup
-      if (
-        menuRef.current && 
-        !menuRef.current.contains(target) && 
-        popupRef.current && 
-        !popupRef.current.contains(target)
-      ) {
-        setIsMenuVisible(false);
-        
-        // Only hide popup if click isn't inside a text field
-        if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) {
+      // Comment popup handling
+      if (isPopupVisible && popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        // Only close if click is not in a form element (to allow text entry)
+        const target = e.target as HTMLElement;
+        if (!['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(target.tagName)) {
           setIsPopupVisible(false);
         }
       }
@@ -122,7 +153,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, []);
+  }, [isContextMenuVisible, isPopupVisible]);
   
   // Open comment popup
   const handleOpenCommentPopup = () => {
@@ -136,7 +167,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
     }
     
     setIsPopupVisible(true);
-    setIsMenuVisible(false);
+    setIsContextMenuVisible(false);
     setCommentText('');
     
     // Focus the textarea after opening
@@ -168,6 +199,9 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
     
     setIsPopupVisible(false);
     setCommentText('');
+    
+    // Clear the selection after adding the comment
+    window.getSelection()?.removeAllRanges();
   };
   
   // Cancel comment
@@ -178,8 +212,8 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
   
   return (
     <>
-      {/* Google Docs style floating menu on text selection */}
-      {isMenuVisible && (
+      {/* Right-click context menu for text selection */}
+      {isContextMenuVisible && (
         <div 
           ref={menuRef}
           className="fixed z-50 bg-white rounded-md shadow-md border border-gray-200 py-1"
@@ -195,12 +229,12 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             onClick={handleOpenCommentPopup}
           >
             <MessageSquare className="h-4 w-4 mr-1 text-[#a67a48]" />
-            <span>Comment</span>
+            <span>Add comment</span>
           </Button>
         </div>
       )}
       
-      {/* Google Docs style comment popup */}
+      {/* Comment popup */}
       {isPopupVisible && (
         <div
           ref={popupRef}
@@ -212,6 +246,14 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
           }}
         >
           <div className="p-3">
+            {selectionData && (
+              <div className="mb-2 p-2 bg-white border border-[#a67a48]/30 rounded text-xs">
+                <p className="italic text-[#161718]/70 line-clamp-2">
+                  "{selectionData.text}"
+                </p>
+              </div>
+            )}
+            
             <Textarea
               className="w-full min-h-[80px] px-3 py-2 text-sm border border-[#a67a48] bg-white rounded focus:outline-none focus:ring-1 focus:ring-[#a67a48]"
               placeholder="Add a comment..."
