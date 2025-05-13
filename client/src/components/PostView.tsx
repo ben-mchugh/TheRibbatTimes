@@ -104,43 +104,23 @@ const PostView = ({ postId }: PostViewProps) => {
     }
   }, [focusedCommentId, comments]);
 
-  // Handler for clicking on highlighted text
+  // Handler for clicking on highlighted text - very simple direct approach
   const handleHighlightClick = useCallback((commentId: number) => {
+    console.log(`Highlighting text clicked for comment ID ${commentId}`);
+    
+    // Set the focused comment to highlight it
     setFocusedCommentId(commentId);
     
-    // Find the highlighted text element that was clicked
-    const highlightedText = document.querySelector(`.selection-highlight[data-comment-id="${commentId}"]`);
-    
-    // Find the corresponding comment element using ID
+    // Simply grab the comment element by its ID and scroll it into view - the simplest approach
     const commentElement = document.getElementById(`comment-${commentId}`);
-    
-    if (highlightedText && commentElement) {
-      // Get the position of the highlighted text relative to the viewport
-      const highlightRect = highlightedText.getBoundingClientRect();
-      const highlightY = highlightRect.top + (highlightRect.height / 2);
+    if (commentElement) {
+      // This is the simplest solution - just scroll the comment into view
+      commentElement.scrollIntoView({
+        behavior: 'smooth', 
+        block: 'center'
+      });
       
-      // Get the comment container
-      const commentsContainer = document.querySelector('.comments-container');
-      if (commentsContainer) {
-        // Calculate how far to scroll to align the comment with the highlighted text
-        const commentRect = commentElement.getBoundingClientRect();
-        const commentHeight = commentRect.height;
-        const containerRect = commentsContainer.getBoundingClientRect();
-        
-        // Current scroll position plus the difference between comment position and highlight position
-        const commentTop = commentRect.top;
-        const containerTop = containerRect.top;
-        const scrollTop = commentsContainer.scrollTop;
-        
-        // Target scroll position: current scroll + (comment's distance from highlight)
-        const targetScrollTop = scrollTop + (commentTop - highlightY);
-        
-        // Smooth scroll to the position
-        commentsContainer.scrollTo({ 
-          top: targetScrollTop, 
-          behavior: 'smooth' 
-        });
-      }
+      // No need to add animation here - already handled by data-focused attribute
     }
   }, []);
   
@@ -464,7 +444,7 @@ const PostView = ({ postId }: PostViewProps) => {
                   {/* Inline comments appear next to the related text - takes 35% width */}
                   <div className="w-[35%] relative h-full flex flex-col">
                     {/* Comments container with scrollbar - matches height of the content */}
-                    <div className="comments-container overflow-y-auto sticky top-0 pr-2 flex-1">
+                    <div id="commentScrollContainer" className="comments-container overflow-y-auto sticky top-0 pr-2 flex-1">
                       {marginComments.map(({ id, comment, zIndex }) => {
                         const isFocused = id === focusedCommentId;
                         
