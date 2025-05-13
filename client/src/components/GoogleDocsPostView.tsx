@@ -651,7 +651,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col relative">
       {/* Fixed position controls - positioned even lower as requested */}
-      <div className="fixed top-32 right-4 z-40 flex flex-col gap-2">
+      <div className="fixed top-48 right-4 z-40 flex flex-col gap-2">
         {/* Close button */}
         <a href="/">
           <Button

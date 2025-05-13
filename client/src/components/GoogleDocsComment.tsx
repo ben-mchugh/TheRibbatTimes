@@ -316,7 +316,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleDelete}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-[#f5f0e0]"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-transparent"
               title="Delete comment"
             >
               <Trash className="h-3 w-3" />

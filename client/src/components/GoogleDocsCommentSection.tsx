@@ -70,13 +70,13 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       {/* Comments list with dynamic height matching content container */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto px-3 py-4 space-y-5"
+        className="comments-container overflow-y-auto px-3 py-4 space-y-5 bg-gray-100/30"
         style={containerStyle}
       >
         {isLoading ? (
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-[#f5f0e0] p-4 rounded-lg shadow-lg opacity-100">
+              <div key={i} className="bg-transparent p-4 rounded-lg shadow-lg opacity-100">
                 <div className="flex items-start">
                   <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="ml-3 flex-1">
