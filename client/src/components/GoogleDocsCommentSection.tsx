@@ -65,7 +65,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   } : {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col border-l border-[#a67a48] bg-transparent">
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#a67a48] bg-transparent">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-transparent">
         <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
       </div>
@@ -79,7 +79,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         {isLoading ? (
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-[#f5f0e0] p-4 rounded-lg shadow-md opacity-100">
+              <div key={i} className="bg-[#f5f0e0] p-4 rounded-lg shadow-lg opacity-100">
                 <div className="flex items-start">
                   <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="ml-3 flex-1">
@@ -128,7 +128,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 </div>
               ))
             ) : (
-              <div className="bg-[#f5f0e0] p-6 rounded-lg text-center shadow-md opacity-100">
+              <div className="bg-[#f5f0e0] p-6 rounded-lg text-center shadow-lg opacity-100">
                 <p className="text-[#a67a48] font-medium">No comments yet</p>
                 <p className="text-sm text-[#a67a48]/80 mt-2">Select text and right-click to add the first comment</p>
               </div>
