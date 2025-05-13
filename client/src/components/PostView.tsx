@@ -199,11 +199,12 @@ const PostView = ({ postId }: PostViewProps) => {
   
   // Function to render the post content with highlighted text for comments
   const renderPostContentWithHighlights = useCallback(() => {
-    if (!postData?.content || !comments.length) return postData?.content || '';
+    // Safety check - if the post or content doesn't exist or no comments, return early
+    if (!post?.content || !comments.length) return post?.content || '';
     
     // Create a temporary div to hold the HTML content
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = postData.content;
+    tempDiv.innerHTML = post.content;
     
     // Process text selection-based comments
     comments.forEach(comment => {
@@ -273,7 +274,7 @@ const PostView = ({ postId }: PostViewProps) => {
     });
     
     return tempDiv.innerHTML;
-  }, [comments, postData]);
+  }, [comments, post]);
   
   // Helper function to get all text nodes in a given element
   function getTextNodesIn(node: Node): Text[] {
@@ -385,12 +386,11 @@ const PostView = ({ postId }: PostViewProps) => {
     );
   }
 
-  // At this point, we know post is defined
-  const postData = post;
+  // At this point we know post exists and is loaded
   
   // Safety checks for required data
-  if (!postData.author) {
-    postData.author = {
+  if (!post.author) {
+    post.author = {
       id: 0,
       uid: 'unknown',
       displayName: 'Unknown Author',
@@ -400,7 +400,7 @@ const PostView = ({ postId }: PostViewProps) => {
   }
 
   // Format post date
-  const formattedDate = formatDate(postData.createdAt);
+  const formattedDate = formatDate(post.createdAt);
 
   // Main render
   return (
@@ -421,13 +421,13 @@ const PostView = ({ postId }: PostViewProps) => {
           <div className="px-4 pt-10 pb-6 md:px-8 md:pt-12 md:pb-8 lg:p-12">
             <div className="w-full relative">
               <div className="post-content-container relative">
-                <h1 className="text-2xl md:text-3xl font-heading font-bold text-[#161718] mb-4">{postData.title}</h1>
+                <h1 className="text-2xl md:text-3xl font-heading font-bold text-[#161718] mb-4">{post.title}</h1>
                 <div className="mt-2 mb-6 flex flex-wrap items-center">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={postData.author.photoURL} alt={postData.author.displayName} />
-                    <AvatarFallback>{postData.author.displayName.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={post.author.photoURL} alt={post.author.displayName} />
+                    <AvatarFallback>{post.author.displayName.charAt(0)}</AvatarFallback>
                   </Avatar>
-                  <span className="ml-2 text-sm text-[#161718]">{postData.author.displayName}</span>
+                  <span className="ml-2 text-sm text-[#161718]">{post.author.displayName}</span>
                   <span className="mx-2 text-[#a67a48]">•</span>
                   <span className="text-sm text-[#161718]">{formattedDate}</span>
                 </div>
@@ -511,9 +511,9 @@ const PostView = ({ postId }: PostViewProps) => {
                   </div>
                 </div>
                 
-                {currentUser && postData.authorId === parseInt(currentUser.uid) && (
+                {currentUser && post.authorId === parseInt(currentUser.uid) && (
                   <div className="mt-6 flex">
-                    <Link href={`/edit/${postData.id}`}>
+                    <Link href={`/edit/${post.id}`}>
                       <Button 
                         variant="outline" 
                         className="mr-2 border-[#a67a48] text-[#a67a48] hover:bg-[#a67a48] hover:text-[#e0d3af]"
