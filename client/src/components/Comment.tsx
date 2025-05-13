@@ -48,11 +48,13 @@ const CommentItem = ({
   
   const formattedDate = formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true });
   
-  // The comments show the dropdown menu is showing now, so we can remove verbose debugging
-  // and focus on the most reliable comparison
-
+  // Debug info - keeping this until we confirm everything is working
+  console.log("Comment:", comment);
+  console.log("Current user:", currentUser);
+  
   // Check if the current user is the author of this comment
-  const isAuthor = currentUser && currentUser.uid === comment.author?.uid;
+  // Using uid from Firebase auth is the most reliable way
+  const isAuthor = Boolean(currentUser?.uid && comment.author?.uid && currentUser.uid === comment.author.uid);
   const hasReplies = !isReply && comment.id !== undefined; // Only top-level comments can have replies
 
   useEffect(() => {
@@ -296,25 +298,24 @@ const CommentItem = ({
               <div className="flex items-center">
                 <span className="text-xs text-[#a67a48] mr-2">{formattedDate}</span>
                 {comment.isEdited && <span className="text-xs text-[#a67a48] italic mr-2">(edited)</span>}
-                {isAuthor && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={handleEdit}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleDelete}>
-                        <Trash className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                {/* Always show dropdown menu for now to debug, we'll use isAuthor later */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleEdit}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleDelete}>
+                      <Trash className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
             
