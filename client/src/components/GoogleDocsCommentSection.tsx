@@ -65,30 +65,21 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   } : {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col border-l border-[#a67a48]">
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l border-[#a67a48] bg-transparent">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-[#f5f0e0]/60">
         <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => setShowComments(false)} 
-          className="text-[#161718] hover:text-[#a67a48]"
-          title="Close comments panel"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
       </div>
       
       {/* Comments list with dynamic height matching content container */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto px-4 py-6 space-y-6"
+        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-transparent"
         style={containerStyle}
       >
         {isLoading ? (
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-[#f5f0e0] p-4 rounded-lg shadow-sm">
+              <div key={i} className="bg-[#f5f0e0] p-4 rounded-lg shadow-md">
                 <div className="flex items-start">
                   <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="ml-3 flex-1">
@@ -137,7 +128,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 </div>
               ))
             ) : (
-              <div className="bg-[#f5f0e0] p-6 rounded-lg text-center shadow-sm">
+              <div className="bg-[#f5f0e0] p-6 rounded-lg text-center shadow-md">
                 <p className="text-[#a67a48] font-medium">No comments yet</p>
                 <p className="text-sm text-[#a67a48]/80 mt-2">Select text and right-click to add the first comment</p>
               </div>
