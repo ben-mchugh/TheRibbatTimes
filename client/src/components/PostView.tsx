@@ -429,8 +429,8 @@ const PostView = ({ postId }: PostViewProps) => {
                   <span className="text-sm text-[#161718]">{formattedDate}</span>
                 </div>
                 
-                {/* Two-column layout for content and inline comments */}
-                <div className="flex relative min-h-[500px]">
+                {/* Two-column layout for content and inline comments - set fixed height */}
+                <div className="flex relative min-h-[500px] max-h-[calc(90vh-200px)]">
                   {/* Main content - takes 65% width */}
                   <div className="w-[65%] pr-6">
                     <div className="prose prose-headings:text-[#161718] prose-p:text-[#161718] prose-strong:text-[#161718] prose-em:text-[#161718] prose-li:text-[#161718] max-w-none relative">
@@ -443,8 +443,8 @@ const PostView = ({ postId }: PostViewProps) => {
                   
                   {/* Inline comments appear next to the related text - takes 35% width */}
                   <div className="w-[35%] relative h-full flex flex-col">
-                    {/* Comments container with scrollbar - matches height of the content */}
-                    <div id="commentScrollContainer" className="comments-container overflow-y-auto sticky top-0 pr-2 flex-1">
+                    {/* Fixed height comments container with scrollbar - it will always show a scrollbar when needed */}
+                    <div id="commentScrollContainer" className="comments-container overflow-y-auto sticky top-0 pr-2 max-h-screen flex-1">
                       {marginComments.map(({ id, comment, zIndex }) => {
                         const isFocused = id === focusedCommentId;
                         
