@@ -286,10 +286,10 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   };
 
   return (
-    <div className={`gdocs-comment ${isReply ? 'ml-2 mt-1' : ''} ${isFocused ? 'focused' : ''}`}>
+    <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''}`}>
       <div 
         ref={commentRef}
-        className={`bg-[#f5f0e0] p-2 rounded-lg mb-1 relative ${
+        className={`bg-[#f5f0e0] p-4 rounded-lg mb-2 relative ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#ebddbe]' : ''
         } ${isReply ? 'border-l-2 border-[#a67a48]' : ''}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
@@ -297,40 +297,40 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       >
         {/* Action buttons in the top right */}
         {isAuthor && (
-          <div className="absolute top-1 right-1 flex space-x-0.5 z-10">
+          <div className="absolute top-2 right-2 flex space-x-1 z-10">
             <Button 
               onClick={handleEdit}
               variant="outline"
               size="sm"
-              className="h-4 w-4 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
               title="Edit comment"
             >
-              <Edit className="h-2 w-2" />
+              <Edit className="h-3 w-3" />
             </Button>
             
             <Button 
               onClick={handleDelete}
               variant="outline"
               size="sm"
-              className="h-4 w-4 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm"
               title="Delete comment"
             >
-              <Trash className="h-2 w-2" />
+              <Trash className="h-3 w-3" />
             </Button>
           </div>
         )}
         
         <div className="flex items-start">
-          <Avatar className="h-6 w-6 flex-shrink-0">
+          <Avatar className="h-8 w-8 flex-shrink-0">
             <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
             <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="ml-1 flex-1">
+          <div className="ml-2 flex-1">
             <div className="flex justify-between items-center">
-              <span className="text-xs font-medium text-[#161718]">{comment.author.displayName}</span>
+              <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
               <div className="flex items-center">
-                <span className="text-xxs text-[#a67a48]">{formattedDate}</span>
-                {comment.isEdited && <span className="text-xxs text-[#a67a48] italic ml-1">(edited)</span>}
+                <span className="text-xs text-[#a67a48]">{formattedDate}</span>
+                {comment.isEdited && <span className="text-xs text-[#a67a48] italic ml-1">(edited)</span>}
               </div>
             </div>
             
@@ -364,26 +364,26 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-[#161718] mt-0.5 whitespace-pre-wrap break-words leading-tight">{comment.content}</p>
+              <p className="text-sm text-[#161718] mt-1 whitespace-pre-wrap break-words">{comment.content}</p>
             )}
             
             {comment.selectedText && !isEditing && (
-              <div className="mt-0.5 text-xxs text-[#a67a48] italic">
+              <div className="mt-2 text-xs text-[#a67a48] italic">
                 <span>"{comment.selectedText}"</span>
               </div>
             )}
             
             {!isEditing && !isReply && (
-              <div className="mt-1 flex space-x-2">
+              <div className="mt-2 flex space-x-3">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={handleReply}
-                  className="flex items-center text-xxs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-4 p-0"
+                  className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 p-0"
                   title="Reply to comment"
                 >
-                  <Reply className="h-2 w-2" />
-                  <span className="ml-0.5">Reply</span>
+                  <Reply className="h-3 w-3" />
+                  <span className="ml-1">Reply</span>
                 </Button>
                 
                 {hasReplies && (
@@ -391,7 +391,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={toggleReplies}
-                    className="flex items-center text-xxs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-4 p-0"
+                    className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 p-0"
                     disabled={isLoadingReplies}
                     title={showReplies ? "Hide replies" : "Show replies"}
                   >
@@ -400,12 +400,12 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                     ) : (
                       <>
                         {showReplies ? (
-                          <ChevronUp className="h-2 w-2" />
+                          <ChevronUp className="h-3 w-3" />
                         ) : (
-                          <ChevronDown className="h-2 w-2" />
+                          <ChevronDown className="h-3 w-3" />
                         )}
-                        <span className="ml-0.5">
-                          {showReplies ? 'Hide' : 'Show'}
+                        <span className="ml-1">
+                          {showReplies ? 'Hide replies' : 'Show replies'}
                           {replies.length > 0 && !showReplies && ` (${replies.length})`}
                         </span>
                       </>
@@ -419,31 +419,31 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       </div>
       
       {isReplying && (
-        <div className="ml-4 mb-2">
+        <div className="ml-6 mb-4">
           <Textarea
             ref={replyInputRef}
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
             placeholder="Write a reply..."
-            className="min-h-[40px] text-xs bg-white border-[#a67a48] text-[#161718]"
+            className="min-h-[60px] bg-white border-[#a67a48] text-[#161718]"
           />
-          <div className="flex justify-end mt-1 space-x-1">
+          <div className="flex justify-end mt-2 space-x-2">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleCancelReply}
-              className="flex items-center text-xxs h-5 text-[#a67a48] border-[#a67a48]"
+              className="flex items-center text-[#a67a48] border-[#a67a48]"
             >
-              <X className="h-2 w-2 mr-0.5" />
+              <X className="h-3 w-3 mr-1" />
               Cancel
             </Button>
             <Button 
               variant="default" 
               size="sm" 
               onClick={handleSubmitReply}
-              className="flex items-center text-xxs h-5 bg-[#a67a48] hover:bg-[#8a5a28]"
+              className="flex items-center bg-[#a67a48] hover:bg-[#8a5a28]"
             >
-              <Check className="h-2 w-2 mr-0.5" />
+              <Check className="h-3 w-3 mr-1" />
               Reply
             </Button>
           </div>
@@ -451,7 +451,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       )}
       
       {showReplies && replies.length > 0 && (
-        <div className="mt-0.5 mb-1 ml-3 border-l border-[#a67a48] pl-1">
+        <div className="mt-1 mb-2 ml-4 border-l-2 border-[#a67a48] pl-2">
           {replies.map((reply) => (
             <GoogleDocsComment
               key={`reply-${reply.id}`}

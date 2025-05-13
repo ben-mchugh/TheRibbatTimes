@@ -40,6 +40,20 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
 
   // Filter to get only top-level comments (no replies)
   const topLevelComments = comments.filter(comment => !comment.parentId);
+  
+  // Sort comments by selection position rather than time
+  const sortedComments = [...topLevelComments].sort((a, b) => {
+    // If both comments have selection positions, sort by position
+    if (a.selectionStart !== undefined && a.selectionStart !== null && 
+        b.selectionStart !== undefined && b.selectionStart !== null) {
+      return a.selectionStart - b.selectionStart;
+    }
+    // If only one has a selection position, prioritize it
+    if (a.selectionStart !== undefined && a.selectionStart !== null) return -1;
+    if (b.selectionStart !== undefined && b.selectionStart !== null) return 1;
+    // Otherwise, fall back to creation time (newest first)
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   return (
     <div className="gdocs-comment-section w-full h-full flex flex-col border-l border-[#a67a48]">
@@ -80,8 +94,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           </div>
         ) : (
           <div className="space-y-4">
-            {topLevelComments && topLevelComments.length > 0 ? (
-              topLevelComments.map((comment) => (
+            {sortedComments.length > 0 ? (
+              sortedComments.map((comment) => (
                 <GoogleDocsComment 
                   key={`comment-${comment.id}`} 
                   comment={comment} 
