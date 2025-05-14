@@ -404,17 +404,12 @@ div[data-focused="true"] .connector-line {
     transition: none;
   }
   
-  /* Enhanced connector line effect on hover */
+  /* Static connector line effect on hover for better performance */
   .margin-comment:hover::before {
     width: 12px;
     height: 2px;
     background-color: rgba(68, 68, 68, 0.8);
-    animation: connector-pulse 1.5s infinite alternate;
-  }
-  
-  @keyframes connector-pulse {
-    from { opacity: 0.6; }
-    to { opacity: 1; }
+    opacity: 0.9;
   }
   
   /* No visual cues for text selection */

@@ -466,13 +466,22 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     // Initial height calculation
     updateHeight();
     
-    // Create a ResizeObserver to track height changes
+    // Create a ResizeObserver with debounced callback for better performance
+    let debounceTimeout: number | null = null;
     const resizeObserver = new ResizeObserver(() => {
-      updateHeight();
+      // Cancel previous timeout
+      if (debounceTimeout) {
+        window.clearTimeout(debounceTimeout);
+      }
+      
+      // Set new timeout to limit how often the height is recalculated
+      debounceTimeout = window.setTimeout(() => {
+        updateHeight();
+      }, 250); // Update at most every 250ms
     });
     
     // Start observing the post content, not the entire container
-    resizeObserver.observe(postContentRef.current);
+    postContentRef.current && resizeObserver.observe(postContentRef.current);
     
     return () => {
       resizeObserver.disconnect();
