@@ -111,7 +111,7 @@
   /* Allow dynamic height to match content pane */
   transition: height 0.3s ease-in-out;
   scrollbar-width: thin;
-  scrollbar-color: #a67a48 #e0d3af;
+  scrollbar-color: #444444 #2a2a2a;
 }
 
 .comments-container::-webkit-scrollbar {
@@ -119,12 +119,12 @@
 }
 
 .comments-container::-webkit-scrollbar-track {
-  background: #e0d3af30;
+  background: #2a2a2a30;
   border-radius: 10px;
 }
 
 .comments-container::-webkit-scrollbar-thumb {
-  background-color: #a67a48;
+  background-color: #444444;
   border-radius: 10px;
 }
 
@@ -218,7 +218,7 @@ div[data-focused="true"] .connector-line {
 --muted-foreground: 25 5.3% 44.7%;
 --popover: 0 0% 100%;
 --popover-foreground: 20 14.3% 4.1%;
---card: 48 36% 78%; /* #e0d3af */
+--card: 0 0% 91%; /* #e8e8e8 */
 --card-foreground: 240 3% 9%; /* #161718 - same as background */
 --border: 20 5.9% 90%;
 --input: 20 5.9% 90%;
@@ -240,7 +240,7 @@ div[data-focused="true"] .connector-line {
 --muted-foreground: 240 5% 64.9%;
 --popover: 240 10% 3.9%;
 --popover-foreground: 0 0% 98%;
---card: 48 36% 78%; /* #e0d3af */
+--card: 0 0% 91%; /* #e8e8e8 */
 --card-foreground: 240 3% 9%; /* #161718 - same as background */
 --border: 240 3.7% 15.9%;
 --input: 240 3.7% 15.9%;
@@ -303,7 +303,7 @@ div[data-focused="true"] .connector-line {
   }
 
   .post-card {
-    background-color: #e0d3af; /* Sepia color for post backgrounds */
+    background-color: #e8e8e8; /* Light grey color for post backgrounds */
     color: #161718; /* Dark color matching the site background */
   }
 
