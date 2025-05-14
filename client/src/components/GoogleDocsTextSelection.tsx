@@ -332,32 +332,32 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             )}
             
             <Textarea
-              className="w-full min-h-[80px] px-3 py-2 text-sm border border-[#444444] bg-white text-[#161718] rounded focus:outline-none focus:ring-1 focus:ring-[#444444]"
+              className="w-full min-h-[80px] px-3 py-2 text-sm border-2 border-[#e66933]/60 bg-white text-[#161718] rounded focus:outline-none focus:ring-2 focus:ring-[#e66933]"
               placeholder="Add a comment..."
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               autoFocus
             />
             
-            <div className="flex justify-end gap-2 mt-2">
+            <div className="flex justify-end gap-3 mt-3">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                className="flex items-center justify-center border-[#444444] text-[#444444] hover:bg-[#e0e0e0] h-8 w-8 p-0"
+                className="flex items-center justify-center border-[#444444] text-[#444444] hover:bg-[#e0e0e0] h-9 w-9 p-0"
                 onClick={handleCancelComment}
                 title="Cancel"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
               <Button 
                 type="button"
                 size="sm"
-                className="flex items-center justify-center bg-[#444444] text-white hover:bg-[#222222] h-8 w-8 p-0"
+                className="flex items-center justify-center bg-[#e66933] text-white hover:bg-[#d55822] h-9 w-9 p-0"
                 onClick={handleSubmitComment}
                 title="Add comment"
               >
-                <Check className="h-4 w-4" />
+                <Check className="h-5 w-5" />
               </Button>
             </div>
           </div>
