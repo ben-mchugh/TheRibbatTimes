@@ -38,7 +38,7 @@ const PostCard = ({ post, profile }: PostCardProps) => {
             </div>
           </div>
           <Link href={`/post/${post.id}`}>
-            <Button variant="ghost" className="inline-flex items-center px-3 py-1.5 text-sm bg-opacity-10 hover:bg-opacity-20" style={{ color: "#a67a48" }}>
+            <Button variant="ghost" className="inline-flex items-center px-3 py-1.5 text-sm bg-opacity-10 hover:bg-opacity-20" style={{ color: "#444444" }}>
               Read More
               <ChevronRight className="ml-1 h-5 w-5" />
             </Button>
