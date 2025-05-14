@@ -42,7 +42,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const editInputRef = useRef<HTMLTextAreaElement>(null);
   const replyInputRef = useRef<HTMLTextAreaElement>(null);
   
-  const formattedDate = format(new Date(comment.createdAt), 'MMM d, yyyy h:mm a');
+  const dateFormatted = format(new Date(comment.createdAt), 'MMM d, yyyy');
+  const timeFormatted = format(new Date(comment.createdAt), 'h:mm a');
   
   // Check if the current user is the author of this comment
   const isAuthor = Boolean(currentUser?.uid && comment.author?.uid && currentUser.uid === comment.author.uid);
@@ -332,9 +333,10 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
           <div className="ml-2 flex-1">
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
-              <div className="flex items-center">
-                <span className="text-xs text-[#444444]">{formattedDate}</span>
-                {comment.isEdited && <span className="text-xs text-[#444444] italic ml-1">(edited)</span>}
+              <div className="flex flex-col items-end">
+                <span className="text-xs text-[#444444]">{dateFormatted}</span>
+                <span className="text-xs text-[#444444]">{timeFormatted}</span>
+                {comment.isEdited && <span className="text-xs text-[#444444] italic">(edited)</span>}
               </div>
             </div>
             
