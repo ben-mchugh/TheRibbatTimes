@@ -47,17 +47,9 @@
   z-index: 10;
 }
 
-/* Add a subtle indicator that there's a comment */
+/* No button indicator on highlighted text */
 .selection-highlight::after {
-  content: '';
-  position: absolute;
-  right: -2px;
-  top: -2px;
-  width: 6px;
-  height: 6px;
-  background-color: #a67a48;
-  border-radius: 50%;
-  opacity: 0.8;
+  display: none;
 }
 
 /* Element highlight for comments */
