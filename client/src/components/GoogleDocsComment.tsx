@@ -383,7 +383,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   variant="ghost" 
                   size="sm" 
                   onClick={handleReply}
-                  className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 p-0"
+                  className="flex items-center text-xs text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-6 p-0"
                   title="Reply to comment"
                 >
                   <Reply className="h-3 w-3" />
@@ -395,7 +395,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={toggleReplies}
-                    className="flex items-center text-xs text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#f5f0e0] h-6 p-0"
+                    className="flex items-center text-xs text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-6 p-0"
                     disabled={isLoadingReplies}
                     title={showReplies ? "Hide replies" : "Show replies"}
                   >
