@@ -44,13 +44,13 @@ const PostCard = ({ post, profile }: PostCardProps) => {
             </Button>
           </Link>
         </div>
-        <div className="px-4 py-4 sm:px-6 border-t" style={{ borderColor: "#a67a48" }}>
+        <div className="px-4 py-4 sm:px-6 border-t" style={{ borderColor: "#d1d1d1" }}>
           <p className="line-clamp-3" style={{ color: "#161718" }}>
             {/* Display a plain text preview from the content (strip HTML) */}
             {post.content.replace(/<[^>]*>/g, '').substring(0, 250)}...
           </p>
-          <div className="mt-3 flex items-center text-sm" style={{ color: "#a67a48" }}>
-            <MessageSquare className="h-5 w-5 mr-1" style={{ color: "#a67a48" }} />
+          <div className="mt-3 flex items-center text-sm" style={{ color: "#555555" }}>
+            <MessageSquare className="h-5 w-5 mr-1" style={{ color: "#555555" }} />
             <span>{post.commentCount} comments</span>
             {post.tags && post.tags.length > 0 && (
               <>

@@ -101,7 +101,7 @@ const PostList = () => {
     <div className="space-y-12">
       {groupedPosts.map(([monthYear, monthPosts]) => (
         <div key={monthYear} className="space-y-6">
-          <h2 className="text-2xl font-serif font-bold border-b border-neutral-300 pb-2" style={{ color: "#a67a48" }}>{monthYear}</h2>
+          <h2 className="monthly-header">{monthYear}</h2>
           <div className="space-y-8">
             {monthPosts.map((post) => (
               <PostCard key={post.id} post={post} />
