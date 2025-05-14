@@ -293,7 +293,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
         } ${isReply ? 'border-l-2 border-[#444444]' : ''} 
-        transition-all duration-300 ease-in-out animate-comment-enter
+        transition-all duration-300 ease-in-out animate-comment-enter w-[300px]
         ${isFocused ? 'animate-comment-focus border-2 border-[#444444] ring-2 ring-[#444444]/30 shadow-[0_8px_24px_rgba(0,0,0,0.25)]' : 'border border-[#444444]/80'}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
         data-comment-id={comment.id}
@@ -341,12 +341,12 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             </div>
             
             {isEditing ? (
-              <div className="mt-2">
+              <div className="mt-2 w-full">
                 <Textarea 
                   ref={editInputRef}
                   value={editedContent} 
                   onChange={(e) => setEditedContent(e.target.value)}
-                  className="min-h-[80px] bg-white border-[#444444] text-[#161718]"
+                  className="min-h-[80px] bg-white border-[#444444] text-[#161718] w-full"
                 />
                 <div className="flex justify-end mt-2 space-x-2">
                   <Button 
@@ -418,13 +418,13 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       </div>
       
       {isReplying && (
-        <div className="ml-6 mb-4">
+        <div className="ml-6 mb-4 w-[300px]">
           <Textarea
             ref={replyInputRef}
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
             placeholder="Write a reply..."
-            className="min-h-[60px] bg-white border-[#444444] text-[#161718]"
+            className="min-h-[60px] bg-white border-[#444444] text-[#161718] w-full"
           />
           <div className="flex justify-end mt-2 space-x-2">
             <Button 
