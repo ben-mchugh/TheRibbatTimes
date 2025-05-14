@@ -319,7 +319,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
           style={{
             top: `${menuPosition.top}px`,
             left: `${menuPosition.left}px`,
-            width: '300px'
+            width: '280px'
           }}
         >
           <div className="p-3">
