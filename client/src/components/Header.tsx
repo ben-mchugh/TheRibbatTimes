@@ -92,7 +92,7 @@ export default function Header() {
                 <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
                   location === '/communities' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
-                  Communities
+                  Doigs on Payroll
                 </a>
               </Link>
               <Link href="/resources">
@@ -200,7 +200,7 @@ export default function Header() {
                 }`}
                 onClick={() => setMenuOpen(false)}
               >
-                Communities
+                Doigs on Payroll
               </a>
             </Link>
             <Link href="/resources">

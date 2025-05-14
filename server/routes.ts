@@ -186,6 +186,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Failed to get current user' });
     }
   });
+  
+  // Get all users for the Doigs on Payroll page
+  app.get('/api/users', async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      console.log(`Returning ${users.length} users`);
+      
+      res.status(200).json(users);
+    } catch (error) {
+      console.error('Error fetching all users:', error);
+      res.status(500).json({ error: 'Failed to fetch users' });
+    }
+  });
 
   // Posts routes
   app.get('/api/posts', async (req, res) => {

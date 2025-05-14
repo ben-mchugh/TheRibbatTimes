@@ -4,6 +4,7 @@ export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUid(uid: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>; // Added for Doigs on Payroll page
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, userData: Partial<User>): Promise<User | undefined>; // Added to support profile updates
   
