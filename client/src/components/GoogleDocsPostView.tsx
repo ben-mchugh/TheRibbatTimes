@@ -185,14 +185,14 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         continue;
       }
       
-      console.log(`Processing comment ${comment.id}: "${comment.selectedText}"`);
+      // Processing comment
       
       // Create a range key to track this exact selection
       const rangeKey = `${comment.selectionStart}-${comment.selectionEnd}`;
       
       // Skip if we already highlighted this exact range
       if (highlightedRanges.has(rangeKey)) {
-        console.log(`Range ${rangeKey} already highlighted, skipping`);
+        // Skip already highlighted range
         continue;
       }
       
@@ -333,7 +333,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     const emptySpans = contentDiv.querySelectorAll('span:empty');
     emptySpans.forEach(span => span.remove());
     
-    console.log(`Found and enhanced ${highlightCount} text highlights in the content`);
+    // Finished processing highlights
     
     return contentDiv.innerHTML;
   }, [post?.content, comments, newCommentIds, getTextNodesIn]);
@@ -581,7 +581,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         }
       });
       
-      console.log(`Found and enhanced ${highlights.length} text highlights in the content`);
+      // Highlight enhancement complete
     }
   }, [post?.content, comments, newCommentIds]);
   
