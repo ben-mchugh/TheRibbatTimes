@@ -351,19 +351,19 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                     variant="outline" 
                     size="sm" 
                     onClick={handleCancelEdit}
-                    className="flex items-center text-[#444444] border-[#444444]"
+                    className="flex items-center justify-center text-[#444444] border-[#444444] h-8 w-8 p-0"
+                    title="Cancel"
                   >
-                    <X className="h-3 w-3 mr-1" />
-                    Cancel
+                    <X className="h-4 w-4" />
                   </Button>
                   <Button 
                     variant="default" 
                     size="sm" 
                     onClick={handleSaveEdit}
-                    className="flex items-center bg-[#444444] hover:bg-[#222222]"
+                    className="flex items-center justify-center bg-[#444444] hover:bg-[#222222] h-8 w-8 p-0"
+                    title="Save"
                   >
-                    <Check className="h-3 w-3 mr-1" />
-                    Save
+                    <Check className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -383,11 +383,10 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   variant="ghost" 
                   size="sm" 
                   onClick={handleReply}
-                  className="flex items-center text-xs text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-6 p-0"
+                  className="flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-7 w-7 p-0 rounded-full"
                   title="Reply to comment"
                 >
-                  <Reply className="h-3 w-3" />
-                  <span className="ml-1">Reply</span>
+                  <Reply className="h-3.5 w-3.5" />
                 </Button>
                 
                 {hasReplies && (
@@ -395,24 +394,18 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={toggleReplies}
-                    className="flex items-center text-xs text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-6 p-0"
+                    className="flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-7 w-7 p-0 rounded-full"
                     disabled={isLoadingReplies}
-                    title={showReplies ? "Hide replies" : "Show replies"}
+                    title={showReplies ? "Hide replies" : `Show replies${replies.length > 0 ? ` (${replies.length})` : ''}`}
                   >
                     {isLoadingReplies ? (
-                      <span>Loading...</span>
+                      <div className="h-3.5 w-3.5 rounded-full border-2 border-t-transparent border-[#444444] animate-spin" />
                     ) : (
-                      <>
-                        {showReplies ? (
-                          <ChevronUp className="h-3 w-3" />
-                        ) : (
-                          <ChevronDown className="h-3 w-3" />
-                        )}
-                        <span className="ml-1">
-                          {showReplies ? 'Hide replies' : 'Show replies'}
-                          {replies.length > 0 && !showReplies && ` (${replies.length})`}
-                        </span>
-                      </>
+                      showReplies ? (
+                        <ChevronUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5" />
+                      )
                     )}
                   </Button>
                 )}
