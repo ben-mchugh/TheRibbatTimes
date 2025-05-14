@@ -15,7 +15,7 @@ const PostCard = ({ post, profile }: PostCardProps) => {
   const formattedDate = formatDate(post.createdAt);
 
   return (
-    <Card className="post-card shadow overflow-hidden sm:rounded-lg">
+    <Card className="post-card shadow overflow-hidden sm:rounded-lg" style={{ backgroundColor: "#e0d3af" }}>
       <CardContent className="p-0">
         <div className="px-4 py-5 sm:px-6 flex justify-between">
           <div>
