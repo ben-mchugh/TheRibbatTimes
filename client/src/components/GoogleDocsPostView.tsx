@@ -251,7 +251,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         try {
           range.surroundContents(highlightSpan);
           highlightCount++;
-          console.log(`Successfully highlighted text: "${comment.selectedText}" at positions ${comment.selectionStart}-${comment.selectionEnd}`);
+          // Highlight successful
           
           // Update our node positions after modifying the DOM
           // This is important for the next iterations to work correctly
@@ -304,7 +304,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               if (node.parentNode) {
                 node.parentNode.replaceChild(newFragment, node);
                 highlightCount++;
-                console.log(`Manually highlighted text: "${selectedText}"`);
+                // Manually highlighted text
                 
                 // Update our node positions again
                 const newNodes = getTextNodesIn(contentDiv);
@@ -521,31 +521,28 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           // Focus the associated comment
           setFocusedCommentId(commentId);
           
-          // Find all highlights with the same ID and add pulse effects
-          const allHighlights = document.querySelectorAll(`.selection-highlight[data-comment-id="${commentId}"]`);
-          allHighlights.forEach(highlight => {
-            highlight.classList.remove('highlight-focus-pulse');
-            // Trigger a reflow to restart the animation
-            void highlight.offsetWidth;
-            highlight.classList.add('highlight-focus-pulse');
-          });
+          // Apply pulse effect only to the clicked highlight for better performance
+          clickedElement.classList.remove('highlight-focus-pulse');
+          // Force a reflow to restart the animation
+          void (clickedElement as HTMLElement).offsetWidth;
+          clickedElement.classList.add('highlight-focus-pulse');
           
           // Ensure comments panel is open on mobile
           if (isMobile) {
             setShowComments(true);
           }
           
-          // Scroll the comment into view in the sidebar
-          setTimeout(() => {
+          // Scroll the comment into view in the sidebar - using requestAnimationFrame for better performance
+          requestAnimationFrame(() => {
             const commentElement = document.querySelector(`.gdocs-comment[data-comment-id="${commentId}"]`);
             if (commentElement) {
               commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
               commentElement.setAttribute('data-focused', 'true');
               setTimeout(() => {
                 commentElement.removeAttribute('data-focused');
-              }, 3000);
+              }, 1500); // Reduced from 3000ms to 1500ms for better performance
             }
-          }, 100); // Small delay to ensure comment section is open
+          });
         }
       }
     };
