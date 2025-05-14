@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Check, X } from 'lucide-react';
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from '@/hooks/useAuth';
 
@@ -302,11 +302,11 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
           <Button
             variant="ghost"
             size="sm"
-            className="flex items-center text-[#161718] hover:bg-[#f5f5f5]"
+            className="flex items-center justify-center text-[#161718] hover:bg-[#f5f5f5] h-8 w-8 p-0 rounded-full"
             onClick={handleOpenCommentPopup}
+            title="Add comment"
           >
-            <MessageSquare className="h-4 w-4 mr-1 text-[#444444]" />
-            <span>Add comment</span>
+            <MessageSquare className="h-4 w-4 text-[#444444]" />
           </Button>
         </div>
       )}
@@ -344,18 +344,20 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-8 text-sm border-[#444444] text-[#444444] hover:bg-[#e0e0e0]"
+                className="flex items-center justify-center border-[#444444] text-[#444444] hover:bg-[#e0e0e0] h-8 w-8 p-0"
                 onClick={handleCancelComment}
+                title="Cancel"
               >
-                Cancel
+                <X className="h-4 w-4" />
               </Button>
               <Button 
                 type="button"
                 size="sm"
-                className="h-8 text-sm bg-[#444444] text-white hover:bg-[#222222]"
+                className="flex items-center justify-center bg-[#444444] text-white hover:bg-[#222222] h-8 w-8 p-0"
                 onClick={handleSubmitComment}
+                title="Add comment"
               >
-                Comment
+                <Check className="h-4 w-4" />
               </Button>
             </div>
           </div>

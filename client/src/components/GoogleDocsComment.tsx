@@ -429,19 +429,19 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               variant="outline" 
               size="sm" 
               onClick={handleCancelReply}
-              className="flex items-center text-[#444444] border-[#444444]"
+              className="flex items-center justify-center text-[#444444] border-[#444444] h-8 w-8 p-0"
+              title="Cancel"
             >
-              <X className="h-3 w-3 mr-1" />
-              Cancel
+              <X className="h-4 w-4" />
             </Button>
             <Button 
               variant="default" 
               size="sm" 
               onClick={handleSubmitReply}
-              className="flex items-center bg-[#444444] hover:bg-[#222222]"
+              className="flex items-center justify-center bg-[#444444] hover:bg-[#222222] h-8 w-8 p-0"
+              title="Submit reply"
             >
-              <Check className="h-3 w-3 mr-1" />
-              Reply
+              <Check className="h-4 w-4" />
             </Button>
           </div>
         </div>
