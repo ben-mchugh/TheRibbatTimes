@@ -340,18 +340,13 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   
   // A simpler version that uses direct HTML string replacement
   const enhanceHighlights = useCallback(() => {
-    // Wait for DOM to be populated
-    setTimeout(() => {
+    // Wait for DOM to be populated using requestAnimationFrame for better performance
+    requestAnimationFrame(() => {
       try {
         // Get any highlight elements
         const highlightElements = document.querySelectorAll('.selection-highlight');
         
-        if (highlightElements.length === 0) {
-          console.log('No highlights found in the document');
-          return;
-        }
-        
-        console.log(`Found ${highlightElements.length} highlight elements to enhance`);
+        if (highlightElements.length === 0) return;
         
         // Remove any existing event listeners by cloning and replacing each element
         const elementsArray = Array.from(highlightElements);
@@ -382,14 +377,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             event.preventDefault();
             event.stopPropagation();
             
-            // Log click event for debugging
-            console.log('Click event detected:', event);
-            console.log('Target element:', event.target);
-            console.log('Target HTML:', (event.target as Element).outerHTML);
-            
             // Direct highlight click
             if ((event.target as Element).classList?.contains('selection-highlight')) {
-              console.log('Direct highlight element clicked');
               const id = (event.target as Element).getAttribute('data-comment-id');
               if (id) {
                 const commentIdNum = parseInt(id, 10);
@@ -399,10 +388,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             }
             
             // If not direct, try to find the parent highlight element
-            console.log('Looking for parent highlight elements...');
             let currentElement = event.target as Element;
             while (currentElement && currentElement !== document.body) {
-              console.log('Checking parent:', currentElement);
               if (currentElement.classList?.contains('selection-highlight')) {
                 const id = currentElement.getAttribute('data-comment-id');
                 if (id) {
@@ -429,7 +416,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       } catch (err) {
         console.error('Error enhancing highlights:', err);
       }
-    }, 100);
+    });
   }, [setFocusedCommentId]);
   
   // Apply highlight enhancements after render
@@ -497,27 +484,18 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     const handleHighlightClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       
-      // Debug the click event
-      console.log("Click event detected:", e);
-      console.log("Target element:", target);
-      console.log("Target HTML:", target.outerHTML);
-      
       // Improved highlight detection that handles nested elements correctly
       // First check if the target itself is a highlight element
       let clickedElement = null;
       
       if (target.classList?.contains('selection-highlight')) {
         clickedElement = target;
-        console.log("Direct highlight element clicked");
       } else {
         // Then check all parent elements (for nested highlights)
         let parent = target.parentElement;
-        console.log("Looking for parent highlight elements...");
         while (parent) {
-          console.log("Checking parent:", parent);
           if (parent.classList?.contains('selection-highlight')) {
             clickedElement = parent;
-            console.log("Found highlight element in parent chain");
             break;
           }
           parent = parent.parentElement;
@@ -525,29 +503,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       }
       
       if (clickedElement) {
-        console.log("Clicked highlight element:", clickedElement);
-        console.log("Highlight HTML:", clickedElement.outerHTML);
-        
-        // Log all attributes
-        console.log("Highlight attributes:");
-        for (let i = 0; i < clickedElement.attributes.length; i++) {
-          const attr = clickedElement.attributes[i];
-          console.log(`${attr.name}: ${attr.value}`);
-        }
-        
         const commentId = Number(clickedElement.getAttribute('data-comment-id'));
         if (!isNaN(commentId)) {
-          console.log(`Highlight clicked for comment ID: ${commentId}`);
-          
-          // Find the comment in our data to compare
-          const matchingComment = comments.find(c => c.id === commentId);
-          if (matchingComment) {
-            console.log("Comment data:", matchingComment);
-            console.log(`Expected text: "${matchingComment.selectedText}"`);
-            console.log(`Actual text in highlight: "${clickedElement.textContent}"`);
-          } else {
-            console.log("No matching comment found in data");
-          }
           
           // Stop event propagation to prevent handling clicks multiple times
           // This is important for nested highlights
@@ -556,7 +513,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           // Remove the "new" marker if present
           if (clickedElement.hasAttribute('data-new')) {
             clickedElement.removeAttribute('data-new');
-            console.log("Removed 'data-new' attribute");
             
             // Also remove the comment ID from the newCommentIds array
             setNewCommentIds(prev => prev.filter(id => id !== commentId));
