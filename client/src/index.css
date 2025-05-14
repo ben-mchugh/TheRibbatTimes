@@ -205,7 +205,8 @@ div[data-focused="true"] .connector-line {
   width: 20px !important;
   height: 3px !important;
   background-color: #8a5a28 !important;
-  transition: all 0.3s ease;
+  /* Remove transitions for better performance */
+  transition: none;
 }
 
 /* Styled scrollbar for the comments container */
@@ -365,21 +366,20 @@ div[data-focused="true"] .connector-line {
     color: #161718;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     border-radius: 0 4px 4px 0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+    transition: none; /* Removed for better performance */
     max-height: 150px; /* Limit height for better stacking */
     overflow-y: auto; /* Allow scrolling for longer comments */
     z-index: 5; /* Base z-index for comments */
   }
   
   .margin-comment:hover {
-    transform: translateX(2px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     z-index: 10; /* Raise z-index on hover to appear above other comments */
   }
   
   /* Focused comment style - this is applied in our component via className */
   .margin-comment[data-focused="true"] {
-    transform: translateX(3px);
+    /* Removed transform for better performance */
     border-left-width: 4px;
     box-shadow: 0 3px 10px rgba(0,0,0,0.12);
     background-color: #d0d0d0; /* Slightly darker shade for focus */
@@ -400,7 +400,8 @@ div[data-focused="true"] .connector-line {
     width: 7px;
     height: 1px;
     background-color: rgba(68, 68, 68, 0.5);
-    transition: all 0.3s ease;
+    /* Remove transition for better performance */
+    transition: none;
   }
   
   /* Enhanced connector line effect on hover */
