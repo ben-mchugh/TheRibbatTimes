@@ -94,13 +94,13 @@ export default {
         },
         "comment-focus": {
           "0%": {
-            boxShadow: "0 0 0 0 rgba(166, 122, 72, 0.5)",
+            boxShadow: "0 0 0 0 rgba(68, 68, 68, 0.5)",
           },
           "70%": {
-            boxShadow: "0 0 0 8px rgba(166, 122, 72, 0)",
+            boxShadow: "0 0 0 8px rgba(68, 68, 68, 0)",
           },
           "100%": {
-            boxShadow: "0 0 0 0 rgba(166, 122, 72, 0)",
+            boxShadow: "0 0 0 0 rgba(68, 68, 68, 0)",
           },
         },
       },
