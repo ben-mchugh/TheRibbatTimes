@@ -291,9 +291,9 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         ref={commentRef}
         className={`bg-[#f5f0e0]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#f5f0e0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
-        } ${isReply ? 'border-l-2 border-gray-600' : ''} 
+        } ${isReply ? 'border-l-2 border-[#a67a48]' : ''} 
         transition-all duration-300 ease-in-out animate-comment-enter
-        ${isFocused ? 'animate-comment-focus border-2 border-gray-600 ring-2 ring-gray-600/30 shadow-[0_8px_24px_rgba(80,80,80,0.25)]' : 'border border-[#f5f0e0]/80'}`}
+        ${isFocused ? 'animate-comment-focus border-2 border-[#a67a48] ring-2 ring-[#a67a48]/30 shadow-[0_8px_24px_rgba(166,122,72,0.25)]' : 'border border-[#f5f0e0]/80'}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
         data-comment-id={comment.id}
         data-focused={isFocused ? "true" : "false"}
@@ -306,7 +306,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleEdit}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-gray-600 rounded-sm bg-[#f5f0e0]"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-[#f5f0e0]"
               title="Edit comment"
             >
               <Edit className="h-3 w-3" />
@@ -316,7 +316,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleDelete}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-gray-600 rounded-sm bg-[#f5f0e0]"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-[#f5f0e0]"
               title="Delete comment"
             >
               <Trash className="h-3 w-3" />
@@ -344,14 +344,14 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   ref={editInputRef}
                   value={editedContent} 
                   onChange={(e) => setEditedContent(e.target.value)}
-                  className="min-h-[80px] bg-white border-gray-600 text-[#161718]"
+                  className="min-h-[80px] bg-white border-[#a67a48] text-[#161718]"
                 />
                 <div className="flex justify-end mt-2 space-x-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={handleCancelEdit}
-                    className="flex items-center text-[#a67a48] border-gray-600"
+                    className="flex items-center text-[#a67a48] border-[#a67a48]"
                   >
                     <X className="h-3 w-3 mr-1" />
                     Cancel
@@ -429,14 +429,14 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
             placeholder="Write a reply..."
-            className="min-h-[60px] bg-white border-gray-600 text-[#161718]"
+            className="min-h-[60px] bg-white border-[#a67a48] text-[#161718]"
           />
           <div className="flex justify-end mt-2 space-x-2">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleCancelReply}
-              className="flex items-center text-[#a67a48] border-gray-600"
+              className="flex items-center text-[#a67a48] border-[#a67a48]"
             >
               <X className="h-3 w-3 mr-1" />
               Cancel
@@ -455,7 +455,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       )}
       
       {showReplies && replies.length > 0 && (
-        <div className="mt-1 mb-2 ml-4 border-l-2 border-gray-600 pl-2">
+        <div className="mt-1 mb-2 ml-4 border-l-2 border-[#a67a48] pl-2">
           {replies.map((reply) => (
             <GoogleDocsComment
               key={`reply-${reply.id}`}
