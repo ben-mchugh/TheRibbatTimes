@@ -54,9 +54,9 @@
 
 /* Element highlight for comments */
 .comment-highlight {
-  border-left: 3px solid #a67a48;
+  border-left: 3px solid #444444;
   padding-left: 10px;
-  background-color: rgba(230, 220, 190, 0.3);
+  background-color: rgba(220, 220, 220, 0.25);
 }
 
 /* Google Docs style comment section */
@@ -64,7 +64,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #f9f5e8;
+  background-color: #161718;
   box-shadow: -2px 0 6px rgba(0, 0, 0, 0.05);
 }
 
@@ -83,9 +83,9 @@
 }
 
 @keyframes comment-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(166, 122, 72, 0.7); }
-  50% { box-shadow: 0 0 0 6px rgba(166, 122, 72, 0.3); }
-  100% { box-shadow: 0 0 0 0 rgba(166, 122, 72, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(68, 68, 68, 0.7); }
+  50% { box-shadow: 0 0 0 6px rgba(68, 68, 68, 0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(68, 68, 68, 0); }
 }
 
 /* Comment connector line */
@@ -96,7 +96,7 @@
   left: -12px;
   width: 12px;
   height: 2px;
-  background-color: #a67a48;
+  background-color: #444444;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
