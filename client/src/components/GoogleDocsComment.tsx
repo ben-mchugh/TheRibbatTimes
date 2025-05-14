@@ -380,7 +380,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             )}
             
             {!isEditing && !isReply && (
-              <div className="mt-2 flex justify-between">
+              <div className="mt-2 flex justify-end space-x-2">
                 <Button 
                   variant="ghost" 
                   size="sm" 
