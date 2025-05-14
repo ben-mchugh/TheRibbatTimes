@@ -445,7 +445,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               variant="default" 
               size="sm" 
               onClick={handleSubmitReply}
-              className="flex items-center bg-[#a67a48] hover:bg-[#8a5a28]"
+              className="flex items-center bg-[#444444] hover:bg-[#222222]"
             >
               <Check className="h-3 w-3 mr-1" />
               Reply
@@ -455,7 +455,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       )}
       
       {showReplies && replies.length > 0 && (
-        <div className="mt-1 mb-2 ml-4 border-l-2 border-[#a67a48] pl-2">
+        <div className="mt-1 mb-2 ml-4 border-l-2 border-[#444444] pl-2">
           {replies.map((reply) => (
             <GoogleDocsComment
               key={`reply-${reply.id}`}
