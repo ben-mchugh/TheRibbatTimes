@@ -436,7 +436,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               variant="outline" 
               size="sm" 
               onClick={handleCancelReply}
-              className="flex items-center text-[#a67a48] border-[#a67a48]"
+              className="flex items-center text-[#a67a48] border-gray-600"
             >
               <X className="h-3 w-3 mr-1" />
               Cancel
@@ -455,7 +455,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       )}
       
       {showReplies && replies.length > 0 && (
-        <div className="mt-1 mb-2 ml-4 border-l-2 border-[#a67a48] pl-2">
+        <div className="mt-1 mb-2 ml-4 border-l-2 border-gray-600 pl-2">
           {replies.map((reply) => (
             <GoogleDocsComment
               key={`reply-${reply.id}`}
