@@ -135,15 +135,6 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           </div>
         )}
       </div>
-      
-      {/* Instructions for commenting */}
-      <div className="px-4 py-3 border-t border-[#a67a48] bg-[#f5f0e0]/60">
-        <div className="flex items-center justify-center space-x-2">
-          <p className="text-sm text-[#a67a48] font-medium">
-            To add a comment, select text and right-click
-          </p>
-        </div>
-      </div>
     </div>
   );
 };
