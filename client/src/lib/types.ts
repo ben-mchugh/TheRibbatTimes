@@ -4,6 +4,7 @@ export interface User {
   displayName: string;
   email: string;
   photoURL: string;
+  createdAt?: string; // Added for Doigs on Payroll page
 }
 
 export interface Post {

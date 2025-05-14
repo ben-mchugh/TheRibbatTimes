@@ -16,9 +16,9 @@ export default function DoigsOnPayroll() {
   }, []);
 
   // Fetch all users
-  const { data: users, isLoading, error } = useQuery({
+  const { data: users, isLoading, error } = useQuery<User[]>({
     queryKey: ['/api/users'],
-    queryFn: getQueryFn({ on401: 'returnNull' }),
+    queryFn: getQueryFn<User[]>({ on401: 'returnNull' }),
   });
 
   return (
@@ -63,7 +63,7 @@ export default function DoigsOnPayroll() {
         </div>
       )}
 
-      {users && users.length > 0 && (
+      {users && Array.isArray(users) && users.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {users.map((user: User) => (
             <Card key={user.id} className="overflow-hidden bg-[#e0d3af] text-[#161718] hover:shadow-lg transition-shadow duration-200">
@@ -84,10 +84,12 @@ export default function DoigsOnPayroll() {
                 </div>
 
                 <div className="mt-5 space-y-2">
-                  <div className="flex items-center text-sm text-gray-700">
-                    <CalendarIcon className="h-4 w-4 mr-2" />
-                    <span>Joined {formatDate(user.createdAt)}</span>
-                  </div>
+                  {user.createdAt && (
+                    <div className="flex items-center text-sm text-gray-700">
+                      <CalendarIcon className="h-4 w-4 mr-2" />
+                      <span>Joined {formatDate(user.createdAt)}</span>
+                    </div>
+                  )}
                   
                   <Link href={`/profile/${user.id}`}>
                     <div className="flex items-center mt-4 text-[#b36226] hover:text-[#954908] cursor-pointer">
