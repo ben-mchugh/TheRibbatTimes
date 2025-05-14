@@ -305,7 +305,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             className="flex items-center text-[#161718] hover:bg-[#f5f5f5]"
             onClick={handleOpenCommentPopup}
           >
-            <MessageSquare className="h-4 w-4 mr-1 text-[#a67a48]" />
+            <MessageSquare className="h-4 w-4 mr-1 text-[#444444]" />
             <span>Add comment</span>
           </Button>
         </div>
@@ -315,7 +315,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       {isPopupVisible && (
         <div
           ref={popupRef}
-          className="fixed z-50 bg-[#f9f5e8] border border-[#a67a48] rounded-md shadow-lg"
+          className="fixed z-50 bg-[#161718] border border-[#444444] rounded-md shadow-lg"
           style={{
             top: `${menuPosition.top}px`,
             left: `${menuPosition.left}px`,
@@ -324,7 +324,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
         >
           <div className="p-3">
             {selectionData && (
-              <div className="mb-2 p-2 bg-white border border-[#a67a48]/30 rounded text-xs">
+              <div className="mb-2 p-2 bg-white border border-[#444444]/30 rounded text-xs">
                 <p className="italic text-[#161718]/70 line-clamp-2">
                   "{selectionData.text}"
                 </p>
@@ -332,7 +332,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             )}
             
             <Textarea
-              className="w-full min-h-[80px] px-3 py-2 text-sm border border-[#a67a48] bg-white text-[#161718] rounded focus:outline-none focus:ring-1 focus:ring-[#a67a48]"
+              className="w-full min-h-[80px] px-3 py-2 text-sm border border-[#444444] bg-white text-[#161718] rounded focus:outline-none focus:ring-1 focus:ring-[#444444]"
               placeholder="Add a comment..."
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
@@ -344,7 +344,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
                 type="button"
                 variant="outline"
                 size="sm"
-                className="h-8 text-sm border-[#a67a48] text-[#a67a48] hover:bg-[#f0e9d5]"
+                className="h-8 text-sm border-[#444444] text-[#444444] hover:bg-[#e0e0e0]"
                 onClick={handleCancelComment}
               >
                 Cancel
@@ -352,7 +352,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
               <Button 
                 type="button"
                 size="sm"
-                className="h-8 text-sm bg-[#a67a48] text-white hover:bg-[#8a5a28]"
+                className="h-8 text-sm bg-[#444444] text-white hover:bg-[#222222]"
                 onClick={handleSubmitComment}
               >
                 Comment
