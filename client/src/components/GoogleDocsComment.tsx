@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { Comment } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const editInputRef = useRef<HTMLTextAreaElement>(null);
   const replyInputRef = useRef<HTMLTextAreaElement>(null);
   
-  const formattedDate = formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true });
+  const formattedDate = format(new Date(comment.createdAt), 'MMM d, yyyy h:mm a');
   
   // Check if the current user is the author of this comment
   const isAuthor = Boolean(currentUser?.uid && comment.author?.uid && currentUser.uid === comment.author.uid);
@@ -289,11 +289,11 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''}`}>
       <div 
         ref={commentRef}
-        className={`bg-[#f5f0e0]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
-          comment.selectedText ? 'cursor-pointer hover:bg-[#f5f0e0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
-        } ${isReply ? 'border-l-2 border-[#a67a48]' : ''} 
+        className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
+          comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
+        } ${isReply ? 'border-l-2 border-[#444444]' : ''} 
         transition-all duration-300 ease-in-out animate-comment-enter
-        ${isFocused ? 'animate-comment-focus border-2 border-[#a67a48] ring-2 ring-[#a67a48]/30 shadow-[0_8px_24px_rgba(166,122,72,0.25)]' : 'border border-[#f5f0e0]/80'}`}
+        ${isFocused ? 'animate-comment-focus border-2 border-[#444444] ring-2 ring-[#444444]/30 shadow-[0_8px_24px_rgba(0,0,0,0.25)]' : 'border border-[#444444]/80'}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
         data-comment-id={comment.id}
         data-focused={isFocused ? "true" : "false"}
@@ -333,8 +333,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
               <div className="flex items-center">
-                <span className="text-xs text-[#a67a48]">{formattedDate}</span>
-                {comment.isEdited && <span className="text-xs text-[#a67a48] italic ml-1">(edited)</span>}
+                <span className="text-xs text-[#444444]">{formattedDate}</span>
+                {comment.isEdited && <span className="text-xs text-[#444444] italic ml-1">(edited)</span>}
               </div>
             </div>
             
