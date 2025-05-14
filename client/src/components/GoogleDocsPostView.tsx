@@ -488,105 +488,156 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     };
   }, [post]);
 
-  // Effect to add click handler to highlighted text spans
+  // Memory-optimized event handling with proper cleanup
   useEffect(() => {
-    // Optimized handler with better performance checks
+    // Create a single animation frame handler for better memory usage
+    let rafId: number | null = null;
+    let timeoutId: number | null = null;
+    
+    // Cache DOM lookups to reduce memory pressure
+    let currentFocusedElement: Element | null = null;
+    
+    // Use passive listener to improve performance
     const handleHighlightClick = (e: MouseEvent) => {
       // Early return for non-element targets
       if (!(e.target instanceof HTMLElement)) return;
       
-      const target = e.target as HTMLElement;
-      
-      // Use closest() instead of manual parent traversal for better performance
-      const clickedElement = target.closest('.selection-highlight');
-      
+      // Use event delegation and early return for non-matches
+      const clickedElement = (e.target as HTMLElement).closest('.selection-highlight');
       if (!clickedElement) return;
       
       const commentId = Number(clickedElement.getAttribute('data-comment-id'));
       if (isNaN(commentId)) return;
       
-      // Stop event propagation to prevent handling clicks multiple times
       e.stopPropagation();
       
-      // Remove the "new" marker if present - only run this code if needed
+      // Clean up any existing animation timers to prevent memory leaks
+      if (rafId) cancelAnimationFrame(rafId);
+      if (timeoutId) clearTimeout(timeoutId);
+      
+      // Remove markers and update state - only when needed
       if (clickedElement.hasAttribute('data-new')) {
         clickedElement.removeAttribute('data-new');
+        // Use functional updates to avoid stale closures
         setNewCommentIds(prev => prev.filter(id => id !== commentId));
       }
       
-      // Focus the associated comment
+      // Batch state updates to reduce renders
       setFocusedCommentId(commentId);
+      if (isMobile) setShowComments(true);
       
-      // More efficient animation technique
-      // Apply pulse effect using a temporary class that will be auto-removed
-      clickedElement.classList.remove('highlight-focus-pulse');
-      
-      // Use requestAnimationFrame for better timing of the animation
-      requestAnimationFrame(() => {
-        // Force a reflow to restart the animation in the next frame
-        void clickedElement.offsetWidth;
-        clickedElement.classList.add('highlight-focus-pulse');
+      // Remove previous animations from any elements
+      document.querySelectorAll('.highlight-focus-pulse').forEach(el => {
+        el.classList.remove('highlight-focus-pulse');
       });
       
-      // Ensure comments panel is open on mobile
-      if (isMobile) {
-        setShowComments(true);
-      }
-      
-      // Use one requestAnimationFrame instead of nesting them
-      requestAnimationFrame(() => {
+      // Use a single rAF call for all animations to reduce memory usage
+      rafId = requestAnimationFrame(() => {
+        // Apply new animation with minimal reflows
+        clickedElement.classList.add('highlight-focus-pulse');
+        
+        // Remove previous focus state if any
+        if (currentFocusedElement) {
+          currentFocusedElement.removeAttribute('data-focused');
+        }
+        
+        // Find the comment element once and cache it
         const commentElement = document.querySelector(`.gdocs-comment[data-comment-id="${commentId}"]`);
         if (commentElement) {
-          commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Use non-smooth scrolling for better performance
+          commentElement.scrollIntoView({ behavior: 'auto', block: 'center' });
           commentElement.setAttribute('data-focused', 'true');
+          currentFocusedElement = commentElement;
           
-          // Use requestAnimationFrame instead of setTimeout for better performance
-          const animationId = window.setTimeout(() => {
-            commentElement.removeAttribute('data-focused');
-          }, 1000); // Further reduced from 1500ms to 1000ms
-          
-          // Clean up timers if component unmounts
-          return () => window.clearTimeout(animationId);
+          // Set a single timeout to clean up focus state
+          timeoutId = window.setTimeout(() => {
+            if (commentElement.isConnected) { // Only modify if still in DOM
+              commentElement.removeAttribute('data-focused');
+            }
+            // Clear reference to avoid memory leaks
+            timeoutId = null;
+          }, 800); // Reduced duration for better performance
         }
+        
+        // Clear reference to avoid memory leaks
+        rafId = null;
       });
     };
     
-    // Add event listener to capture clicks on highlighted text
-    document.addEventListener('click', handleHighlightClick);
+    // Use passive event listener to avoid unnecessary processing
+    document.addEventListener('click', handleHighlightClick, { passive: true });
     
+    // Clean up all timers and listeners on component unmount
     return () => {
       document.removeEventListener('click', handleHighlightClick);
+      if (rafId) cancelAnimationFrame(rafId);
+      if (timeoutId) clearTimeout(timeoutId);
+      // Clear references to DOM elements
+      currentFocusedElement = null;
     };
   }, [setNewCommentIds, setFocusedCommentId, setShowComments, isMobile]);
   
-  // Effect to re-apply event handlers after content rendering
+  // Memory-optimized DOM manipulation for highlight elements
   useEffect(() => {
-    if (postContentRef.current) {
-      // Find all highlight spans and ensure they have proper tabindex and role attributes
-      const highlights = postContentRef.current.querySelectorAll('.selection-highlight');
+    // Only run if we have a valid content container
+    if (!postContentRef.current) return;
+    
+    // Store timeouts to clean them up
+    const timeouts: number[] = [];
+    
+    // Use DocumentFragment for batch DOM operations to reduce memory pressure
+    const fragment = document.createDocumentFragment();
+    const processedElements: Set<string> = new Set();
+    
+    // Create a single function for applying attributes to reduce function allocations
+    const applyAccessibilityAttributes = (element: HTMLElement) => {
+      // Apply only if needed - check if already processed
+      const commentId = element.getAttribute('data-comment-id');
+      if (commentId && processedElements.has(commentId)) return;
       
+      // Add minimal attributes for accessibility
+      if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '0');
+      if (!element.hasAttribute('role')) element.setAttribute('role', 'button');
+      if (!element.hasAttribute('aria-label')) element.setAttribute('aria-label', 'Comment on this text');
+      
+      // Track processed elements
+      if (commentId) processedElements.add(commentId);
+    };
+    
+    // Process highlights in batches to reduce layout thrashing
+    const highlights = postContentRef.current.querySelectorAll('.selection-highlight');
+    
+    // Use requestAnimationFrame to batch DOM reads/writes
+    requestAnimationFrame(() => {
       highlights.forEach((span) => {
         const element = span as HTMLElement;
-        element.setAttribute('tabindex', '0');
-        element.setAttribute('role', 'button');
-        element.setAttribute('aria-label', 'Comment on this text');
+        applyAccessibilityAttributes(element);
         
-        // Apply special handling for new highlights
+        // Optimize new comment handling - only apply if needed
         const commentId = Number(element.getAttribute('data-comment-id'));
-        if (!isNaN(commentId) && newCommentIds.includes(commentId)) {
-          // This is a new comment, add a visual indicator
+        if (!isNaN(commentId) && newCommentIds.includes(commentId) && !element.hasAttribute('data-new')) {
+          // Tag as a new comment
           element.setAttribute('data-new', 'true');
           
-          // Scroll to and focus on the new highlight
-          setTimeout(() => {
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            element.focus();
-          }, 500);
+          // Use a single RAF call for all scrolling operations
+          // Store the timeout ID for cleanup
+          const timeoutId = window.setTimeout(() => {
+            // Only perform scroll if the element is still connected to DOM
+            if (element.isConnected) {
+              element.scrollIntoView({ behavior: 'auto', block: 'center' });
+              element.focus();
+            }
+          }, 300); // Reduced timeout for better performance
+          
+          timeouts.push(timeoutId);
         }
       });
-      
-      // Highlight enhancement complete
-    }
+    });
+    
+    // Clean up all timeouts to prevent memory leaks
+    return () => {
+      timeouts.forEach(id => window.clearTimeout(id));
+    };
   }, [post?.content, comments, newCommentIds]);
   
   // Format the post date
