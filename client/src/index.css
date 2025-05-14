@@ -322,7 +322,7 @@ div[data-focused="true"] .connector-line {
     border-bottom: 2px solid rgba(249, 240, 219, 0.6);
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
-    color: #c0c0c0;
+    color: #a67a48;
   }
 
   .comment-highlight {
