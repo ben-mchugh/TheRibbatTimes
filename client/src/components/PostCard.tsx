@@ -33,7 +33,7 @@ const PostCard = ({ post, profile }: PostCardProps) => {
               <span className="ml-2 text-sm" style={{ color: "#161718" }}>
                 {post.author?.displayName || profile?.displayName || 'User'}
               </span>
-              <span className="mx-2" style={{ color: "#a67a48" }}>•</span>
+              <span className="mx-2" style={{ color: "#444444" }}>•</span>
               <span className="text-sm" style={{ color: "#161718" }}>{formattedDate}</span>
             </div>
           </div>
