@@ -306,7 +306,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleEdit}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-[#f5f0e0]"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#d0d0d0] border border-[#444444] rounded-sm bg-[#e8e8e8]"
               title="Edit comment"
             >
               <Edit className="h-3 w-3" />
@@ -316,7 +316,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleDelete}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#a67a48] hover:text-[#8a5a28] hover:bg-[#ebddbe] border border-[#a67a48] rounded-sm bg-[#f5f0e0]"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#d0d0d0] border border-[#444444] rounded-sm bg-[#e8e8e8]"
               title="Delete comment"
             >
               <Trash className="h-3 w-3" />
@@ -344,14 +344,14 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   ref={editInputRef}
                   value={editedContent} 
                   onChange={(e) => setEditedContent(e.target.value)}
-                  className="min-h-[80px] bg-white border-[#a67a48] text-[#161718]"
+                  className="min-h-[80px] bg-white border-[#444444] text-[#161718]"
                 />
                 <div className="flex justify-end mt-2 space-x-2">
                   <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={handleCancelEdit}
-                    className="flex items-center text-[#a67a48] border-[#a67a48]"
+                    className="flex items-center text-[#444444] border-[#444444]"
                   >
                     <X className="h-3 w-3 mr-1" />
                     Cancel
@@ -360,7 +360,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                     variant="default" 
                     size="sm" 
                     onClick={handleSaveEdit}
-                    className="flex items-center bg-[#a67a48] hover:bg-[#8a5a28]"
+                    className="flex items-center bg-[#444444] hover:bg-[#222222]"
                   >
                     <Check className="h-3 w-3 mr-1" />
                     Save
@@ -429,14 +429,14 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
             placeholder="Write a reply..."
-            className="min-h-[60px] bg-white border-[#a67a48] text-[#161718]"
+            className="min-h-[60px] bg-white border-[#444444] text-[#161718]"
           />
           <div className="flex justify-end mt-2 space-x-2">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleCancelReply}
-              className="flex items-center text-[#a67a48] border-[#a67a48]"
+              className="flex items-center text-[#444444] border-[#444444]"
             >
               <X className="h-3 w-3 mr-1" />
               Cancel
