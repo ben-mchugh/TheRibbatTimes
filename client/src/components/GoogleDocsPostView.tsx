@@ -490,70 +490,65 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
 
   // Effect to add click handler to highlighted text spans
   useEffect(() => {
+    // Optimized handler with better performance checks
     const handleHighlightClick = (e: MouseEvent) => {
+      // Early return for non-element targets
+      if (!(e.target instanceof HTMLElement)) return;
+      
       const target = e.target as HTMLElement;
       
-      // Improved highlight detection that handles nested elements correctly
-      // First check if the target itself is a highlight element
-      let clickedElement = null;
+      // Use closest() instead of manual parent traversal for better performance
+      const clickedElement = target.closest('.selection-highlight');
       
-      if (target.classList?.contains('selection-highlight')) {
-        clickedElement = target;
-      } else {
-        // Then check all parent elements (for nested highlights)
-        let parent = target.parentElement;
-        while (parent) {
-          if (parent.classList?.contains('selection-highlight')) {
-            clickedElement = parent;
-            break;
-          }
-          parent = parent.parentElement;
-        }
+      if (!clickedElement) return;
+      
+      const commentId = Number(clickedElement.getAttribute('data-comment-id'));
+      if (isNaN(commentId)) return;
+      
+      // Stop event propagation to prevent handling clicks multiple times
+      e.stopPropagation();
+      
+      // Remove the "new" marker if present - only run this code if needed
+      if (clickedElement.hasAttribute('data-new')) {
+        clickedElement.removeAttribute('data-new');
+        setNewCommentIds(prev => prev.filter(id => id !== commentId));
       }
       
-      if (clickedElement) {
-        const commentId = Number(clickedElement.getAttribute('data-comment-id'));
-        if (!isNaN(commentId)) {
-          
-          // Stop event propagation to prevent handling clicks multiple times
-          // This is important for nested highlights
-          e.stopPropagation();
-          
-          // Remove the "new" marker if present
-          if (clickedElement.hasAttribute('data-new')) {
-            clickedElement.removeAttribute('data-new');
-            
-            // Also remove the comment ID from the newCommentIds array
-            setNewCommentIds(prev => prev.filter(id => id !== commentId));
-          }
-          
-          // Focus the associated comment
-          setFocusedCommentId(commentId);
-          
-          // Apply pulse effect only to the clicked highlight for better performance
-          clickedElement.classList.remove('highlight-focus-pulse');
-          // Force a reflow to restart the animation
-          void (clickedElement as HTMLElement).offsetWidth;
-          clickedElement.classList.add('highlight-focus-pulse');
-          
-          // Ensure comments panel is open on mobile
-          if (isMobile) {
-            setShowComments(true);
-          }
-          
-          // Scroll the comment into view in the sidebar - using requestAnimationFrame for better performance
-          requestAnimationFrame(() => {
-            const commentElement = document.querySelector(`.gdocs-comment[data-comment-id="${commentId}"]`);
-            if (commentElement) {
-              commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              commentElement.setAttribute('data-focused', 'true');
-              setTimeout(() => {
-                commentElement.removeAttribute('data-focused');
-              }, 1500); // Reduced from 3000ms to 1500ms for better performance
-            }
-          });
-        }
+      // Focus the associated comment
+      setFocusedCommentId(commentId);
+      
+      // More efficient animation technique
+      // Apply pulse effect using a temporary class that will be auto-removed
+      clickedElement.classList.remove('highlight-focus-pulse');
+      
+      // Use requestAnimationFrame for better timing of the animation
+      requestAnimationFrame(() => {
+        // Force a reflow to restart the animation in the next frame
+        void clickedElement.offsetWidth;
+        clickedElement.classList.add('highlight-focus-pulse');
+      });
+      
+      // Ensure comments panel is open on mobile
+      if (isMobile) {
+        setShowComments(true);
       }
+      
+      // Use one requestAnimationFrame instead of nesting them
+      requestAnimationFrame(() => {
+        const commentElement = document.querySelector(`.gdocs-comment[data-comment-id="${commentId}"]`);
+        if (commentElement) {
+          commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          commentElement.setAttribute('data-focused', 'true');
+          
+          // Use requestAnimationFrame instead of setTimeout for better performance
+          const animationId = window.setTimeout(() => {
+            commentElement.removeAttribute('data-focused');
+          }, 1000); // Further reduced from 1500ms to 1000ms
+          
+          // Clean up timers if component unmounts
+          return () => window.clearTimeout(animationId);
+        }
+      });
     };
     
     // Add event listener to capture clicks on highlighted text
