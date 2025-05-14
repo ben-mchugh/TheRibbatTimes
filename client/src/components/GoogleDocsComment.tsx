@@ -294,7 +294,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
           comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
         } ${isReply ? 'border-l-2 border-[#444444] w-[260px]' : 'w-[280px]'} 
         transition-all duration-300 ease-in-out animate-comment-enter
-        ${isFocused ? 'animate-comment-focus border-2 border-[#444444] ring-2 ring-[#444444]/30 shadow-[0_8px_24px_rgba(0,0,0,0.25)]' : 'border border-[#444444]/80'}`}
+        ${isFocused ? 'border-2 border-[#444444] ring-1 ring-[#444444]/30' : 'border border-[#444444]/80'}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
         data-comment-id={comment.id}
         data-focused={isFocused ? "true" : "false"}
