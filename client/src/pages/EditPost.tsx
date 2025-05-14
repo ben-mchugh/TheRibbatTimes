@@ -210,7 +210,7 @@ export default function EditPost() {
             {isEditing ? 'Edit Post' : 'Create New Post'}
           </h1>
         </div>
-        <Card>
+        <Card style={{ backgroundColor: "#e0d3af" }}>
           <CardContent className="p-6">
             <div className="animate-pulse space-y-4">
               <div className="h-6 bg-neutral-200 rounded w-1/3"></div>
@@ -238,7 +238,7 @@ export default function EditPost() {
         </Button>
       </div>
       
-      <Card>
+      <Card style={{ backgroundColor: "#e0d3af" }}>
         <CardContent className="p-6">
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
