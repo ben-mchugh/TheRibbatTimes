@@ -76,13 +76,18 @@
   z-index: 10;
 }
 
-/* Memory-optimized comment effects with no continuous animations */
+/* Comment animation effects */
 .comment-focus-pulse {
-  box-shadow: 0 0 0 2px rgba(68, 68, 68, 0.3);
-  transition: box-shadow 0.3s ease;
+  animation: comment-pulse 2s ease;
 }
 
-/* Simplified static connector line with no animations */
+@keyframes comment-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(68, 68, 68, 0.7); }
+  50% { box-shadow: 0 0 0 6px rgba(68, 68, 68, 0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(68, 68, 68, 0); }
+}
+
+/* Comment connector line */
 .gdocs-comment::before {
   content: '';
   position: absolute;
@@ -92,10 +97,7 @@
   height: 2px;
   background-color: #444444;
   opacity: 0;
-  /* Use GPU acceleration */
-  transform: translateZ(0);
-  will-change: opacity;
-  transition: opacity 0.15s ease;
+  transition: all 0.3s ease;
 }
 
 .gdocs-comment:hover::before {
@@ -136,30 +138,44 @@ div[data-focused="true"]::before {
   border-radius: 10px;
 }
 
-/* Memory-optimized animations - no continuous effects */
-
-/* Simplified highlight styling without animation */
-.selection-highlight.highlight-focus-pulse {
-  background-color: rgba(255, 217, 102, 0.7) !important;
-  transition: background-color 0.2s ease;
-  /* Force GPU acceleration */
-  transform: translateZ(0);
-  will-change: opacity, transform;
+/* Highlight animations for focused elements */
+@keyframes highlight-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(166, 122, 72, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(166, 122, 72, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(166, 122, 72, 0); }
 }
 
-/* Ultra-simplified animation for focused comment - just 2 keyframes */
+@keyframes highlight-text-pulse {
+  0%, 100% { 
+    opacity: 0.7;
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.02); /* Subtle scale for better GPU performance vs. background changes */
+  }
+}
+
+/* Animation for focused comment */
 @keyframes comment-focus-animation {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-2px); }
+  0% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-3px);
+  }
+  75% {
+    transform: translateY(-1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
-/* Only play animation once */
 div[data-focused="true"] {
-  animation: comment-focus-animation 0.5s ease-out 1;
+  animation: comment-focus-animation 0.8s ease-out;
   background-color: #f0f0f0 !important;
   will-change: transform;
-  /* Force GPU rendering */
-  transform: translateZ(0);
 }
 
 /* Animation when a text highlight is clicked - optimized for GPU */
