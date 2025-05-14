@@ -4,6 +4,16 @@ import { eq, desc, and } from "drizzle-orm";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
+  // User operations
+  async getAllUsers(): Promise<User[]> {
+    // Get all users for the Doigs on Payroll page
+    const allUsers = await db.select()
+      .from(users)
+      .orderBy(desc(users.createdAt));
+      
+    return allUsers;
+  }
+  
   // Comment replies operations - needed for Google Docs functionality
   async getCommentReplies(commentId: number): Promise<Comment[]> {
     const commentReplies = await db.select()

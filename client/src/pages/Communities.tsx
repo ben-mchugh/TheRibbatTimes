@@ -1,68 +1,106 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Link } from 'wouter';
+import { Skeleton } from '@/components/ui/skeleton';
+import { User } from '@/lib/types';
+import { formatDate } from '@/lib/dateUtils';
+import { CalendarIcon, MailIcon, UserIcon, NewspaperIcon } from 'lucide-react';
+import { getQueryFn } from '@/lib/queryClient';
 
-const communities = [
-  {
-    id: 1,
-    name: 'Politics & Current Events',
-    description: 'Discussing global politics, policy analysis, and current events.',
-    members: 372,
-    image: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
-  },
-  {
-    id: 2,
-    name: 'Arts & Culture',
-    description: 'Exploring literature, film, music, and the evolving cultural landscape.',
-    members: 215,
-    image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
-  },
-  {
-    id: 3,
-    name: 'Technology & Innovation',
-    description: 'Covering tech trends, digital transformation, and the future of work.',
-    members: 289,
-    image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=400'
-  }
-];
-
-export default function Communities() {
+export default function DoigsOnPayroll() {
   // Set page title
   useEffect(() => {
-    document.title = 'Topic Groups - The Ribbat Times';
+    document.title = 'Doigs on Payroll - The Ribbat Times';
   }, []);
 
+  // Fetch all users
+  const { data: users, isLoading, error } = useQuery({
+    queryKey: ['/api/users'],
+    queryFn: getQueryFn({ on401: 'returnNull' }),
+  });
+
   return (
-    <div className="py-6 px-4 sm:px-0">
-      <h1 className="text-3xl font-heading font-bold text-neutral-900 mb-4">Topic Groups</h1>
-      <p className="text-lg text-neutral-700 mb-8">Join discussion groups focused on your interests and engage with like-minded readers.</p>
+    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <h1 className="text-4xl font-heading font-bold text-[#f6dda7] mb-4">Doigs on Payroll</h1>
+      <p className="text-xl text-gray-300 mb-10">Meet the writers, editors, and contributors who make The Ribbat Times possible.</p>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {communities.map((community) => (
-          <Card key={community.id} className="overflow-hidden">
-            <div className="h-48 bg-primary-light bg-opacity-20">
-              <img 
-                src={community.image} 
-                alt={community.name} 
-                className="object-cover w-full h-full"
-              />
-            </div>
-            <CardContent className="p-5">
-              <h3 className="text-lg font-heading font-semibold">{community.name}</h3>
-              <p className="text-neutral-600 mt-2">{community.description}</p>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="text-sm text-neutral-500">{community.members} members</span>
-                <Button 
-                  variant="outline" 
-                  className="text-primary bg-primary-light bg-opacity-10 hover:bg-opacity-20"
-                >
-                  Join
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {isLoading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, index) => (
+            <Card key={index} className="overflow-hidden bg-[#e0d3af] text-[#161718]">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <Skeleton className="h-16 w-16 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[200px]" />
+                    <Skeleton className="h-4 w-[150px]" />
+                  </div>
+                </div>
+                <div className="mt-4 space-y-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-[60%]" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {error && (
+        <div className="text-center py-10">
+          <p className="text-xl text-red-500">Failed to load team members</p>
+          <p className="text-gray-400">Please try again later</p>
+        </div>
+      )}
+      
+      {users && users.length === 0 && (
+        <div className="text-center py-10">
+          <p className="text-xl text-gray-400">No team members found</p>
+          <p className="text-gray-500">Check back soon as our team grows!</p>
+        </div>
+      )}
+
+      {users && users.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {users.map((user: User) => (
+            <Card key={user.id} className="overflow-hidden bg-[#e0d3af] text-[#161718] hover:shadow-lg transition-shadow duration-200">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-16 w-16 border-2 border-[#f6dda7]">
+                    <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
+                    <AvatarFallback className="bg-[#161718] text-white text-xl">
+                      {user.displayName?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="text-xl font-heading font-bold">{user.displayName}</h3>
+                    <p className="text-gray-700 text-sm">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-2">
+                  <div className="flex items-center text-sm text-gray-700">
+                    <CalendarIcon className="h-4 w-4 mr-2" />
+                    <span>Joined {formatDate(user.createdAt)}</span>
+                  </div>
+                  
+                  <Link href={`/profile/${user.id}`}>
+                    <div className="flex items-center mt-4 text-[#b36226] hover:text-[#954908] cursor-pointer">
+                      <NewspaperIcon className="h-4 w-4 mr-2" />
+                      <span>See all articles</span>
+                    </div>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
