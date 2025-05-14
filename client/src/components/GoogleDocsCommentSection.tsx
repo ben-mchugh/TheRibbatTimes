@@ -128,9 +128,9 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 </div>
               ))
             ) : (
-              <div className="bg-[#f5f0e0]/95 backdrop-blur-sm p-6 rounded-lg text-center shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-[#f5f0e0]/80 opacity-100">
-                <p className="text-[#a67a48] font-medium">No comments yet</p>
-                <p className="text-sm text-[#a67a48]/80 mt-2">Select text and right-click to add the first comment</p>
+              <div className="bg-[#e8e8e8]/95 backdrop-blur-sm p-6 rounded-lg text-center shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-[#e8e8e8]/80 opacity-100">
+                <p className="text-[#444444] font-medium">No comments yet</p>
+                <p className="text-sm text-[#444444]/80 mt-2">Select text and right-click to add the first comment</p>
               </div>
             )}
           </div>

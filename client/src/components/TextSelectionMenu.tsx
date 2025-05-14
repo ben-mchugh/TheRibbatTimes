@@ -184,7 +184,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
       {isVisible && (
         <div 
           ref={menuRef}
-          className="fixed z-50 bg-[#f9f6ea] rounded shadow-md border border-[#a67a48] py-1 px-1"
+          className="fixed z-50 bg-[#e8e8e8] rounded shadow-md border border-[#444444] py-1 px-1"
           style={{ 
             top: `${position.top}px`, 
             left: `${position.left}px`,
@@ -195,7 +195,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
           <Button
             variant="ghost"
             size="sm"
-            className="flex items-center text-[#161718] hover:bg-[#f0e9d5] hover:text-[#a67a48] transition-colors"
+            className="flex items-center text-[#161718] hover:bg-[#d0d0d0] hover:text-[#444444] transition-colors"
             onClick={handleOpenCommentDialog}
           >
             <MessageSquare className="h-4 w-4 mr-2" />
@@ -207,7 +207,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
       {/* Floating comment box */}
       {isCommentDialogOpen && (
         <div 
-          className="fixed z-50 bg-[#f9f6ea] border border-[#a67a48] rounded shadow-lg"
+          className="fixed z-50 bg-[#e8e8e8] border border-[#444444] rounded shadow-lg"
           style={{
             top: `${commentPosition.top}px`,
             left: `${commentPosition.left}px`,
@@ -255,7 +255,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
               <Button 
                 type="button"
                 size="sm"
-                className="bg-[#a67a48] text-white hover:bg-[#9a6f41] transition-colors"
+                className="bg-[#444444] text-white hover:bg-[#333333] transition-colors"
                 onClick={handleSubmitComment}
               >
                 Submit
