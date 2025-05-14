@@ -4,15 +4,15 @@
 
 /* Selection highlight styles for Google Docs-style commenting */
 .selection-highlight {
-  background-color: rgba(255, 217, 102, 0.25);
-  border-bottom: 1px solid rgba(166, 122, 72, 0.5);
+  background-color: rgba(255, 217, 102, 0.4);
+  border-bottom: 2px solid rgba(230, 105, 51, 0.6);
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
   padding: 0 2px;
   border-radius: 2px;
   display: inline;
-  box-shadow: 0 1px 1px rgba(166, 122, 72, 0.05);
+  box-shadow: 0 1px 2px rgba(166, 122, 72, 0.2);
   /* Allow stacking of highlights */
   mix-blend-mode: multiply;
 }
@@ -33,10 +33,11 @@
 }
 
 .selection-highlight:hover {
-  background-color: rgba(255, 217, 102, 0.4);
+  background-color: rgba(255, 217, 102, 0.6);
   transform: translateY(-1px);
-  box-shadow: 0 1px 2px rgba(166, 122, 72, 0.1);
+  box-shadow: 0 2px 4px rgba(230, 105, 51, 0.3);
   z-index: 5;
+  border-bottom: 2px solid rgba(230, 105, 51, 0.9);
 }
 
 .selection-highlight:focus {
@@ -136,9 +137,18 @@
 }
 
 @keyframes highlight-text-pulse {
-  0% { background-color: rgba(255, 217, 102, 0.8); }
-  50% { background-color: rgba(255, 217, 102, 0.9); }
-  100% { background-color: rgba(255, 217, 102, 0.5); }
+  0% { 
+    background-color: rgba(255, 217, 102, 0.8); 
+    box-shadow: 0 0 0 2px rgba(230, 105, 51, 0.5);
+  }
+  50% { 
+    background-color: rgba(255, 217, 102, 0.9); 
+    box-shadow: 0 0 8px 3px rgba(230, 105, 51, 0.6);
+  }
+  100% { 
+    background-color: rgba(255, 217, 102, 0.6); 
+    box-shadow: 0 0 0 2px rgba(230, 105, 51, 0.5);
+  }
 }
 
 /* Animation for focused comment */
