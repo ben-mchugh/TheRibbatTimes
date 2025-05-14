@@ -65,9 +65,9 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   } : {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#a67a48] bg-[#161718]">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#a67a48] bg-[#161718]">
-        <h3 className="font-heading font-semibold text-lg text-[#a67a48]">Comments</h3>
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[#444444] bg-[#161718]">
+        <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
       
       {/* Comments list with dynamic height matching content container */}
@@ -79,7 +79,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         {isLoading ? (
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-[#f5f0e0]/95 backdrop-blur-sm p-4 rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-[#f5f0e0]/80 opacity-100">
+              <div key={i} className="bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-[#e8e8e8]/80 opacity-100">
                 <div className="flex items-start">
                   <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="ml-3 flex-1">

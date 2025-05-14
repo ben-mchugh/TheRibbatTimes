@@ -223,19 +223,19 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 rounded-full text-[#161718] hover:bg-[#f0e9d5] hover:text-[#a67a48] transition-colors"
+                className="h-6 w-6 p-0 rounded-full text-[#161718] hover:bg-[#d0d0d0] hover:text-[#444444] transition-colors"
                 onClick={() => setIsCommentDialogOpen(false)}
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
             
-            <div className="bg-[#e9dfc8] p-3 mb-3 rounded text-sm text-[#161718] border-l-2 border-[#a67a48]">
-              <span className="text-[#a67a48] font-medium">Selected text:</span> <span className="italic">"{selectedText.substring(0, 60)}{selectedText.length > 60 ? '...' : ''}"</span>
+            <div className="bg-[#d0d0d0] p-3 mb-3 rounded text-sm text-[#161718] border-l-2 border-[#444444]">
+              <span className="text-[#444444] font-medium">Selected text:</span> <span className="italic">"{selectedText.substring(0, 60)}{selectedText.length > 60 ? '...' : ''}"</span>
             </div>
             
             <Textarea
-              className="w-full min-h-[100px] px-3 py-2 text-sm text-[#161718] border border-[#a67a48] bg-white rounded focus:outline-none focus:ring-1 focus:ring-[#a67a48] focus:border-[#a67a48]"
+              className="w-full min-h-[100px] px-3 py-2 text-sm text-[#161718] border border-[#444444] bg-white rounded focus:outline-none focus:ring-1 focus:ring-[#444444] focus:border-[#444444]"
               placeholder="Write your comment here..."
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
@@ -247,7 +247,7 @@ const TextSelectionMenu = ({ onAddComment }: TextSelectionMenuProps) => {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="border-[#a67a48] text-[#a67a48] hover:bg-[#f0e9d5] transition-colors"
+                className="border-[#444444] text-[#444444] hover:bg-[#d0d0d0] transition-colors"
                 onClick={() => setIsCommentDialogOpen(false)}
               >
                 Cancel
