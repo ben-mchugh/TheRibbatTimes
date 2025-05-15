@@ -12,7 +12,7 @@ export default function Home() {
       <div className="space-y-8">
         <div className="px-4 sm:px-0">
           <p className="mt-2 text-lg">
-            A monthly newsletter of thoughts, opinions, and news from our community.
+            The Official Ribbat Meat CO. Website
           </p>
         </div>
         
