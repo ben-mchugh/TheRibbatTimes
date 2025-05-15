@@ -57,8 +57,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // Remove height constraints to allow free scrolling
-  const containerStyle = {};
+  // Fixed height for comment container with its own scrollbar
+  const containerStyle = { 
+    height: 'calc(100vh - 60px)', // Fixed height that accounts for the header
+  };
 
   return (
     <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
@@ -66,10 +68,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
       
-      {/* Comments list with unrestricted scrolling */}
+      {/* Comments list with fixed height and own scrollbar */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-[#161718] flex-1"
+        className="comments-container px-4 py-6 space-y-6 bg-[#161718] h-full overflow-y-auto"
         style={containerStyle}
       >
         {isLoading ? (
