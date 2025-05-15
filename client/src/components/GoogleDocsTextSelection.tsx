@@ -315,7 +315,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       {isPopupVisible && (
         <div
           ref={popupRef}
-          className="fixed z-50 bg-[#161718] border border-[#444444] rounded-md shadow-lg"
+          className="absolute z-50 bg-[#161718] border border-[#444444] rounded-md shadow-lg"
           style={{
             top: `${menuPosition.top}px`,
             left: `${menuPosition.left}px`,
@@ -342,9 +342,8 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             <div className="flex justify-end gap-2 mt-2">
               <Button
                 type="button"
-                variant="outline"
                 size="sm"
-                className="flex items-center justify-center border-[#444444] text-[#444444] hover:bg-[#e0e0e0] h-8 w-8 p-0"
+                className="flex items-center justify-center bg-[#444444] text-white hover:bg-[#222222] h-8 w-8 p-0"
                 onClick={handleCancelComment}
                 title="Cancel"
               >
