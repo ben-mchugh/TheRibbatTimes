@@ -128,14 +128,18 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
     };
     
     const handleContextMenu = (e: MouseEvent) => {
+      // Get the current selection
       const selection = window.getSelection();
+      
+      // If no selection, or selection is collapsed (just a cursor), use default browser behavior
       if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
-        return; // Let the default browser context menu handle this case
+        return;
       }
       
+      // Check if there's actually text selected
       const selectedText = selection.toString().trim();
       if (!selectedText) {
-        return; // Let the default browser context menu handle this case
+        return;
       }
       
       // Find the post content container
@@ -143,23 +147,34 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       if (!postContent) return;
       
       // Check if selection is within post content
-      const range = selection.getRangeAt(0);
-      if (!postContent.contains(range.commonAncestorContainer)) return;
+      const selectionRange = selection.getRangeAt(0);
+      if (!postContent.contains(selectionRange.commonAncestorContainer)) return;
       
       // Prevent default context menu
       e.preventDefault();
       
-      // Get precise selection positions
+      // Calculate accurate selection positions
       const selectionData = calculateSelectionPositions(selection, postContent);
       
-      // Set menu position at cursor relative to viewport
-      // Using clientX/Y positions ensures the menu will appear at the cursor
-      setMenuPosition({
-        top: e.clientY,
-        left: e.clientX
-      });
+      // Position the menu at the end of the selected text
+      const rects = selectionRange.getClientRects();
       
-      // Store selection data
+      if (rects.length > 0) {
+        // Use the last rect (end of selection)
+        const lastRect = rects[rects.length - 1];
+        setMenuPosition({
+          top: lastRect.bottom + 5,  // Position below the text with a small gap
+          left: lastRect.right       // Position at the right end of the selection
+        });
+      } else {
+        // Fallback to cursor position if no rects available
+        setMenuPosition({
+          top: e.clientY,
+          left: e.clientX
+        });
+      }
+      
+      // Store the selection data for comment creation
       setSelectionData(selectionData);
       
       // Show the context menu
