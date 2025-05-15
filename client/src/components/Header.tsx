@@ -88,18 +88,18 @@ export default function Header() {
                   Posts
                 </a>
               </Link>
-              <Link href="/communities">
-                <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
-                  location === '/communities' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
-                }`}>
-                  Doigs on Payroll
-                </a>
-              </Link>
               <Link href="/resources">
                 <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
                   location === '/resources' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
                   Notes
+                </a>
+              </Link>
+              <Link href="/communities">
+                <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
+                  location === '/communities' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
+                }`}>
+                  Doigs on Payroll
                 </a>
               </Link>
               <Link href="/about">
@@ -191,18 +191,6 @@ export default function Header() {
                 Posts
               </a>
             </Link>
-            <Link href="/communities">
-              <a 
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  location === '/communities' 
-                    ? 'bg-primary-light text-white border-primary' 
-                    : 'text-neutral-700 hover:bg-neutral-100 hover:text-primary border-transparent'
-                }`}
-                onClick={() => setMenuOpen(false)}
-              >
-                Doigs on Payroll
-              </a>
-            </Link>
             <Link href="/resources">
               <a 
                 className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
@@ -213,6 +201,18 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
               >
                 Notes
+              </a>
+            </Link>
+            <Link href="/communities">
+              <a 
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                  location === '/communities' 
+                    ? 'bg-primary-light text-white border-primary' 
+                    : 'text-neutral-700 hover:bg-neutral-100 hover:text-primary border-transparent'
+                }`}
+                onClick={() => setMenuOpen(false)}
+              >
+                Doigs on Payroll
               </a>
             </Link>
             <Link href="/about">
