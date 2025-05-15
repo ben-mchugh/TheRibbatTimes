@@ -382,9 +382,9 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                         e.stopPropagation();
                         setIsExpanded(true);
                       }}
-                      className="text-xs mt-1 text-blue-600 hover:text-blue-800 font-medium flex items-center transition-colors duration-200 underline-offset-2 hover:underline"
+                      className="text-xs mt-1 text-[#1a365d] hover:text-[#0f172a] font-medium flex items-center transition-colors duration-200 underline-offset-2 hover:underline"
                     >
-                      Read more <ChevronDown className="h-3 w-3 ml-1" />
+                      Read more <ChevronDown className="h-3 w-3 ml-1 text-[#1a365d]" />
                     </button>
                   </>
                 ) : (
@@ -398,9 +398,9 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                           e.stopPropagation();
                           setIsExpanded(false);
                         }}
-                        className="text-xs mt-1 text-[#444444] hover:text-[#222222] font-medium flex items-center transition-colors duration-200 underline-offset-2 hover:underline"
+                        className="text-xs mt-1 text-[#1a365d] hover:text-[#0f172a] font-medium flex items-center transition-colors duration-200 underline-offset-2 hover:underline"
                       >
-                        Show less <ChevronUp className="h-3 w-3 ml-1" />
+                        Show less <ChevronUp className="h-3 w-3 ml-1 text-[#1a365d]" />
                       </button>
                     )}
                   </>
