@@ -57,9 +57,13 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // Fixed height for comment container with its own scrollbar
+  // Styles for infinite scrolling in both directions
   const containerStyle = { 
     height: 'calc(100vh - 60px)', // Fixed height that accounts for the header
+    minHeight: 'calc(100vh - 60px)',
+    maxHeight: 'calc(100vh - 60px)',
+    width: '100%',
+    minWidth: '100%',
   };
 
   return (
@@ -71,7 +75,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       {/* Comments list with fixed height and own scrollbar */}
       <div 
         ref={commentsRef}
-        className="comments-container px-4 py-6 space-y-6 bg-[#161718] h-full overflow-y-auto"
+        className="comments-container px-4 py-6 space-y-6 bg-[#161718] h-full overflow-auto"
         style={containerStyle}
       >
         {isLoading ? (
@@ -94,6 +98,11 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Extra padding divs to enable scrolling in both directions */}
+            <div className="h-96 min-w-[150%] relative">
+              <div className="absolute left-[-200px] w-10 h-10"></div>
+            </div>
+            
             {sortedComments.length > 0 ? (
               sortedComments.map((comment, index) => (
                 <div 
@@ -131,6 +140,12 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 <p className="text-sm text-[#444444]/80 mt-2">Select text and right-click to add the first comment</p>
               </div>
             )}
+            
+            {/* Extra padding div at the bottom to enable scrolling down and right */}
+            <div className="h-96 min-w-[150%] relative">
+              <div className="absolute left-[-200px] w-10 h-10"></div>
+              <div className="absolute right-[-200px] w-10 h-10"></div>
+            </div>
           </div>
         )}
       </div>

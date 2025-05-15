@@ -2,23 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar for textareas */
-textarea::-webkit-scrollbar {
+/* Custom scrollbar for textareas and comments container */
+textarea::-webkit-scrollbar,
+.comments-container::-webkit-scrollbar {
   width: 8px;
+  height: 8px; /* For horizontal scrolling */
 }
 
-textarea::-webkit-scrollbar-track {
+textarea::-webkit-scrollbar-track,
+.comments-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb {
+textarea::-webkit-scrollbar-thumb,
+.comments-container::-webkit-scrollbar-thumb {
   background: #444444;
   border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb:hover {
+textarea::-webkit-scrollbar-thumb:hover,
+.comments-container::-webkit-scrollbar-thumb:hover {
   background: #222222;
+}
+
+/* Ensure comments container can scroll both directions */
+.comments-container {
+  scrollbar-width: thin;
+  scrollbar-color: #444444 #f1f1f1;
+  scroll-behavior: smooth;
+  overscroll-behavior: auto;
 }
 
 /* Selection highlight styles for Google Docs-style commenting */
