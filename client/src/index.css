@@ -137,10 +137,12 @@ div[data-focused="true"]::before {
 /* Comments container styles */
 .comments-container {
   position: relative;
-  /* Allow dynamic height to match content pane */
-  transition: height 0.3s ease-in-out;
+  /* Remove height transition for infinite scrolling */
   scrollbar-width: thin;
   scrollbar-color: #444444 #2a2a2a;
+  min-height: 100%;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .comments-container::-webkit-scrollbar {
