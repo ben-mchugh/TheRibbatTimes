@@ -37,6 +37,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const [replies, setReplies] = useState<Comment[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoadingReplies, setIsLoadingReplies] = useState(false);
+  const [hasReplyComments, setHasReplyComments] = useState(false);
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const commentRef = useRef<HTMLDivElement>(null);
@@ -62,6 +63,31 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       }, 2000);
     }
   }, [isFocused]);
+  
+  // Check if comment has any replies when component mounts
+  useEffect(() => {
+    if (!isReply && comment.id !== undefined) {
+      const checkForReplies = async () => {
+        try {
+          const response = await fetch(`/api/comments/${comment.id}/replies`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+          if (response.ok) {
+            const fetchedReplies = await response.json();
+            setHasReplyComments(fetchedReplies.length > 0);
+            if (fetchedReplies.length > 0) {
+              setReplies(fetchedReplies);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking for replies:', error);
+        }
+      };
+      
+      checkForReplies();
+    }
+  }, [comment.id, isReply]);
 
   useEffect(() => {
     if (isEditing && editInputRef.current) {
@@ -239,6 +265,9 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
           onReply(comment.id, replyContent);
         }
         
+        // Set the flag that we now have replies
+        setHasReplyComments(true);
+        
         // If replies are already showing, add this to the list
         if (showReplies) {
           setReplies(prev => [...prev, newReply]);
@@ -271,6 +300,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         if (response.ok) {
           const fetchedReplies = await response.json();
           setReplies(fetchedReplies);
+          setHasReplyComments(fetchedReplies.length > 0);
         }
       } catch (error) {
         console.error('Error fetching replies:', error);
@@ -426,7 +456,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   <Reply className="h-3.5 w-3.5" />
                 </Button>
                 
-                {hasReplies && (
+                {hasReplies && hasReplyComments && (
                   <Button
                     variant="ghost"
                     size="sm"
