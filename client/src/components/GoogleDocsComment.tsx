@@ -293,8 +293,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         ref={commentRef}
         className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
-        } ${isReply ? 'border-l-2 border-[#444444] w-[260px]' : 'w-[280px]'} 
-        transition duration-200 ease-in-out animate-comment-enter
+        } ${isReply ? 'border-l-2 border-[#444444] w-[260px] max-w-[260px]' : 'w-[280px] max-w-[280px]'} 
+        transition duration-200 ease-in-out animate-comment-enter overflow-hidden
         ${isFocused ? 'border-2 border-[#444444] ring-1 ring-[#444444]/30' : 'border border-[#444444]/80'}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
         data-comment-id={comment.id}
@@ -371,10 +371,10 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="mt-1">
+              <div className="mt-1 overflow-hidden w-full">
                 {comment.content.length > 150 && !isExpanded ? (
                   <>
-                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-words">
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-words overflow-hidden">
                       {comment.content.slice(0, 150)}...
                     </p>
                     <button 
@@ -389,7 +389,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   </>
                 ) : (
                   <>
-                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-words">
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-words overflow-hidden">
                       {comment.content}
                     </p>
                     {comment.content.length > 150 && isExpanded && (
@@ -409,8 +409,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             )}
             
             {comment.selectedText && !isEditing && (
-              <div className="mt-2 text-xs text-[#888888] italic">
-                <span>"{comment.selectedText}"</span>
+              <div className="mt-2 text-xs text-[#888888] italic overflow-hidden text-ellipsis">
+                <span className="break-words whitespace-pre-wrap">"{comment.selectedText}"</span>
               </div>
             )}
             
