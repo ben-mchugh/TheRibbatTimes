@@ -35,6 +35,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const [replyContent, setReplyContent] = useState('');
   const [showReplies, setShowReplies] = useState(false);
   const [replies, setReplies] = useState<Comment[]>([]);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isLoadingReplies, setIsLoadingReplies] = useState(false);
   const { currentUser } = useAuth();
   const { toast } = useToast();
@@ -370,7 +371,41 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-[#161718] mt-1 whitespace-pre-wrap break-words">{comment.content}</p>
+              <div className="mt-1">
+                {comment.content.length > 150 && !isExpanded ? (
+                  <>
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-words">
+                      {comment.content.slice(0, 150)}...
+                    </p>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(true);
+                      }}
+                      className="text-xs mt-1 text-[#444444] hover:text-[#222222] font-medium flex items-center transition-colors duration-200 underline-offset-2 hover:underline"
+                    >
+                      Read more <ChevronDown className="h-3 w-3 ml-1" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-words">
+                      {comment.content}
+                    </p>
+                    {comment.content.length > 150 && isExpanded && (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsExpanded(false);
+                        }}
+                        className="text-xs mt-1 text-[#444444] hover:text-[#222222] font-medium flex items-center transition-colors duration-200 underline-offset-2 hover:underline"
+                      >
+                        Show less <ChevronUp className="h-3 w-3 ml-1" />
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
             )}
             
             {comment.selectedText && !isEditing && (
