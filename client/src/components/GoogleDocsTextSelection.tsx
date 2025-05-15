@@ -285,6 +285,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
   const handleSubmitComment = () => {
     if (!selectionData) return;
     
+    // Check for empty comment
     if (!commentText.trim()) {
       toast({
         title: 'Empty comment',
@@ -349,6 +350,13 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             left: `${menuPosition.left}px`,
             width: '280px'
           }}
+          onKeyDown={(e) => {
+            // Global keydown handler for the popup
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              handleCancelComment();
+            }
+          }}
         >
           <div className="p-3">
             {selectionData && (
@@ -361,9 +369,21 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             
             <Textarea
               className="w-full min-h-[80px] px-3 py-2 text-sm border border-[#444444] bg-white text-[#161718] rounded focus:outline-none focus:ring-1 focus:ring-[#444444]"
-              placeholder="Add a comment..."
+              placeholder="Add a comment... (Press Enter to submit, Esc to cancel)"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
+              onKeyDown={(e) => {
+                // Submit on Enter (without shift key)
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmitComment();
+                }
+                // Cancel on Escape
+                else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  handleCancelComment();
+                }
+              }}
               autoFocus
             />
             
