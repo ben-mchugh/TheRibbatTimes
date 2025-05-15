@@ -61,12 +61,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // Prepare style for comments container with dynamic height
-  // Only set a height if we have a valid positive height value
-  const containerStyle = contentHeight && contentHeight > 100 ? {
-    height: `${contentHeight}px`,
-    maxHeight: `${contentHeight}px`, // Ensure it doesn't grow beyond this height
-  } : {};
+  // Remove fixed height constraints to allow infinite scrolling
+  const containerStyle = {};
 
   return (
     <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
@@ -74,11 +70,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
       
-      {/* Comments list with dynamic height matching content container */}
+      {/* Comments list with unlimited height for infinite scrolling */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-[#161718]"
-        style={containerStyle}
+        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-[#161718] flex-grow"
       >
         {isLoading ? (
           <div className="space-y-6">
