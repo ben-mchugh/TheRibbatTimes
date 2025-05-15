@@ -382,7 +382,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                         e.stopPropagation();
                         setIsExpanded(true);
                       }}
-                      className="text-xs mt-1 text-[#444444] hover:text-[#222222] font-medium flex items-center transition-colors duration-200 underline-offset-2 hover:underline"
+                      className="text-xs mt-1 text-blue-600 hover:text-blue-800 font-medium flex items-center transition-colors duration-200 underline-offset-2 hover:underline"
                     >
                       Read more <ChevronDown className="h-3 w-3 ml-1" />
                     </button>
