@@ -293,8 +293,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         ref={commentRef}
         className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
-        } ${isReply ? 'border-l-2 border-[#444444] w-[260px] max-w-[260px]' : 'w-[280px] max-w-[280px]'} 
-        transition duration-200 ease-in-out animate-comment-enter overflow-hidden box-border
+        } ${isReply ? 'border-l-2 border-[#444444] w-[260px] min-w-[260px] max-w-[260px]' : 'w-[280px] min-w-[280px] max-w-[280px]'} 
+        transition duration-200 ease-in-out animate-comment-enter box-border table table-fixed
         ${isFocused ? 'border-2 border-[#444444] ring-1 ring-[#444444]/30' : 'border border-[#444444]/80'}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
         data-comment-id={comment.id}
@@ -326,12 +326,12 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
           </div>
         )}
         
-        <div className="flex items-start">
+        <div className="flex items-start w-full">
           <Avatar className="h-8 w-8 flex-shrink-0">
             <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
             <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="ml-2 flex-1 overflow-hidden max-w-[calc(100%-40px)]">
+          <div className="ml-2 flex-1 overflow-hidden" style={{ width: isReply ? '210px' : '230px' }}>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
               <div className="flex flex-col items-end">
@@ -374,7 +374,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               <div className="mt-1 overflow-hidden w-full break-all">
                 {comment.content.length > 150 && !isExpanded ? (
                   <>
-                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-all hyphens-auto overflow-hidden max-w-full pr-1">
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-all hyphens-auto overflow-hidden pr-1" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
                       {comment.content.slice(0, 150)}...
                     </p>
                     <button 
@@ -389,7 +389,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   </>
                 ) : (
                   <>
-                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-all hyphens-auto overflow-hidden max-w-full pr-1">
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-all hyphens-auto overflow-hidden pr-1" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
                       {comment.content}
                     </p>
                     {comment.content.length > 150 && isExpanded && (
@@ -409,8 +409,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             )}
             
             {comment.selectedText && !isEditing && (
-              <div className="mt-2 text-xs text-[#888888] italic overflow-hidden text-ellipsis max-w-full break-all">
-                <span className="break-words whitespace-pre-wrap">"{comment.selectedText}"</span>
+              <div className="mt-2 text-xs text-[#888888] italic overflow-hidden text-ellipsis" style={{ maxWidth: '100%', wordBreak: 'break-word' }}>
+                <span className="break-all whitespace-pre-wrap hyphens-auto" style={{ display: 'block', width: '100%' }}>"{comment.selectedText}"</span>
               </div>
             )}
             
