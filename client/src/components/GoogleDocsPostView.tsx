@@ -449,44 +449,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     return textNodes;
   }
   
-  // Listen for click events on highlighted text
-  // Track content container height for comments section
-  useEffect(() => {
-    if (!contentContainerRef.current || !postContentRef.current) return;
-    
-    // Function to calculate and set the content height
-    const updateHeight = () => {
-      // Get the height of the post content element rather than the container
-      const height = postContentRef.current?.offsetHeight || 0;
-      // Add a small buffer to account for padding
-      const adjustedHeight = height > 0 ? height + 32 : 0;
-      setContentHeight(adjustedHeight);
-    };
-    
-    // Initial height calculation
-    updateHeight();
-    
-    // Create a ResizeObserver with debounced callback for better performance
-    let debounceTimeout: number | null = null;
-    const resizeObserver = new ResizeObserver(() => {
-      // Cancel previous timeout
-      if (debounceTimeout) {
-        window.clearTimeout(debounceTimeout);
-      }
-      
-      // Set new timeout to limit how often the height is recalculated
-      debounceTimeout = window.setTimeout(() => {
-        updateHeight();
-      }, 250); // Update at most every 250ms
-    });
-    
-    // Start observing the post content, not the entire container
-    postContentRef.current && resizeObserver.observe(postContentRef.current);
-    
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [post]);
+  // Removed content height calculation useEffect
 
   // Effect to add click handler to highlighted text spans
   useEffect(() => {
