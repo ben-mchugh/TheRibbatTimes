@@ -57,17 +57,13 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // Styles for infinite scrolling in both directions
-  const containerStyle = { 
-    height: 'calc(100vh - 60px)', // Fixed height that accounts for the header
-    minHeight: 'calc(100vh - 60px)',
-    maxHeight: 'calc(100vh - 60px)',
-    width: '100%',
-    minWidth: '100%',
+  // No constraints to allow completely free scrolling
+  const containerStyle = {
+    // Remove all min/max constraints to allow unlimited scrolling
   };
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718] overflow-visible">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#444444] bg-[#161718]">
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
@@ -75,7 +71,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       {/* Comments list with fixed height and own scrollbar */}
       <div 
         ref={commentsRef}
-        className="comments-container px-4 py-6 space-y-6 bg-[#161718] h-full overflow-auto"
+        className="comments-container px-4 py-6 space-y-6 bg-[#161718] overflow-visible"
         style={containerStyle}
       >
         {isLoading ? (
