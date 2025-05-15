@@ -66,7 +66,7 @@ function App() {
                     </a>
                   </div>
                   <p className="mt-4 text-center md:mt-0 md:text-right text-sm text-neutral-500">
-                    &copy; {new Date().getFullYear()} All rights reserved.
+                    &copy; {new Date().getFullYear()} The Ribbat Times. All rights reserved.
                   </p>
                 </div>
               </div>

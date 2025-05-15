@@ -4,7 +4,7 @@ import PostList from '@/components/PostList';
 export default function Home() {
   // Set page title
   useEffect(() => {
-    document.title = 'News and Opinions';
+    document.title = 'The Ribbat Times - News and Opinions';
   }, []);
 
   return (

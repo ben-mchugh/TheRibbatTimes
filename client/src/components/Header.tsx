@@ -25,7 +25,7 @@ export default function Header() {
       await signInWithGoogle();
       toast({
         title: 'Signed in successfully',
-        description: 'Welcome!',
+        description: 'Welcome to The Ribbat Times!',
       });
     } catch (error: any) {
       console.error('Sign in error:', error);
@@ -75,7 +75,7 @@ export default function Header() {
               <Link href="/">
                 <img 
                   src="/images/ribbat_times_logo.png" 
-                  alt="Site Logo" 
+                  alt="The Ribbat Times" 
                   className="h-14 cursor-pointer"
                 />
               </Link>
