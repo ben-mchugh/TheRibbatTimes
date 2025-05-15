@@ -325,8 +325,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             }
           }
         }
-      } catch (e) {
-        console.error(`Error processing comment ${comment.id}: ${e.message}`);
+      } catch (e: unknown) {
+        const error = e as Error;
+        console.error(`Error processing comment ${comment.id}: ${error.message}`);
       }
     }
     
@@ -414,7 +415,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             }
           });
         });
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Error enhancing highlights:', err);
       }
     });

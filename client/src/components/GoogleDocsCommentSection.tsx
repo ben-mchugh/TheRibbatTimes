@@ -55,11 +55,9 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // Remove the height constraint to allow infinite scrolling
-  const containerStyle = {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
+    <div className="gdocs-comment-section w-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#444444] bg-[#161718]">
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
@@ -68,7 +66,6 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       <div 
         ref={commentsRef}
         className="comments-container px-4 py-6 space-y-6 bg-[#161718] flex-grow"
-        style={containerStyle}
       >
         {isLoading ? (
           <div className="space-y-6">
