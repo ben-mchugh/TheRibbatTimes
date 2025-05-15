@@ -24,7 +24,7 @@ interface GoogleDocsPostViewProps {
 const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   const [showComments, setShowComments] = useState(true);
   const [focusedCommentId, setFocusedCommentId] = useState<number | null>(null);
-  const [contentHeight, setContentHeight] = useState<number>(0);
+  // Removed height constraint
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -716,7 +716,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
             w-full md:w-auto z-30 md:z-auto bg-transparent
             transition-all duration-300 ease-in-out
-            flex flex-col md:h-full
+            flex flex-col md:h-auto overflow-visible
           `}
         >
           <GoogleDocsCommentSection
@@ -727,7 +727,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             setShowComments={setShowComments}
             refetchComments={refetchComments}
             focusedCommentId={focusedCommentId}
-            contentHeight={contentHeight}
           />
         </div>
       </div>
