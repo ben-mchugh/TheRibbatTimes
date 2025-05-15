@@ -72,7 +72,11 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       <div 
         ref={commentsRef}
         className="comments-container px-4 py-6 space-y-6 bg-[#161718] overflow-visible"
-        style={containerStyle}
+        style={{
+          position: 'relative',
+          minHeight: '9999px',
+          minWidth: '9999px'
+        }}
       >
         {isLoading ? (
           <div className="space-y-6">
@@ -94,9 +98,18 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Extra padding divs to enable scrolling in both directions */}
-            <div className="h-96 min-w-[150%] relative">
-              <div className="absolute left-[-200px] w-10 h-10"></div>
+            {/* Grid of spacer elements to enable truly infinite scrolling in any direction */}
+            <div className="min-h-[2000px] min-w-[2000px] relative">
+              {/* Top-left spacer */}
+              <div className="absolute left-[-500px] top-[-500px] w-20 h-20"></div>
+              {/* Top-right spacer */}
+              <div className="absolute right-[-500px] top-[-500px] w-20 h-20"></div>
+              {/* Bottom-left spacer */}
+              <div className="absolute left-[-500px] bottom-[-500px] w-20 h-20"></div>
+              {/* Bottom-right spacer */}
+              <div className="absolute right-[-500px] bottom-[-500px] w-20 h-20"></div>
+              {/* Center marker */}
+              <div className="absolute left-[50%] top-[50%] w-1 h-1 transform -translate-x-1/2 -translate-y-1/2"></div>
             </div>
             
             {sortedComments.length > 0 ? (
@@ -137,10 +150,18 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
               </div>
             )}
             
-            {/* Extra padding div at the bottom to enable scrolling down and right */}
-            <div className="h-96 min-w-[150%] relative">
-              <div className="absolute left-[-200px] w-10 h-10"></div>
-              <div className="absolute right-[-200px] w-10 h-10"></div>
+            {/* Another set of infinite spacer elements at the bottom */}
+            <div className="min-h-[2000px] min-w-[2000px] relative">
+              {/* Additional corner spacers */}
+              <div className="absolute left-[-800px] top-[-800px] w-40 h-40"></div>
+              <div className="absolute right-[-800px] top-[-800px] w-40 h-40"></div>
+              <div className="absolute left-[-800px] bottom-[-800px] w-40 h-40"></div>
+              <div className="absolute right-[-800px] bottom-[-800px] w-40 h-40"></div>
+              {/* Extremely far spacers */}
+              <div className="absolute left-[-2000px] top-0 w-10 h-10"></div>
+              <div className="absolute right-[-2000px] top-0 w-10 h-10"></div>
+              <div className="absolute left-0 top-[-2000px] w-10 h-10"></div>
+              <div className="absolute left-0 bottom-[-2000px] w-10 h-10"></div>
             </div>
           </div>
         )}
