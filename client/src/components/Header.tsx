@@ -85,7 +85,7 @@ export default function Header() {
                 <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
                   location === '/' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
-                  Home
+                  Posts
                 </a>
               </Link>
               <Link href="/communities">
@@ -99,7 +99,7 @@ export default function Header() {
                 <a className={`nav-link inline-flex items-center px-1 pt-1 border-b-2 ${
                   location === '/resources' ? 'border-[#f6dda7] text-[#f6dda7]' : 'border-transparent text-gray-300 hover:text-[#f6dda7]'
                 }`}>
-                  Resources
+                  Notes
                 </a>
               </Link>
               <Link href="/about">
@@ -188,7 +188,7 @@ export default function Header() {
                 }`}
                 onClick={() => setMenuOpen(false)}
               >
-                Home
+                Posts
               </a>
             </Link>
             <Link href="/communities">
