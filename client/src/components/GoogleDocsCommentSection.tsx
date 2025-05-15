@@ -14,6 +14,7 @@ interface GoogleDocsCommentSectionProps {
   setShowComments: (show: boolean) => void;
   refetchComments: () => void;
   focusedCommentId: number | null;
+  contentHeight?: number; // Optional height to match content container
 }
 
 const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
@@ -23,7 +24,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   showComments,
   setShowComments,
   refetchComments,
-  focusedCommentId
+  focusedCommentId,
+  contentHeight
 }) => {
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
@@ -55,17 +57,24 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
+  // Prepare style for comments container with dynamic height
+  // Only set a height if we have a valid positive height value
+  const containerStyle = contentHeight && contentHeight > 100 ? {
+    height: `${contentHeight}px`,
+    maxHeight: `${contentHeight}px`, // Ensure it doesn't grow beyond this height
+  } : {};
 
   return (
-    <div className="gdocs-comment-section w-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#444444] bg-[#161718]">
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
       
-      {/* Comments list with no height constraints for infinite scrolling */}
+      {/* Comments list with dynamic height matching content container */}
       <div 
         ref={commentsRef}
-        className="comments-container px-4 py-6 space-y-6 bg-[#161718] flex-grow"
+        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-[#161718]"
+        style={containerStyle}
       >
         {isLoading ? (
           <div className="space-y-6">

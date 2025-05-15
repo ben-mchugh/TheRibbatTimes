@@ -24,12 +24,12 @@ interface GoogleDocsPostViewProps {
 const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   const [showComments, setShowComments] = useState(true);
   const [focusedCommentId, setFocusedCommentId] = useState<number | null>(null);
-  // Removed height constraint
+  const [contentHeight, setContentHeight] = useState<number>(0);
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const postContentRef = useRef<HTMLDivElement>(null);
-  // Removed contentContainerRef
+  const contentContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
   // Fetch post data
@@ -273,13 +273,12 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             
             position += nodeLength;
           }
-        } catch (e: unknown) {
-          const error = e as Error;
-          console.error(`Error highlighting text: ${error.message}`);
+        } catch (e) {
+          console.error(`Error highlighting text: ${e.message}`);
           
           // Special case for when surroundContents fails (usually due to DOM structure)
           // Attempt a direct string replacement approach for the current content
-          if (error.name === 'InvalidStateError' || error.name === 'HierarchyRequestError') {
+          if (e.name === 'InvalidStateError' || e.name === 'HierarchyRequestError') {
             console.log('Falling back to manual DOM manipulation');
             
             // If we're in a single node, we can try manual node splitting
@@ -325,9 +324,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             }
           }
         }
-      } catch (e: unknown) {
-        const error = e as Error;
-        console.error(`Error processing comment ${comment.id}: ${error.message}`);
+      } catch (e) {
+        console.error(`Error processing comment ${comment.id}: ${e.message}`);
       }
     }
     
@@ -415,7 +413,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             }
           });
         });
-      } catch (err: unknown) {
+      } catch (err) {
         console.error('Error enhancing highlights:', err);
       }
     });
@@ -451,7 +449,44 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     return textNodes;
   }
   
-  // Removed content height calculation useEffect
+  // Listen for click events on highlighted text
+  // Track content container height for comments section
+  useEffect(() => {
+    if (!contentContainerRef.current || !postContentRef.current) return;
+    
+    // Function to calculate and set the content height
+    const updateHeight = () => {
+      // Get the height of the post content element rather than the container
+      const height = postContentRef.current?.offsetHeight || 0;
+      // Add a small buffer to account for padding
+      const adjustedHeight = height > 0 ? height + 32 : 0;
+      setContentHeight(adjustedHeight);
+    };
+    
+    // Initial height calculation
+    updateHeight();
+    
+    // Create a ResizeObserver with debounced callback for better performance
+    let debounceTimeout: number | null = null;
+    const resizeObserver = new ResizeObserver(() => {
+      // Cancel previous timeout
+      if (debounceTimeout) {
+        window.clearTimeout(debounceTimeout);
+      }
+      
+      // Set new timeout to limit how often the height is recalculated
+      debounceTimeout = window.setTimeout(() => {
+        updateHeight();
+      }, 250); // Update at most every 250ms
+    });
+    
+    // Start observing the post content, not the entire container
+    postContentRef.current && resizeObserver.observe(postContentRef.current);
+    
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [post]);
 
   // Effect to add click handler to highlighted text spans
   useEffect(() => {
@@ -489,7 +524,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Use requestAnimationFrame for better timing of the animation
       requestAnimationFrame(() => {
         // Force a reflow to restart the animation in the next frame
-        void (clickedElement as HTMLElement).offsetWidth;
+        void clickedElement.offsetWidth;
         clickedElement.classList.add('highlight-focus-pulse');
       });
       
@@ -601,6 +636,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Main content area */}
         <div 
+          ref={contentContainerRef}
           className={`flex-1 ${showComments ? 'md:w-2/3' : 'md:w-full'} transition-all duration-300`}
         >
           {isLoadingPost ? (
@@ -680,7 +716,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
             w-full md:w-auto z-30 md:z-auto bg-transparent
             transition-all duration-300 ease-in-out
-            flex flex-col md:h-auto overflow-visible
+            flex flex-col md:h-full
           `}
         >
           <GoogleDocsCommentSection
@@ -691,6 +727,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             setShowComments={setShowComments}
             refetchComments={refetchComments}
             focusedCommentId={focusedCommentId}
+            contentHeight={contentHeight}
           />
         </div>
       </div>
