@@ -159,18 +159,29 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       // Position the menu at the end of the selected text
       const rects = selectionRange.getClientRects();
       
+      // Get the post content's position for relative positioning
+      const postContentRect = postContent.getBoundingClientRect();
+      
       if (rects.length > 0) {
         // Use the last rect (end of selection)
         const lastRect = rects[rects.length - 1];
+        
+        // Calculate position relative to the post content element
+        const relativeTop = lastRect.bottom - postContentRect.top + 5;
+        const relativeLeft = lastRect.right - postContentRect.left;
+        
         setMenuPosition({
-          top: lastRect.bottom + 5,  // Position below the text with a small gap
-          left: lastRect.right       // Position at the right end of the selection
+          top: relativeTop,  // Position below the text with a small gap
+          left: relativeLeft // Position at the right end of the selection
         });
       } else {
         // Fallback to cursor position if no rects available
+        const relativeTop = e.clientY - postContentRect.top;
+        const relativeLeft = e.clientX - postContentRect.left;
+        
         setMenuPosition({
-          top: e.clientY,
-          left: e.clientX
+          top: relativeTop,
+          left: relativeLeft
         });
       }
       
@@ -310,7 +321,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       {isContextMenuVisible && (
         <div 
           ref={menuRef}
-          className="fixed z-50 bg-white rounded-md shadow-md border border-gray-200 py-1"
+          className="absolute z-50 bg-white rounded-md shadow-md border border-gray-200 py-1"
           style={{
             top: `${menuPosition.top}px`,
             left: `${menuPosition.left}px`
@@ -332,7 +343,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       {isPopupVisible && (
         <div
           ref={popupRef}
-          className="fixed z-50 bg-[#161718] border border-[#444444] rounded-md shadow-lg"
+          className="absolute z-50 bg-[#161718] border border-[#444444] rounded-md shadow-lg"
           style={{
             top: `${menuPosition.top}px`,
             left: `${menuPosition.left}px`,
