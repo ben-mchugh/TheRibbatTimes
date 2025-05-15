@@ -30,16 +30,12 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
   
-  // Just highlight the comment without scrolling when focusedCommentId changes
+  // When focusedCommentId changes, scroll to that comment
   useEffect(() => {
     if (focusedCommentId && commentsRef.current) {
-      const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
+      const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`);
       if (commentElement) {
-        // Add focus class without scrolling
-        commentElement.classList.add("comment-focused");
-        setTimeout(() => {
-          commentElement.classList.remove("comment-focused");
-        }, 2000);
+        commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
   }, [focusedCommentId]);

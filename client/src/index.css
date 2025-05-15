@@ -191,15 +191,6 @@ div[data-focused="true"]::before {
   }
 }
 
-/* Comment focus class without scrolling */
-.comment-focused {
-  animation: comment-focus-animation 0.8s ease-out;
-  background-color: #f0f0f0 !important;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) !important;
-  border-left: 4px solid #444444 !important;
-  z-index: 100 !important;
-}
-
 div[data-focused="true"] {
   animation: comment-focus-animation 0.8s ease-out;
   background-color: #f0f0f0 !important;
