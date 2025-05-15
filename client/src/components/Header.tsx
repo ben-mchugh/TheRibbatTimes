@@ -212,7 +212,7 @@ export default function Header() {
                 }`}
                 onClick={() => setMenuOpen(false)}
               >
-                Resources
+                Notes
               </a>
             </Link>
             <Link href="/about">
