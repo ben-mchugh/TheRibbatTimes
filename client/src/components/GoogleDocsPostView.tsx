@@ -684,9 +684,26 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               
               <div 
                 ref={postContentRef}
-                className="post-content prose prose-slate max-w-none text-[#161718]"
-                dangerouslySetInnerHTML={{ __html: renderPostContentWithHighlights() }}
-              />
+                className="post-content prose prose-slate max-w-none text-[#161718] relative"
+              >
+                <div dangerouslySetInnerHTML={{ __html: renderPostContentWithHighlights() }} />
+                
+                <GoogleDocsTextSelection 
+                  postId={postId}
+                  onAddComment={(commentData) => {
+                    if (!currentUser) {
+                      toast({
+                        title: 'Sign in required',
+                        description: 'Please sign in to add comments.',
+                        variant: 'destructive'
+                      });
+                      return;
+                    }
+                    
+                    addCommentMutation.mutate(commentData);
+                  }}
+                />
+              </div>
             </div>
           )}
         </div>
