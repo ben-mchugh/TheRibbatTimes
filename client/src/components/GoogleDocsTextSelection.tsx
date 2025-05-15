@@ -152,23 +152,11 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       // Get precise selection positions
       const selectionData = calculateSelectionPositions(selection, postContent);
       
-      // Get post content element
-      const postContentElement = document.querySelector('.post-content');
-      if (!postContentElement) return;
-      
-      // Get the post content's position and scroll position
-      const rect = postContentElement.getBoundingClientRect();
-      const scrollTop = postContentElement.scrollTop || document.documentElement.scrollTop;
-      const scrollLeft = postContentElement.scrollLeft || document.documentElement.scrollLeft;
-      
-      // Calculate position relative to the post content element
-      const relativeTop = e.clientY - rect.top + scrollTop;
-      const relativeLeft = e.clientX - rect.left + scrollLeft;
-      
-      // Set context menu position relative to post content
+      // Set menu position at cursor relative to viewport
+      // Using clientX/Y positions ensures the menu will appear at the cursor
       setMenuPosition({
-        top: relativeTop,
-        left: relativeLeft
+        top: e.clientY,
+        left: e.clientX
       });
       
       // Store selection data
@@ -219,8 +207,9 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
     };
   }, [isPopupVisible, isContextMenuVisible]);
   
-  // Handle clicks outside the menu/popup
+  // Handle clicks outside the menu/popup and scroll adjustments
   useEffect(() => {
+    // Function to handle clicks outside the menu or popup
     const handleOutsideClick = (e: MouseEvent) => {
       // Context menu handling
       if (isContextMenuVisible && menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -306,7 +295,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       {isContextMenuVisible && (
         <div 
           ref={menuRef}
-          className="absolute z-50 bg-white rounded-md shadow-md border border-gray-200 py-1"
+          className="fixed z-50 bg-white rounded-md shadow-md border border-gray-200 py-1"
           style={{
             top: `${menuPosition.top}px`,
             left: `${menuPosition.left}px`
@@ -328,7 +317,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       {isPopupVisible && (
         <div
           ref={popupRef}
-          className="absolute z-50 bg-[#161718] border border-[#444444] rounded-md shadow-lg"
+          className="fixed z-50 bg-[#161718] border border-[#444444] rounded-md shadow-lg"
           style={{
             top: `${menuPosition.top}px`,
             left: `${menuPosition.left}px`,
