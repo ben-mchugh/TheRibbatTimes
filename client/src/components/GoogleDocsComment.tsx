@@ -469,7 +469,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                       <div className="h-3.5 w-3.5 rounded-full border-2 border-t-transparent border-[#444444] animate-spin mr-1" />
                     ) : (
                       <>
-                        {replies.length > 0 && <span className="text-xs mr-1">{replies.length}</span>}
+                        {replies.length > 0 && <span className="text-xs mr-1">({replies.length})</span>}
                         {showReplies ? (
                           <ChevronUp className="h-3.5 w-3.5" />
                         ) : (
