@@ -274,10 +274,16 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
     setIsContextMenuVisible(false);
     setCommentText('');
     
-    // Focus the textarea after opening
+    // Focus the textarea after opening and initialize auto-height
     setTimeout(() => {
       const textarea = popupRef.current?.querySelector('textarea');
-      if (textarea) textarea.focus();
+      if (textarea) {
+        textarea.focus();
+        
+        // Initialize height calculation
+        textarea.style.height = 'auto';
+        textarea.style.height = `${Math.min(textarea.scrollHeight, 300)}px`;
+      }
     }, 10);
   };
   
@@ -368,10 +374,21 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             )}
             
             <Textarea
-              className="w-full min-h-[80px] px-3 py-2 text-sm border border-[#444444] bg-white text-[#161718] rounded focus:outline-none focus:ring-1 focus:ring-[#444444]"
+              className="w-full min-h-[80px] max-h-[300px] px-3 py-2 text-sm border border-[#444444] bg-white text-[#161718] rounded focus:outline-none focus:ring-1 focus:ring-[#444444] resize-none overflow-auto"
               placeholder="Add a comment... (Press Enter to submit, Esc to cancel)"
               value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
+              onChange={(e) => {
+                setCommentText(e.target.value);
+                
+                // Auto-expand the textarea as user types
+                const textarea = e.target as HTMLTextAreaElement;
+                
+                // Reset height to auto to get the correct scrollHeight
+                textarea.style.height = 'auto';
+                
+                // Set the height to scrollHeight to expand the textarea
+                textarea.style.height = `${Math.min(textarea.scrollHeight, 300)}px`;
+              }}
               onKeyDown={(e) => {
                 // Submit on Enter (without shift key)
                 if (e.key === 'Enter' && !e.shiftKey) {
