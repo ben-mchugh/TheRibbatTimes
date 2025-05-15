@@ -29,7 +29,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const postContentRef = useRef<HTMLDivElement>(null);
-  const contentContainerRef = useRef<HTMLDivElement>(null);
+  // Removed contentContainerRef
   const isMobile = useIsMobile();
   
   // Fetch post data
@@ -273,12 +273,13 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             
             position += nodeLength;
           }
-        } catch (e) {
-          console.error(`Error highlighting text: ${e.message}`);
+        } catch (e: unknown) {
+          const error = e as Error;
+          console.error(`Error highlighting text: ${error.message}`);
           
           // Special case for when surroundContents fails (usually due to DOM structure)
           // Attempt a direct string replacement approach for the current content
-          if (e.name === 'InvalidStateError' || e.name === 'HierarchyRequestError') {
+          if (error.name === 'InvalidStateError' || error.name === 'HierarchyRequestError') {
             console.log('Falling back to manual DOM manipulation');
             
             // If we're in a single node, we can try manual node splitting
@@ -487,7 +488,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Use requestAnimationFrame for better timing of the animation
       requestAnimationFrame(() => {
         // Force a reflow to restart the animation in the next frame
-        void clickedElement.offsetWidth;
+        void (clickedElement as HTMLElement).offsetWidth;
         clickedElement.classList.add('highlight-focus-pulse');
       });
       
@@ -599,7 +600,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         {/* Main content area */}
         <div 
-          ref={contentContainerRef}
           className={`flex-1 ${showComments ? 'md:w-2/3' : 'md:w-full'} transition-all duration-300`}
         >
           {isLoadingPost ? (

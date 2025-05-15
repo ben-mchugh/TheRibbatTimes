@@ -14,7 +14,6 @@ interface GoogleDocsCommentSectionProps {
   setShowComments: (show: boolean) => void;
   refetchComments: () => void;
   focusedCommentId: number | null;
-  contentHeight?: number; // Optional height to match content container
 }
 
 const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
@@ -24,8 +23,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   showComments,
   setShowComments,
   refetchComments,
-  focusedCommentId,
-  contentHeight
+  focusedCommentId
 }) => {
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
