@@ -282,7 +282,8 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
         
         // Initialize height calculation
         textarea.style.height = 'auto';
-        textarea.style.height = `${Math.min(textarea.scrollHeight, 300)}px`;
+        const newHeight = Math.min(textarea.scrollHeight + 5, 300);
+        textarea.style.height = `${newHeight}px`;
       }
     }, 10);
   };
@@ -374,7 +375,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
             )}
             
             <Textarea
-              className="w-full min-h-[80px] max-h-[300px] px-3 py-2 text-sm border border-[#444444] bg-white text-[#161718] rounded focus:outline-none focus:ring-1 focus:ring-[#444444] resize-none overflow-auto"
+              className="w-full min-h-[80px] max-h-[300px] px-3 py-2 text-sm border border-[#444444] bg-white text-[#161718] rounded focus:outline-none focus:ring-1 focus:ring-[#444444] resize-none overflow-y-auto"
               placeholder="Add a comment... (Press Enter to submit, Esc to cancel)"
               value={commentText}
               onChange={(e) => {
@@ -386,8 +387,11 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
                 // Reset height to auto to get the correct scrollHeight
                 textarea.style.height = 'auto';
                 
-                // Set the height to scrollHeight to expand the textarea
-                textarea.style.height = `${Math.min(textarea.scrollHeight, 300)}px`;
+                // Add extra padding to avoid scrollbar when text just fits
+                const newHeight = Math.min(textarea.scrollHeight + 5, 300);
+                
+                // Set the height to accommodate content without showing scrollbar unnecessarily
+                textarea.style.height = `${newHeight}px`;
               }}
               onKeyDown={(e) => {
                 // Submit on Enter (without shift key)
