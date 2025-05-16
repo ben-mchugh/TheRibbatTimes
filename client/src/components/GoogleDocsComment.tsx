@@ -446,7 +446,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               <div className="overflow-hidden w-full">
                 {comment.content.length > 150 && !isExpanded ? (
                   <>
-                    <p className="text-sm text-[#161718] whitespace-pre-wrap hyphens-auto overflow-hidden" style={{ wordBreak: 'break-word', width: '100%' }}>
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap hyphens-auto overflow-hidden" style={{ wordBreak: 'break-word', width: '100%', fontFamily: 'Arial, sans-serif' }}>
                       {comment.content.slice(0, 150)}...
                     </p>
                     <button 
@@ -461,7 +461,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   </>
                 ) : (
                   <>
-                    <p className="text-sm text-[#161718] whitespace-pre-wrap hyphens-auto" style={{ wordBreak: 'break-word', width: '100%' }}>
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap hyphens-auto" style={{ wordBreak: 'break-word', width: '100%', fontFamily: 'Arial, sans-serif' }}>
                       {comment.content}
                     </p>
                     {comment.content.length > 150 && isExpanded && (
@@ -482,7 +482,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             
             {comment.selectedText && !isEditing && (
               <div className="mt-2 text-xs text-[#888888] italic overflow-hidden" style={{ width: '100%', wordBreak: 'break-word' }}>
-                <span className="whitespace-pre-wrap hyphens-auto" style={{ display: 'block', width: '100%', borderLeft: '2px solid #ddd', paddingLeft: '8px' }}>"{comment.selectedText}"</span>
+                <span className="whitespace-pre-wrap hyphens-auto" style={{ display: 'block', width: '100%', borderLeft: '2px solid #ddd', paddingLeft: '8px', fontFamily: 'Arial, sans-serif' }}>"{comment.selectedText}"</span>
               </div>
             )}
             
