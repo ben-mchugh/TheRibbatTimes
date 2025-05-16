@@ -82,14 +82,11 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // Prepare style for comments container with dynamic height
-  // Only set a height if we have a valid positive height value
-  const containerStyle = contentHeight && contentHeight > 100 ? {
-    height: `${contentHeight}px`,
-    maxHeight: `${contentHeight}px`, // Keep the maxHeight constraint with the same value
-  } : {
-    height: '100vh', // Use full viewport height as fallback
-    maxHeight: '100vh'
+  // Provide a style object that allows unbounded scrolling
+  // Remove fixed height constraints to allow free scrolling
+  const containerStyle = {
+    // No height or maxHeight constraints
+    minHeight: '100vh', // Just ensure it takes at least full viewport height
   };
 
   return (
