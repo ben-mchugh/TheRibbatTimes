@@ -30,15 +30,51 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
   
+  // Track accumulated scroll delta to create smoother scrolling
+  const scrollState = useRef({
+    lastY: 0,
+    accumulator: 0,
+    animating: false
+  });
+  
   // Function to handle wheel events to redirect scrolling to the main content
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault(); // Prevent default scrolling behavior
     
-    // Scroll the main content container instead
-    window.scrollBy({
-      top: e.deltaY,
-      behavior: 'auto' // Use auto for more responsive scrolling
-    });
+    // Smooth factor
+    const smoothFactor = 0.65; // Lower number = smoother but less responsive
+    
+    // Add to accumulator
+    scrollState.current.accumulator += e.deltaY * smoothFactor;
+    
+    // If we're not already animating, start animation
+    if (!scrollState.current.animating) {
+      scrollState.current.animating = true;
+      
+      const animateScroll = () => {
+        // Move 25% of the remaining distance each frame
+        const moveAmount = scrollState.current.accumulator * 0.25;
+        
+        if (Math.abs(moveAmount) < 0.1) {
+          // Stop animating when the movement is very small
+          scrollState.current.accumulator = 0;
+          scrollState.current.animating = false;
+          return;
+        }
+        
+        window.scrollBy({
+          top: moveAmount
+        });
+        
+        // Reduce accumulator by the amount we moved
+        scrollState.current.accumulator -= moveAmount;
+        
+        // Continue animation
+        requestAnimationFrame(animateScroll);
+      };
+      
+      requestAnimationFrame(animateScroll);
+    }
   }, []);
   
   // Add wheel event listener on mount, remove on unmount
