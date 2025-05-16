@@ -91,14 +91,14 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
       
-      {/* Comments container with programmatic scrolling only */}
+      {/* Comments list with vertical scrolling */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-hidden py-8 bg-[#161718] flex-1 px-6 overscroll-contain"
+        className="comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6 overscroll-contain"
         style={{
           ...containerStyle,
-          scrollbarWidth: 'none', // Hide scrollbar in Firefox
-          msOverflowStyle: 'none', // Hide scrollbar in IE/Edge
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#444444 #161718'
         }}
       >
         {isLoading ? (
