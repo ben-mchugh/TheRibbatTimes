@@ -101,37 +101,45 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         ) : (
           <div className="flex flex-col space-y-8">
             {sortedComments.length > 0 ? (
-              sortedComments.map((comment, index) => (
-                <div 
-                  key={`comment-${comment.id}`}
-                  className="transition-all duration-300 animate-comment-enter"
-                  style={{ 
-                    animationDelay: `${index * 50}ms`,
-                    animationFillMode: 'both'
-                  }}
-                  data-comment-id={comment.id}
-                >
-                  <GoogleDocsComment
-                    comment={comment} 
-                    postId={postId}
-                    onDelete={() => {
-                      refetchComments();
-                      queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
-                      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+              <>
+                {/* Extra padding at the top for scrolling */}
+                <div className="py-10"></div>
+                
+                {sortedComments.map((comment, index) => (
+                  <div 
+                    key={`comment-${comment.id}`}
+                    className="transition-all duration-300 animate-comment-enter"
+                    style={{ 
+                      animationDelay: `${index * 50}ms`,
+                      animationFillMode: 'both'
                     }}
-                    onUpdate={() => {
-                      refetchComments();
-                    }}
-                    onReply={() => {
-                      refetchComments();
-                      queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
-                      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
-                    }}
-                    refetchComments={refetchComments}
-                    focusedCommentId={focusedCommentId}
-                  />
-                </div>
-              ))
+                    data-comment-id={comment.id}
+                  >
+                    <GoogleDocsComment
+                      comment={comment} 
+                      postId={postId}
+                      onDelete={() => {
+                        refetchComments();
+                        queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+                      }}
+                      onUpdate={() => {
+                        refetchComments();
+                      }}
+                      onReply={() => {
+                        refetchComments();
+                        queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
+                        queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+                      }}
+                      refetchComments={refetchComments}
+                      focusedCommentId={focusedCommentId}
+                    />
+                  </div>
+                ))}
+                
+                {/* Extra padding at the bottom for scrolling */}
+                <div className="py-20"></div>
+              </>
             ) : (
               <div className="bg-[#e8e8e8]/95 backdrop-blur-sm p-6 rounded-lg text-center shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-[#e8e8e8]/80 opacity-100 w-[95%] min-w-[260px] mx-auto">
                 <p className="text-[#444444] font-medium">No comments yet</p>
