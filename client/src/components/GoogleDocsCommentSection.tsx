@@ -39,25 +39,32 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
         
         if (highlightElement) {
-          // Measure the position of the highlighted text in the viewport
+          // Get the highlight element's position in the viewport
           const highlightRect = highlightElement.getBoundingClientRect();
+          const highlightMiddle = highlightRect.top + (highlightRect.height / 2);
           
-          // Calculate the relative position of the highlight within the viewport
-          // This gives us the percentage distance from the top of the viewport
-          const viewportHeight = window.innerHeight;
-          const highlightRelativePosition = highlightRect.top / viewportHeight;
-          
-          // Get the comment element's size and position
+          // Get the comment element's position and dimensions
           const commentRect = commentElement.getBoundingClientRect();
+          const commentHeight = commentRect.height;
           
-          // Get the current scroll position and dimensions of comments container
+          // Get the current scroll position of the comments container
           const container = commentsRef.current;
-          const containerHeight = container.clientHeight;
+          const containerRect = container.getBoundingClientRect();
           
-          // Calculate new scroll position to match the relative position of highlight
-          // We're placing the comment at the same relative position in the comments container
-          // as the highlight is positioned in the viewport
-          const newScrollTop = (container.scrollHeight - containerHeight) * highlightRelativePosition;
+          // Calculate the position where the comment's center should be in the container
+          const commentTargetCenter = containerRect.top + (containerRect.height / 2);
+          
+          // Calculate the current position of the comment's center
+          const commentCenter = commentRect.top + (commentHeight / 2);
+          
+          // Calculate the scroll adjustment needed to center the comment
+          const scrollAdjustment = commentCenter - commentTargetCenter;
+          
+          // Get the current scroll position
+          const currentScrollTop = container.scrollTop;
+          
+          // Calculate the new scroll position
+          const newScrollTop = currentScrollTop + scrollAdjustment;
           
           // Scroll the container (not the page)
           container.scrollTo({
