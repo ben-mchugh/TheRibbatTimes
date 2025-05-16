@@ -138,7 +138,15 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 ))}
                 
                 {/* Extra padding at the bottom for scrolling */}
-                <div className="py-20"></div>
+                <div>
+                  <div className="py-20"></div>
+                  {/* Additional buffer space for extreme scrolling */}
+                  {Array.from({ length: 50 }).map((_, index) => (
+                    <div key={`buffer-${index}`} className="py-10 opacity-0">
+                      Buffer space {index + 1}
+                    </div>
+                  ))}
+                </div>
               </>
             ) : (
               <div className="bg-[#e8e8e8]/95 backdrop-blur-sm p-6 rounded-lg text-center shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-[#e8e8e8]/80 opacity-100 w-[95%] min-w-[260px] mx-auto">
