@@ -30,12 +30,27 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
   
-  // When focusedCommentId changes, scroll to that comment
+  // When focusedCommentId changes, scroll to that comment within the comments container only
   useEffect(() => {
     if (focusedCommentId && commentsRef.current) {
-      const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`);
-      if (commentElement) {
-        commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
+      if (commentElement && commentsRef.current) {
+        // Get the container's scroll position
+        const container = commentsRef.current;
+        const containerRect = container.getBoundingClientRect();
+        
+        // Get the comment element's position relative to the container
+        const commentRect = commentElement.getBoundingClientRect();
+        
+        // Calculate the scroll position to center the comment in the container
+        const scrollTop = commentElement.offsetTop - container.offsetTop - 
+                          (containerRect.height / 2) + (commentRect.height / 2);
+        
+        // Scroll the container, not the whole page
+        container.scrollTo({
+          top: scrollTop,
+          behavior: 'smooth'
+        });
       }
     }
   }, [focusedCommentId]);
