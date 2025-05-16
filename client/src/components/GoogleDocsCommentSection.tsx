@@ -39,21 +39,25 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
         
         if (highlightElement) {
-          // Get the highlight element's position in the viewport
+          // Measure the position of the highlighted text in the viewport
           const highlightRect = highlightElement.getBoundingClientRect();
-          const highlightCenter = highlightRect.top + (highlightRect.height / 2);
           
-          // Get the comment element's position
+          // Calculate the relative position of the highlight within the viewport
+          // This gives us the percentage distance from the top of the viewport
+          const viewportHeight = window.innerHeight;
+          const highlightRelativePosition = highlightRect.top / viewportHeight;
+          
+          // Get the comment element's size and position
           const commentRect = commentElement.getBoundingClientRect();
-          const commentCenter = commentRect.height / 2;
           
-          // Get the current scroll position of the comments container
+          // Get the current scroll position and dimensions of comments container
           const container = commentsRef.current;
-          const currentScrollTop = container.scrollTop;
+          const containerHeight = container.clientHeight;
           
-          // Calculate the new scroll position to center the comment with the highlight
-          // We want the center of the comment to align with the center of the highlight
-          const newScrollTop = currentScrollTop + (commentRect.top - highlightCenter + commentCenter);
+          // Calculate new scroll position to match the relative position of highlight
+          // We're placing the comment at the same relative position in the comments container
+          // as the highlight is positioned in the viewport
+          const newScrollTop = (container.scrollHeight - containerHeight) * highlightRelativePosition;
           
           // Scroll the container (not the page)
           container.scrollTo({
