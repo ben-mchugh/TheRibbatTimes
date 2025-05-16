@@ -536,7 +536,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
             placeholder="Write a reply... (Enter to submit, Esc to cancel)"
-            className="min-h-[60px] bg-white border-[#444444] text-[#161718] w-full text-sm"
+            className="min-h-[60px] bg-white border-0 text-[#161718] w-full text-sm rounded shadow-sm"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
