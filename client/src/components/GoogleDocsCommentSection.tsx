@@ -30,6 +30,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
   const [isSKeyPressed, setIsSKeyPressed] = useState(false);
+  const [activeCommentId, setActiveCommentId] = useState<number | null>(null);
   
   // Track accumulated scroll delta to create smoother scrolling
   const scrollState = useRef({
@@ -284,6 +285,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                       }}
                       refetchComments={refetchComments}
                       focusedCommentId={focusedCommentId}
+                      isActive={activeCommentId === comment.id}
+                      setActive={(id) => setActiveCommentId(id)}
                     />
                   </div>
                 ))}

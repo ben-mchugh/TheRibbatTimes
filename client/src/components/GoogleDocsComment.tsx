@@ -17,6 +17,8 @@ interface GoogleDocsCommentProps {
   onReply?: (commentId: number, content: string) => void;
   refetchComments?: () => void;
   focusedCommentId?: number | null;
+  isActive?: boolean;
+  setActive?: (id: number | null) => void;
 }
 
 const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
