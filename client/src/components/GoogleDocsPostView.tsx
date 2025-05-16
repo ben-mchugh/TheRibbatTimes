@@ -633,11 +633,11 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         </Button>
       </div>
       
-      <div className="flex flex-col md:flex-row gap-6 flex-1 max-w-[1520px] mx-auto">
+      <div className="flex flex-col md:flex-row gap-6 flex-1 max-w-[1520px] mx-auto w-full">
         {/* Main content area */}
         <div 
           ref={contentContainerRef}
-          className={`flex-1 ${showComments ? 'md:w-3/4' : 'md:w-full'} transition-all duration-300`}
+          className={`${showComments ? 'md:w-3/4' : 'md:w-full'} transition-all duration-300`}
         >
           {isLoadingPost ? (
             <div className="bg-[#e0d3af] p-6 rounded-lg">
@@ -712,9 +712,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         <div 
           className={`
             ${showComments ? 'block' : 'hidden'} 
-            md:w-1/4 md:max-w-md md:border-l border-[#444444]
+            md:w-1/4 md:border-l border-[#444444]
             fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
-            w-full md:w-auto z-30 md:z-auto bg-transparent
+            w-full z-30 md:z-auto bg-transparent
             transition-all duration-300 ease-in-out
             flex flex-col md:h-full
           `}
