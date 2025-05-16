@@ -357,11 +357,11 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''} block`}>
       <div 
         ref={commentRef}
-        className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
-          comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
+        className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-xl opacity-100 ${
+          comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-2xl' : ''
         } ${isReply ? 'w-[85%] min-w-[240px] ml-auto mr-0' : 'w-[95%] min-w-[260px]'} 
         transition duration-200 ease-in-out animate-comment-enter box-border table table-fixed
-        ${isFocused ? 'border-2 border-[#444444] ring-1 ring-[#444444]/30' : 'border border-[#444444]/80'}`}
+        ${isFocused ? 'ring-2 ring-[#444444]/40' : ''}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
         data-comment-id={comment.id}
         data-focused={isFocused ? "true" : "false"}
@@ -374,7 +374,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleEdit}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#d0d0d0] border border-[#444444] rounded-sm bg-[#e8e8e8]"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#d0d0d0] rounded-sm bg-[#e8e8e8] shadow-sm"
               title="Edit comment"
             >
               <Edit className="h-3 w-3" />
@@ -384,7 +384,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onClick={handleDelete}
               variant="outline"
               size="sm"
-              className="h-6 w-6 p-0 flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#d0d0d0] border border-[#444444] rounded-sm bg-[#e8e8e8]"
+              className="h-6 w-6 p-0 flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#d0d0d0] rounded-sm bg-[#e8e8e8] shadow-sm"
               title="Delete comment"
             >
               <Trash className="h-3 w-3" />
@@ -482,7 +482,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             
             {comment.selectedText && !isEditing && (
               <div className="mt-2 text-xs text-[#888888] italic overflow-hidden" style={{ width: '100%', wordBreak: 'break-word' }}>
-                <span className="whitespace-pre-wrap hyphens-auto" style={{ display: 'block', width: '100%', borderLeft: '2px solid #ddd', paddingLeft: '8px', fontFamily: 'Open Sans, sans-serif' }}>"{comment.selectedText}"</span>
+                <span className="whitespace-pre-wrap hyphens-auto" style={{ display: 'block', width: '100%', boxShadow: 'inset 2px 0 0 rgba(150,150,150,0.3)', paddingLeft: '8px', fontFamily: 'Open Sans, sans-serif' }}>"{comment.selectedText}"</span>
               </div>
             )}
             
