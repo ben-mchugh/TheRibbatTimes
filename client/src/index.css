@@ -2,42 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar for textareas only */
-textarea::-webkit-scrollbar {
+/* Custom scrollbar for textareas and comments container */
+textarea::-webkit-scrollbar,
+.comments-container::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-textarea::-webkit-scrollbar-track {
+textarea::-webkit-scrollbar-track,
+.comments-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb {
+textarea::-webkit-scrollbar-thumb,
+.comments-container::-webkit-scrollbar-thumb {
   background: #444444;
   border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb:hover {
+textarea::-webkit-scrollbar-thumb:hover,
+.comments-container::-webkit-scrollbar-thumb:hover {
   background: #222222;
 }
 
-/* Special styles for infinite scrolling in comments container */
+/* Styles for comment section with infinite scrolling */
 .gdocs-comment-section {
-  /* Ensure the entire comments section can expand without limits */
-  min-height: 3000px !important;
-  height: auto !important;
-  overflow-y: auto !important;
-  overflow-x: auto !important;
+  /* Keep the entire sidebar at a fixed height */
+  height: calc(100vh - 60px) !important;
+  min-height: calc(100vh - 60px) !important;
+  max-height: calc(100vh - 60px) !important;
+  overflow: hidden !important; /* Prevent the section itself from scrolling */
 }
 
 .comments-container {
-  /* No scroll constraints to allow unlimited content expansion */
-  overflow: visible !important;
-  min-height: 3000px !important;
-  min-width: 1000px !important;
-  width: auto !important;
-  height: auto !important;
+  /* Allow infinite scrolling within the fixed container */
+  height: 100% !important;
+  overflow: auto !important;
+  position: relative !important;
 }
 
 /* Selection highlight styles for Google Docs-style commenting */
