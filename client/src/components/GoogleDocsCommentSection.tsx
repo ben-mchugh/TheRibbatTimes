@@ -207,8 +207,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const containerStyle = {
     minHeight: 'calc(100vh - 120px)', // Full viewport height minus header/margins
     height: contentHeight && contentHeight > 100 ? `${contentHeight + 100}px` : 'calc(100vh - 120px)',
-    // Show webkit scrollbar when S key is pressed
-    WebkitScrollbarWidth: isSKeyPressed ? '8px' : '0px',
+    // Always hide the webkit scrollbar
+    WebkitScrollbarWidth: '0px',
   };
 
   return (
@@ -220,11 +220,11 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       {/* Comments list with vertical scrolling */}
       <div 
         ref={commentsRef}
-        className={`comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6 overscroll-contain ${isSKeyPressed ? 'cursor-ns-resize ctrl-pressed' : ''}`}
+        className={`comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6 overscroll-contain ${isSKeyPressed ? 'cursor-ns-resize' : ''}`}
         style={{
           ...containerStyle,
-          scrollbarWidth: isSKeyPressed ? 'thin' : 'none', /* Show scrollbar when S key is pressed in Firefox */
-          msOverflowStyle: isSKeyPressed ? 'auto' : 'none' /* Show scrollbar when S key is pressed in IE and Edge */
+          scrollbarWidth: 'none', /* Always hide scrollbar in Firefox */
+          msOverflowStyle: 'none' /* Always hide scrollbar in IE and Edge */
         }}
       >
         {isLoading ? (

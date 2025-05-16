@@ -266,9 +266,7 @@ div[data-focused="true"] .connector-line {
   width: 0; /* Default to 0 width */
 }
 
-.comments-container.ctrl-pressed::-webkit-scrollbar {
-  width: 8px; /* Show scrollbar when S key is pressed */
-}
+/* Always hide scrollbar even when S key is pressed */
 
 .comments-container::-webkit-scrollbar-track {
   background: rgba(224, 211, 175, 0.6);
