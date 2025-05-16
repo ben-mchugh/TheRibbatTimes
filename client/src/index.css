@@ -35,6 +35,23 @@ textarea::-webkit-scrollbar-thumb:hover {
   mix-blend-mode: multiply;
 }
 
+/* Temporary highlight when creating a comment */
+.temp-selection-highlight {
+  background-color: rgba(255, 217, 102, 0.4);
+  border-bottom: 2px solid rgba(166, 122, 72, 0.8);
+  padding: 0 2px;
+  border-radius: 2px;
+  display: inline;
+  /* Make temporary highlights stand out more */
+  animation: pulse-highlight 2s infinite;
+}
+
+@keyframes pulse-highlight {
+  0% { background-color: rgba(255, 217, 102, 0.4); }
+  50% { background-color: rgba(255, 217, 102, 0.6); }
+  100% { background-color: rgba(255, 217, 102, 0.4); }
+}
+
 /* Support for nested highlights */
 .selection-highlight .selection-highlight {
   background-color: rgba(255, 180, 80, 0.25);

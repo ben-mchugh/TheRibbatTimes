@@ -270,6 +270,26 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       return;
     }
     
+    // Add temporary highlight to selected text
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+      try {
+        // Get the current selection range
+        const range = selection.getRangeAt(0);
+        
+        // Create a temporary highlight span
+        const tempHighlight = document.createElement('span');
+        tempHighlight.className = 'temp-selection-highlight';
+        tempHighlight.setAttribute('data-temp-highlight', 'true');
+        
+        // Apply the highlight to the selection
+        range.surroundContents(tempHighlight);
+      } catch (error) {
+        console.error("Couldn't apply temporary highlight:", error);
+        // Continue even if highlighting fails
+      }
+    }
+    
     setIsPopupVisible(true);
     setIsContextMenuVisible(false);
     setCommentText('');
@@ -310,6 +330,9 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       selectionEnd: selectionData.end
     });
     
+    // Remove any temporary highlights
+    removeTempHighlights();
+    
     setIsPopupVisible(false);
     setCommentText('');
     
@@ -321,6 +344,25 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
   const handleCancelComment = () => {
     setIsPopupVisible(false);
     setCommentText('');
+    
+    // Remove any temporary highlights
+    removeTempHighlights();
+  };
+  
+  // Helper function to remove temporary highlights
+  const removeTempHighlights = () => {
+    // Find and remove all temporary highlights
+    const tempHighlights = document.querySelectorAll('.temp-selection-highlight');
+    tempHighlights.forEach(highlight => {
+      // Get the parent node
+      const parent = highlight.parentNode;
+      // Move all children out of the highlight and into the parent
+      while (highlight.firstChild) {
+        parent?.insertBefore(highlight.firstChild, highlight);
+      }
+      // Remove the highlight element
+      parent?.removeChild(highlight);
+    });
   };
   
   return (
