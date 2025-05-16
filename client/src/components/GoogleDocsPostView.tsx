@@ -606,7 +606,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   }
   
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 min-h-screen flex flex-col relative">
+    <div className="max-w-[1440px] mx-auto px-4 py-6 min-h-screen flex flex-col relative">
       {/* Fixed position controls - positioned even lower as requested */}
       <div className="fixed top-32 right-4 z-40 flex flex-col gap-2">
         {/* Close button */}
@@ -633,11 +633,11 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         </Button>
       </div>
       
-      <div className="flex flex-col md:flex-row gap-6 flex-1">
+      <div className="flex flex-col md:flex-row gap-6 flex-1 max-w-[1280px] mx-auto">
         {/* Main content area */}
         <div 
           ref={contentContainerRef}
-          className={`flex-1 ${showComments ? 'md:w-2/3' : 'md:w-full'} transition-all duration-300`}
+          className={`flex-1 ${showComments ? 'md:w-[70%]' : 'md:w-full'} transition-all duration-300`}
         >
           {isLoadingPost ? (
             <div className="bg-[#e0d3af] p-6 rounded-lg">
@@ -657,7 +657,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               <Skeleton className="h-4 w-4/5 mb-2" />
             </div>
           ) : (
-            <div className="bg-[#e0d3af] p-6 rounded-lg shadow-sm">
+            <div className="bg-[#e0d3af] p-8 rounded-lg shadow-sm">
               <h1 className="text-2xl md:text-3xl font-semibold text-[#161718] mb-4">
                 {post?.title}
               </h1>
@@ -712,7 +712,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         <div 
           className={`
             ${showComments ? 'block' : 'hidden'} 
-            md:w-1/3 md:max-w-xs md:border-l border-[#444444]
+            md:w-[30%] md:max-w-md md:border-l border-[#444444]
             fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
             w-full md:w-auto z-30 md:z-auto bg-transparent
             transition-all duration-300 ease-in-out
