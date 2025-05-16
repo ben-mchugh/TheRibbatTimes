@@ -439,10 +439,10 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               </div>
             ) : (
               <div className="mt-1 overflow-hidden w-full break-all">
-                {comment.content.length > 80 && !isExpanded ? (
+                {comment.content.length > 150 && !isExpanded ? (
                   <>
                     <p className="text-sm text-[#161718] whitespace-pre-wrap break-all hyphens-auto overflow-hidden pr-1" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
-                      {comment.content.slice(0, 80)}...
+                      {comment.content.slice(0, 150)}...
                     </p>
                     <button 
                       onClick={(e) => {
@@ -459,7 +459,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                     <p className="text-sm text-[#161718] whitespace-pre-wrap break-all hyphens-auto overflow-hidden pr-1" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
                       {comment.content}
                     </p>
-                    {comment.content.length > 80 && isExpanded && (
+                    {comment.content.length > 150 && isExpanded && (
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
