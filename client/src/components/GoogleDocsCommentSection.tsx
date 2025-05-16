@@ -30,7 +30,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
   
-  // When focusedCommentId changes, position the comment at the highlight's vertical location
+  // When focusedCommentId changes, scroll the comment to match the highlight position
   useEffect(() => {
     if (focusedCommentId && commentsRef.current) {
       const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
@@ -39,26 +39,24 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
         
         if (highlightElement) {
-          // Get the highlight's absolute position in the page
+          // Get the highlight element's position in the viewport
           const highlightRect = highlightElement.getBoundingClientRect();
-          const highlightY = highlightRect.top;
+          const highlightTop = highlightRect.top;
           
-          // Get the comment container position
+          // Get the comment element's position
+          const commentRect = commentElement.getBoundingClientRect();
+          
+          // Get the current scroll position of the comments container
           const container = commentsRef.current;
-          const containerRect = container.getBoundingClientRect();
+          const currentScrollTop = container.scrollTop;
           
-          // Calculate where to scroll in the comments panel
-          // We need to find what scroll position will place the comment at the same Y position as the highlight
-          const commentOffsetTop = commentElement.offsetTop;
-          const containerOffsetTop = containerRect.top;
+          // Calculate the new scroll position to align the comment with the highlight
+          // We want the comment to be at the same vertical position as the highlight
+          const newScrollTop = currentScrollTop + (commentRect.top - highlightTop);
           
-          // Calculate the scroll position that would put the comment at the same Y as the highlight
-          // This is: current scroll + (highlight Y - container top) - comment's offset in the container
-          const scrollPosition = container.scrollTop + (highlightY - containerOffsetTop) - commentOffsetTop;
-          
-          // Apply the scroll
+          // Scroll the container (not the page)
           container.scrollTo({
-            top: scrollPosition,
+            top: newScrollTop,
             behavior: 'smooth'
           });
         }
