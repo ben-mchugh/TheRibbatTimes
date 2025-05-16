@@ -74,8 +74,9 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         className="comments-container px-4 py-6 space-y-6 bg-[#161718]"
         style={{
           position: 'relative',
-          paddingBottom: '200px'  // Extra padding at bottom for scrolling
+          minHeight: '100%' // Ensure it fills the container
         }}
+        data-infinite-scroll="true" // Mark for infinite scrolling
       >
         {isLoading ? (
           <div className="space-y-6">
@@ -97,8 +98,22 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Simple vertical spacer for smooth scrolling */}
-            <div className="h-40"></div>
+            {/* Top spacer with absolute positioning for true infinite scrolling */}
+            <div className="relative h-20 w-full overflow-visible">
+              {/* Top spacers */}
+              <div className="absolute top-[-1000px] left-0 w-full h-[1000px] bg-transparent"></div>
+              <div className="absolute top-[-5000px] left-0 w-full h-[1000px] bg-transparent"></div>
+              <div className="absolute top-[-10000px] left-0 w-full h-[1000px] bg-transparent"></div>
+              <div className="absolute top-[-20000px] left-0 w-full h-[1000px] bg-transparent"></div>
+              
+              {/* Left spacers */}
+              <div className="absolute left-[-1000px] top-0 w-[1000px] h-[1000px] bg-transparent"></div>
+              <div className="absolute left-[-5000px] top-0 w-[1000px] h-[1000px] bg-transparent"></div>
+              
+              {/* Right spacers */}
+              <div className="absolute right-[-1000px] top-0 w-[1000px] h-[1000px] bg-transparent"></div>
+              <div className="absolute right-[-5000px] top-0 w-[1000px] h-[1000px] bg-transparent"></div>
+            </div>
             
             {sortedComments.length > 0 ? (
               sortedComments.map((comment, index) => (
@@ -138,8 +153,20 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
               </div>
             )}
             
-            {/* Simple bottom spacer for smooth scrolling */}
-            <div className="h-60"></div>
+            {/* Bottom spacer with absolute positioning for truly endless scrolling */}
+            <div className="relative h-20 w-full overflow-visible">
+              {/* Bottom spacers */}
+              <div className="absolute bottom-[-1000px] left-0 w-full h-[1000px] bg-transparent"></div>
+              <div className="absolute bottom-[-5000px] left-0 w-full h-[1000px] bg-transparent"></div>
+              <div className="absolute bottom-[-10000px] left-0 w-full h-[1000px] bg-transparent"></div>
+              <div className="absolute bottom-[-20000px] left-0 w-full h-[1000px] bg-transparent"></div>
+              
+              {/* Diagonal spacers to ensure freedom in all directions */}
+              <div className="absolute bottom-[-1000px] left-[-1000px] w-[1000px] h-[1000px] bg-transparent"></div>
+              <div className="absolute bottom-[-1000px] right-[-1000px] w-[1000px] h-[1000px] bg-transparent"></div>
+              <div className="absolute bottom-[-5000px] left-[-5000px] w-[1000px] h-[1000px] bg-transparent"></div>
+              <div className="absolute bottom-[-5000px] right-[-5000px] w-[1000px] h-[1000px] bg-transparent"></div>
+            </div>
           </div>
         )}
       </div>

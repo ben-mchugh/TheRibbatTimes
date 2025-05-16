@@ -38,8 +38,11 @@ textarea::-webkit-scrollbar-thumb:hover,
 .comments-container {
   /* Allow infinite scrolling within the fixed container */
   height: 100% !important;
-  overflow: auto !important;
+  overflow: auto !important; 
   position: relative !important;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding: 1rem;
 }
 
 /* Selection highlight styles for Google Docs-style commenting */
