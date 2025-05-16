@@ -63,8 +63,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     height: `${contentHeight}px`,
     maxHeight: `${contentHeight}px`, // Keep the maxHeight constraint with the same value
   } : {
-    height: '90vh', // Use a large percentage of viewport height as fallback
-    maxHeight: '90vh'
+    height: '100vh', // Use full viewport height as fallback
+    maxHeight: '100vh'
   };
 
   return (
