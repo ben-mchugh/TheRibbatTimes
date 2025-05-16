@@ -396,9 +396,12 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
                 const currentScrollY = window.scrollY;
                 setFocusedCommentId(commentIdNum);
                 
-                // Restore main viewport scroll position
-                window.scrollTo({
-                  top: currentScrollY
+                // Give a tiny delay to allow the comment scrolling to happen
+                // but restore main viewport scroll position immediately after
+                requestAnimationFrame(() => {
+                  window.scrollTo({
+                    top: currentScrollY
+                  });
                 });
                 return;
               }
@@ -416,9 +419,12 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
                   const currentScrollY = window.scrollY;
                   setFocusedCommentId(commentIdNum);
                   
-                  // Restore main viewport scroll position
-                  window.scrollTo({
-                    top: currentScrollY
+                  // Give a tiny delay to allow the comment scrolling to happen
+                  // but restore main viewport scroll position immediately after
+                  requestAnimationFrame(() => {
+                    window.scrollTo({
+                      top: currentScrollY
+                    });
                   });
                   
                   break;
