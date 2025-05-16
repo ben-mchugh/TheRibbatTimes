@@ -530,7 +530,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       </div>
       
       {isReplying && (
-        <div className="ml-6 mb-4 w-[220px] bg-[#e8e8e8] p-3 border border-[#444444] rounded-md shadow-lg">
+        <div className="ml-6 mb-4 w-[220px] bg-[#e8e8e8] p-3 rounded-md shadow-xl">
           <Textarea
             ref={replyInputRef}
             value={replyContent}
