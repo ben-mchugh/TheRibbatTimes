@@ -102,19 +102,35 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   // Capture wheel events on comments section and scroll the main viewport instead
   useEffect(() => {
     const commentsContainer = commentsRef.current;
+    let scrollAnimationId: number;
+    let accumulatedDelta = 0;
     
     // Handler to scroll the viewport instead of the comments section
     const scrollViewportInstead = (e: WheelEvent) => {
       // Prevent the default scroll behavior on the comments container
       e.preventDefault();
       
-      // Calculate the amount to scroll the window
-      const scrollAmount = e.deltaY;
+      // Add to the accumulated delta
+      accumulatedDelta += e.deltaY;
       
-      // Scroll the main window instead
-      window.scrollBy({
-        top: scrollAmount,
-        behavior: 'auto' // Using 'auto' for more natural scrolling
+      // Cancel any existing animation frame to avoid overlapping animations
+      if (scrollAnimationId) {
+        cancelAnimationFrame(scrollAnimationId);
+      }
+      
+      // Use requestAnimationFrame for smoother scrolling
+      scrollAnimationId = requestAnimationFrame(() => {
+        // Apply a multiplication factor for better responsiveness
+        const scrollMultiplier = 1.0;
+        
+        // Apply the accumulated delta with a multiplier
+        window.scrollBy({
+          top: accumulatedDelta * scrollMultiplier,
+          behavior: 'smooth'
+        });
+        
+        // Reset accumulated delta after applying
+        accumulatedDelta = 0;
       });
     };
     
@@ -125,6 +141,9 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       // Cleanup function
       return () => {
         commentsContainer.removeEventListener('wheel', scrollViewportInstead);
+        if (scrollAnimationId) {
+          cancelAnimationFrame(scrollAnimationId);
+        }
       };
     }
   }, []);
