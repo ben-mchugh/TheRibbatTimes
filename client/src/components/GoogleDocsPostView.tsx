@@ -733,7 +733,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         {/* Main content area */}
         <div 
           ref={contentContainerRef}
-          className={`${showComments ? 'md:w-3/4' : 'md:w-full'} transition-all duration-300`}
+          className={`${showComments ? 'md:w-3/4' : 'md:w-full'}`}
         >
           {isLoadingPost ? (
             <div className="bg-[#e0d3af] p-6 rounded-lg">
@@ -811,7 +811,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             md:w-1/4 md:border-l border-[#444444]
             fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
             w-full z-30 md:z-auto bg-transparent
-            transition-all duration-300 ease-in-out
+
             flex flex-col md:h-auto md:min-h-[800px]
           `}
           style={{ height: contentHeight ? `${contentHeight + 200}px` : 'auto' }}
