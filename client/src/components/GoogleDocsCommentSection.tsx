@@ -35,32 +35,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     if (focusedCommentId && commentsRef.current) {
       const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`);
       if (commentElement) {
-        // Get the comment position within the container
-        const commentRect = commentElement.getBoundingClientRect();
-        const containerRect = commentsRef.current.getBoundingClientRect();
-        
-        // Calculate ideal position - keep comment in the most logical position
-        // based on its position in the document
-        const commentRelativePosition = (commentElement as HTMLElement).offsetTop / commentsRef.current.scrollHeight;
-        
-        // For comments in bottom third of document, scroll to show them near bottom 
-        if (commentRelativePosition > 0.7) {
-          commentsRef.current.scrollTop = commentElement.getBoundingClientRect().top - 
-                                         containerRect.top + 
-                                         commentsRef.current.scrollTop - 
-                                         (containerRect.height * 0.75); // Position toward bottom
-        } 
-        // For comments in top third, keep them near top
-        else if (commentRelativePosition < 0.3) {
-          commentsRef.current.scrollTop = commentElement.getBoundingClientRect().top - 
-                                         containerRect.top + 
-                                         commentsRef.current.scrollTop - 
-                                         (containerRect.height * 0.25); // Position toward top
-        }
-        // For middle comments, center them
-        else {
-          commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
   }, [focusedCommentId]);
@@ -82,12 +57,12 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // Provide a style object that allows unbounded scrolling
-  // Remove fixed height constraints to allow free scrolling
-  const containerStyle = {
-    // No height or maxHeight constraints
-    minHeight: '100vh', // Just ensure it takes at least full viewport height
-  };
+  // Prepare style for comments container with dynamic height
+  // Only set a height if we have a valid positive height value
+  const containerStyle = contentHeight && contentHeight > 100 ? {
+    height: `${contentHeight}px`,
+    maxHeight: `${contentHeight}px`, // Ensure it doesn't grow beyond this height
+  } : {};
 
   return (
     <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
