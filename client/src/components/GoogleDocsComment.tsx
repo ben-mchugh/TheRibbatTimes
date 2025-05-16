@@ -443,10 +443,10 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="mt-1 overflow-hidden w-full break-all">
+              <div className="overflow-hidden w-full">
                 {comment.content.length > 150 && !isExpanded ? (
                   <>
-                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-all hyphens-auto overflow-hidden pr-1" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap hyphens-auto overflow-hidden" style={{ wordBreak: 'break-word', width: '100%' }}>
                       {comment.content.slice(0, 150)}...
                     </p>
                     <button 
@@ -461,7 +461,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                   </>
                 ) : (
                   <>
-                    <p className="text-sm text-[#161718] whitespace-pre-wrap break-all hyphens-auto overflow-hidden pr-1" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+                    <p className="text-sm text-[#161718] whitespace-pre-wrap hyphens-auto" style={{ wordBreak: 'break-word', width: '100%' }}>
                       {comment.content}
                     </p>
                     {comment.content.length > 150 && isExpanded && (
@@ -481,8 +481,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             )}
             
             {comment.selectedText && !isEditing && (
-              <div className="mt-1 text-xs text-[#888888] italic overflow-hidden text-ellipsis" style={{ maxWidth: '100%', wordBreak: 'break-word' }}>
-                <span className="break-all whitespace-pre-wrap hyphens-auto" style={{ display: 'block', width: '100%' }}>"{comment.selectedText}"</span>
+              <div className="mt-2 text-xs text-[#888888] italic overflow-hidden" style={{ width: '100%', wordBreak: 'break-word' }}>
+                <span className="whitespace-pre-wrap hyphens-auto" style={{ display: 'block', width: '100%', borderLeft: '2px solid #ddd', paddingLeft: '8px' }}>"{comment.selectedText}"</span>
               </div>
             )}
             
