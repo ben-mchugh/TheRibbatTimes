@@ -476,12 +476,12 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         console.error('Error enhancing highlights:', err);
       }
     });
-  }, [setFocusedCommentId]);
+  }, [setFocusedCommentId, showComments]);
   
   // Apply highlight enhancements after render
   useEffect(() => {
     enhanceHighlights();
-  }, [post?.content, enhanceHighlights]);
+  }, [post?.content, enhanceHighlights, showComments]);
   
   // Handle toggling visibility of highlights when comments panel is toggled
   useEffect(() => {
