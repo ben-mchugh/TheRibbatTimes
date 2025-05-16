@@ -362,13 +362,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         
         if (highlightElements.length === 0) return;
         
-        // Clean up any previous event handlers
-        const documentClickHandler = (window as any).__docClickHandler;
-        if (documentClickHandler) {
-          document.removeEventListener('click', documentClickHandler);
-          delete (window as any).__docClickHandler;
-        }
-        
         // Remove any existing event listeners by cloning and replacing each element
         const elementsArray = Array.from(highlightElements);
         elementsArray.forEach(highlight => {
@@ -380,61 +373,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         
         // Get fresh references after replacement
         const freshHighlights = document.querySelectorAll('.selection-highlight');
-        
-        // Create clean handler for document clicks
-        function clearHighlights() {
-          document.querySelectorAll('.selection-highlight.highlight-active').forEach(highlight => {
-            highlight.classList.remove('highlight-active');
-          });
-        }
-        
-        // Document-level click handler to reset highlight states when clicking outside
-        function handleDocumentClick(event: MouseEvent) {
-          // Check if we clicked on or inside a highlight
-          let isHighlightClick = false;
-          let isCommentsPanelClick = false;
-          let target = event.target as Element;
-          
-          // Check if this is a highlight click or comments panel click
-          while (target && target !== document.body) {
-            if (target.classList?.contains('selection-highlight')) {
-              isHighlightClick = true;
-              break;
-            }
-            
-            if (target.classList?.contains('gdocs-comment-section')) {
-              isCommentsPanelClick = true;
-              break;
-            }
-            
-            target = target.parentElement as Element;
-          }
-          
-          // If it's not a highlight click and not a comments panel click, clear everything
-          if (!isHighlightClick && !isCommentsPanelClick) {
-            clearHighlights();
-            setFocusedCommentId(null);
-          }
-        }
-        
-        // Store reference to handler for cleanup
-        (window as any).__docClickHandler = handleDocumentClick;
-        
-        // Add document click handler
-        document.addEventListener('click', handleDocumentClick);
-        
-        // Helper function to set active highlight
-        function setActiveHighlight(element: Element, commentId: string) {
-          // Clear all active highlights first
-          clearHighlights();
-          
-          // Set this element as active
-          element.classList.add('highlight-active');
-          
-          // Set the focused comment ID
-          const commentIdNum = parseInt(commentId, 10);
-          setFocusedCommentId(commentIdNum);
-        }
         
         // Add event listeners to each fresh highlight
         freshHighlights.forEach(highlight => {
@@ -453,32 +391,47 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             event.preventDefault();
             event.stopPropagation();
             
-            // Set this highlight as active
-            setActiveHighlight(highlight, commentId);
+            // Direct highlight click
+            if ((event.target as Element).classList?.contains('selection-highlight')) {
+              const id = (event.target as Element).getAttribute('data-comment-id');
+              if (id) {
+                const commentIdNum = parseInt(id, 10);
+                setFocusedCommentId(commentIdNum);
+                return;
+              }
+            }
+            
+            // If not direct, try to find the parent highlight element
+            let currentElement = event.target as Element;
+            while (currentElement && currentElement !== document.body) {
+              if (currentElement.classList?.contains('selection-highlight')) {
+                const id = currentElement.getAttribute('data-comment-id');
+                if (id) {
+                  // Found the highlight - focus the matching comment
+                  setFocusedCommentId(parseInt(id, 10));
+                  break;
+                }
+              }
+              currentElement = currentElement.parentElement as Element;
+            }
           });
           
           // Add keyboard accessibility
           highlight.addEventListener('keydown', (event) => {
             if ((event as KeyboardEvent).key === 'Enter' || (event as KeyboardEvent).key === ' ') {
               event.preventDefault();
-              setActiveHighlight(highlight, commentId);
+              const id = highlight.getAttribute('data-comment-id');
+              if (id) {
+                setFocusedCommentId(parseInt(id, 10));
+              }
             }
           });
         });
-        
-        // Handle focused comment ID changes
-        if (focusedCommentId) {
-          const focusedHighlight = document.querySelector(`.selection-highlight[data-comment-id="${focusedCommentId}"]`);
-          if (focusedHighlight) {
-            clearHighlights();
-            focusedHighlight.classList.add('highlight-active');
-          }
-        }
       } catch (err) {
         console.error('Error enhancing highlights:', err);
       }
     });
-  }, [setFocusedCommentId, focusedCommentId]);
+  }, [setFocusedCommentId]);
   
   // Apply highlight enhancements after render
   useEffect(() => {
