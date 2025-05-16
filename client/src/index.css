@@ -119,9 +119,7 @@ textarea::-webkit-scrollbar-thumb:hover {
   transition: all 0.3s ease;
 }
 
-.gdocs-comment:hover::before {
-  opacity: 1;
-}
+/* Removed hover connector line */
 
 /* Static style for focused comment connectors */
 div[data-focused="true"]::before {
@@ -472,13 +470,7 @@ div[data-focused="true"] .connector-line {
     transition: none;
   }
   
-  /* Static connector line effect on hover for better performance */
-  .margin-comment:hover::before {
-    width: 12px;
-    height: 2px;
-    background-color: rgba(68, 68, 68, 0.8);
-    opacity: 0.9;
-  }
+  /* Removed hover connector line */
   
   /* No visual cues for text selection */
   .post-main-content p, .post-main-content h1, .post-main-content h2, 
