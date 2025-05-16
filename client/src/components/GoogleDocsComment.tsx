@@ -314,7 +314,50 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       }
     }
     
-    setShowReplies(!showReplies);
+    // Toggle the state first
+    const newShowRepliesState = !showReplies;
+    setShowReplies(newShowRepliesState);
+    
+    // If we're showing replies and we have a selected text, align the highlight with the last reply
+    if (newShowRepliesState && comment.selectedText && comment.id) {
+      // Set a small timeout to allow the DOM to update with the replies before attempting to align
+      setTimeout(() => {
+        // Find the highlight element in the content area
+        const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`) as HTMLElement;
+        
+        if (highlightElement) {
+          // Get the last reply element once the replies are rendered
+          const lastReplyElement = document.querySelector(`.gdocs-comment[data-comment-id="${replies[replies.length - 1]?.id}"]`) as HTMLElement;
+          
+          if (lastReplyElement) {
+            // Get the highlight element's position in the viewport
+            const highlightRect = highlightElement.getBoundingClientRect();
+            const highlightCenter = highlightRect.top + (highlightRect.height / 2);
+            
+            // Get the last reply element's position
+            const replyRect = lastReplyElement.getBoundingClientRect();
+            const replyCenter = replyRect.height / 2;
+            
+            // Get the comment container
+            const container = lastReplyElement.closest('.comments-container') as HTMLElement;
+            
+            if (container) {
+              // Get the current scroll position
+              const currentScrollTop = container.scrollTop;
+              
+              // Calculate the new scroll position to center the reply with the highlight
+              const newScrollTop = currentScrollTop + (replyRect.top - highlightCenter + replyCenter);
+              
+              // Scroll the container
+              container.scrollTo({
+                top: newScrollTop,
+                behavior: 'smooth'
+              });
+            }
+          }
+        }
+      }, 100); // Small delay to ensure DOM updates
+    }
   };
 
   return (
