@@ -164,8 +164,7 @@ div[data-focused="true"]::before {
 .comments-container {
   position: relative;
   /* Double the height with min-height property */
-  min-height: 90vh;
-  max-height: 90vh;
+  min-height: 100vh;
   /* Allow dynamic height to match content pane */
   transition: height 0.3s ease-in-out;
   scrollbar-width: thin;
