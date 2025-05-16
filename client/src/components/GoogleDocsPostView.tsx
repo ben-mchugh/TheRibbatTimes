@@ -374,6 +374,52 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         // Get fresh references after replacement
         const freshHighlights = document.querySelectorAll('.selection-highlight');
         
+        // Remove document click handler if it exists
+        document.removeEventListener('click', handleDocumentClick);
+        
+        // Document-level click handler to reset highlight states when clicking outside
+        function handleDocumentClick(event: MouseEvent) {
+          // Check if we clicked on or inside a highlight
+          let isHighlightClick = false;
+          let target = event.target as Element;
+          
+          while (target && target !== document.body) {
+            if (target.classList?.contains('selection-highlight')) {
+              isHighlightClick = true;
+              break;
+            }
+            target = target.parentElement as Element;
+          }
+          
+          // If it's not a highlight click, clear all highlight states
+          if (!isHighlightClick) {
+            // Clear active class from all highlights
+            document.querySelectorAll('.selection-highlight.highlight-active').forEach(highlight => {
+              highlight.classList.remove('highlight-active');
+            });
+            
+            // Check if click was inside comments panel
+            let isCommentsPanelClick = false;
+            target = event.target as Element;
+            
+            while (target && target !== document.body) {
+              if (target.classList?.contains('gdocs-comment-section')) {
+                isCommentsPanelClick = true;
+                break;
+              }
+              target = target.parentElement as Element;
+            }
+            
+            // Only reset focused comment id if not clicking in comments panel
+            if (!isCommentsPanelClick) {
+              setFocusedCommentId(null);
+            }
+          }
+        }
+        
+        // Add document click handler
+        document.addEventListener('click', handleDocumentClick);
+        
         // Add event listeners to each fresh highlight
         freshHighlights.forEach(highlight => {
           const commentId = highlight.getAttribute('data-comment-id');
@@ -391,12 +437,22 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             event.preventDefault();
             event.stopPropagation();
             
+            // Remove active class from all highlights first
+            document.querySelectorAll('.selection-highlight.highlight-active').forEach(el => {
+              el.classList.remove('highlight-active');
+            });
+            
+            // Set active class on the clicked highlight
+            let targetHighlight: Element | null = null;
+            
             // Direct highlight click
             if ((event.target as Element).classList?.contains('selection-highlight')) {
-              const id = (event.target as Element).getAttribute('data-comment-id');
+              targetHighlight = event.target as Element;
+              const id = targetHighlight.getAttribute('data-comment-id');
               if (id) {
                 const commentIdNum = parseInt(id, 10);
                 setFocusedCommentId(commentIdNum);
+                targetHighlight.classList.add('highlight-active');
                 return;
               }
             }
@@ -408,7 +464,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
                 const id = currentElement.getAttribute('data-comment-id');
                 if (id) {
                   // Found the highlight - focus the matching comment
+                  targetHighlight = currentElement;
                   setFocusedCommentId(parseInt(id, 10));
+                  targetHighlight.classList.add('highlight-active');
                   break;
                 }
               }
@@ -420,9 +478,16 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           highlight.addEventListener('keydown', (event) => {
             if ((event as KeyboardEvent).key === 'Enter' || (event as KeyboardEvent).key === ' ') {
               event.preventDefault();
+              
+              // Remove active class from all highlights
+              document.querySelectorAll('.selection-highlight.highlight-active').forEach(el => {
+                el.classList.remove('highlight-active');
+              });
+              
               const id = highlight.getAttribute('data-comment-id');
               if (id) {
                 setFocusedCommentId(parseInt(id, 10));
+                highlight.classList.add('highlight-active');
               }
             }
           });
