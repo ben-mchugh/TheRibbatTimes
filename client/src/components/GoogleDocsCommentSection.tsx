@@ -58,9 +58,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     const container = commentsRef.current;
     const currentScrollTop = container.scrollTop;
     
-    // Calculate the new scroll position to align the BOTTOM of the comment with the highlight position
-    // This puts the comment right above the highlighted text
-    const newScrollTop = currentScrollTop + (commentRect.top + commentRect.height - highlightPosition);
+    // Calculate the new scroll position to align at 80% down the comment bubble
+    // This positions the comment with its lower portion near the highlighted text
+    const alignmentPoint = commentRect.top + (commentRect.height * 0.8);
+    const newScrollTop = currentScrollTop + (alignmentPoint - highlightPosition);
     
     // Scroll the container (not the page)
     container.scrollTo({
