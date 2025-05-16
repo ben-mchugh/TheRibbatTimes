@@ -101,7 +101,9 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   }, [isEditing, isReplying]);
 
   // Scroll to the target element when the comment is clicked (for margin comments)
-  const handleCommentClick = () => {
+  const handleCommentClick = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation(); // Prevent event bubbling if event is provided
+    
     if (comment.selectedText && !isEditing && !isReplying) {
       // Find the selection in the document
       const selection = comment.selectedText;
