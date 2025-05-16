@@ -2,47 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar for textareas and comments container */
-textarea::-webkit-scrollbar,
-.comments-container::-webkit-scrollbar {
+/* Custom scrollbar for textareas */
+textarea::-webkit-scrollbar {
   width: 8px;
-  height: 8px;
 }
 
-textarea::-webkit-scrollbar-track,
-.comments-container::-webkit-scrollbar-track {
+textarea::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb,
-.comments-container::-webkit-scrollbar-thumb {
+textarea::-webkit-scrollbar-thumb {
   background: #444444;
   border-radius: 4px;
 }
 
-textarea::-webkit-scrollbar-thumb:hover,
-.comments-container::-webkit-scrollbar-thumb:hover {
+textarea::-webkit-scrollbar-thumb:hover {
   background: #222222;
-}
-
-/* Styles for comment section with infinite scrolling */
-.gdocs-comment-section {
-  /* Keep the entire sidebar at a fixed height */
-  height: calc(100vh - 60px) !important;
-  min-height: calc(100vh - 60px) !important;
-  max-height: calc(100vh - 60px) !important;
-  overflow: hidden !important; /* Prevent the section itself from scrolling */
-}
-
-.comments-container {
-  /* Allow infinite scrolling within the fixed container */
-  height: 100% !important;
-  overflow: auto !important; 
-  position: relative !important;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scroll-padding: 1rem;
 }
 
 /* Selection highlight styles for Google Docs-style commenting */

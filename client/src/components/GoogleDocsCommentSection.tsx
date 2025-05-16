@@ -57,26 +57,24 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // No constraints to allow completely free scrolling
-  const containerStyle = {
-    // Remove all min/max constraints to allow unlimited scrolling
-  };
+  // Prepare style for comments container with dynamic height
+  // Only set a height if we have a valid positive height value
+  const containerStyle = contentHeight && contentHeight > 100 ? {
+    height: `${contentHeight}px`,
+    maxHeight: `${contentHeight}px`, // Ensure it doesn't grow beyond this height
+  } : {};
 
   return (
-    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718] overflow-visible">
+    <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#444444] bg-[#161718]">
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
       
-      {/* Comments list with fixed height and own scrollbar */}
+      {/* Comments list with dynamic height matching content container */}
       <div 
         ref={commentsRef}
-        className="comments-container px-4 py-6 space-y-6 bg-[#161718]"
-        style={{
-          position: 'relative',
-          minHeight: '100%' // Ensure it fills the container
-        }}
-        data-infinite-scroll="true" // Mark for infinite scrolling
+        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-[#161718]"
+        style={containerStyle}
       >
         {isLoading ? (
           <div className="space-y-6">
@@ -98,23 +96,6 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Top spacer with absolute positioning for true infinite scrolling */}
-            <div className="relative h-20 w-full overflow-visible">
-              {/* Top spacers */}
-              <div className="absolute top-[-1000px] left-0 w-full h-[1000px] bg-transparent"></div>
-              <div className="absolute top-[-5000px] left-0 w-full h-[1000px] bg-transparent"></div>
-              <div className="absolute top-[-10000px] left-0 w-full h-[1000px] bg-transparent"></div>
-              <div className="absolute top-[-20000px] left-0 w-full h-[1000px] bg-transparent"></div>
-              
-              {/* Left spacers */}
-              <div className="absolute left-[-1000px] top-0 w-[1000px] h-[1000px] bg-transparent"></div>
-              <div className="absolute left-[-5000px] top-0 w-[1000px] h-[1000px] bg-transparent"></div>
-              
-              {/* Right spacers */}
-              <div className="absolute right-[-1000px] top-0 w-[1000px] h-[1000px] bg-transparent"></div>
-              <div className="absolute right-[-5000px] top-0 w-[1000px] h-[1000px] bg-transparent"></div>
-            </div>
-            
             {sortedComments.length > 0 ? (
               sortedComments.map((comment, index) => (
                 <div 
@@ -152,21 +133,6 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 <p className="text-sm text-[#444444]/80 mt-2">Select text and right-click to add the first comment</p>
               </div>
             )}
-            
-            {/* Bottom spacer with absolute positioning for truly endless scrolling */}
-            <div className="relative h-20 w-full overflow-visible">
-              {/* Bottom spacers */}
-              <div className="absolute bottom-[-1000px] left-0 w-full h-[1000px] bg-transparent"></div>
-              <div className="absolute bottom-[-5000px] left-0 w-full h-[1000px] bg-transparent"></div>
-              <div className="absolute bottom-[-10000px] left-0 w-full h-[1000px] bg-transparent"></div>
-              <div className="absolute bottom-[-20000px] left-0 w-full h-[1000px] bg-transparent"></div>
-              
-              {/* Diagonal spacers to ensure freedom in all directions */}
-              <div className="absolute bottom-[-1000px] left-[-1000px] w-[1000px] h-[1000px] bg-transparent"></div>
-              <div className="absolute bottom-[-1000px] right-[-1000px] w-[1000px] h-[1000px] bg-transparent"></div>
-              <div className="absolute bottom-[-5000px] left-[-5000px] w-[1000px] h-[1000px] bg-transparent"></div>
-              <div className="absolute bottom-[-5000px] right-[-5000px] w-[1000px] h-[1000px] bg-transparent"></div>
-            </div>
           </div>
         )}
       </div>
