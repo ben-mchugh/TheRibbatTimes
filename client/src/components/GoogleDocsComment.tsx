@@ -520,7 +520,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       )}
       
       {showReplies && replies.length > 0 && (
-        <div className="mt-1 mb-2 ml-4 border-l-2 border-[#444444] pl-2 w-[95%] flex flex-col items-end">
+        <div className="mt-1 mb-2 ml-4 border-l-2 border-[#444444] pl-4 w-[95%] flex flex-col items-end">
           {replies.map((reply) => (
             <GoogleDocsComment
               key={`reply-${reply.id}`}
