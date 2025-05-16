@@ -120,8 +120,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       
       // Use requestAnimationFrame for smoother scrolling
       scrollAnimationId = requestAnimationFrame(() => {
-        // Apply a higher multiplication factor for matching regular scroll speed
-        const scrollMultiplier = 2.5;
+        // Apply a multiplication factor for matching regular scroll speed
+        const scrollMultiplier = 1.5;
         
         // Apply the accumulated delta with a multiplier
         window.scrollBy({
