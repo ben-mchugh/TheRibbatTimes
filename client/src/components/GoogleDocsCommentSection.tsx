@@ -30,85 +30,80 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
   
-  // When focusedCommentId changes, scroll the comment to match the highlight position
+  // Filter to get only top-level comments (no replies)
+  const topLevelComments = comments.filter(comment => !comment.parentId);
+  
+  // When focusedCommentId changes, scroll to that comment
   useEffect(() => {
-    if (focusedCommentId && commentsRef.current) {
-      const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
-      if (commentElement && commentsRef.current) {
-        // Find the corresponding highlight in the content area
-        const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
+    if (!focusedCommentId || !commentsRef.current) return;
+    
+    const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`);
+    if (!commentElement || !(commentElement instanceof HTMLElement)) return;
+    
+    const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${focusedCommentId}"]`);
+    if (!highlightElement || !(highlightElement instanceof HTMLElement)) return;
+    
+    // Get positions
+    const highlightRect = highlightElement.getBoundingClientRect();
+    const highlightTop = highlightRect.top;
+    const commentRect = commentElement.getBoundingClientRect();
+    
+    // Get the container and current scroll position
+    const container = commentsRef.current;
+    const currentScrollTop = container.scrollTop;
+    
+    // Check special cases
+    const isLastComment = topLevelComments.findIndex(c => c.id === focusedCommentId) === 
+                          topLevelComments.length - 1;
+    const hasReplies = comments.some(c => c.parentId === focusedCommentId);
+    
+    // Handle different scenarios
+    if (isLastComment) {
+      // For last comment, align bottom with highlight
+      const newScrollTop = currentScrollTop + (commentRect.bottom - highlightTop);
+      container.scrollTo({
+        top: newScrollTop,
+        behavior: 'smooth'
+      });
+    } else if (hasReplies) {
+      // For comments with replies, try to expand them
+      const repliesToggle = commentElement.querySelector('.replies-toggle');
+      
+      if (repliesToggle instanceof HTMLButtonElement && 
+          repliesToggle.getAttribute('data-expanded') !== 'true') {
+        repliesToggle.click();
         
-        if (highlightElement) {
-          // Get the highlight element's position in the viewport
-          const highlightRect = highlightElement.getBoundingClientRect();
-          const highlightTop = highlightRect.top;
+        // Give time for DOM to update
+        setTimeout(() => {
+          const replies = comments.filter(c => c.parentId === focusedCommentId);
           
-          // Get the comment element's position
-          const commentRect = commentElement.getBoundingClientRect();
-          
-          // Get the current scroll position of the comments container
-          const container = commentsRef.current;
-          const currentScrollTop = container.scrollTop;
-          
-          // Check if this is the last comment
-          const lastCommentIndex = topLevelComments.findIndex(c => c.id === focusedCommentId);
-          const isLastComment = lastCommentIndex === topLevelComments.length - 1;
-          
-          // Find any replies to this comment
-          const hasReplies = comments.some(c => c.parentId === focusedCommentId);
-          
-          // If it's the last comment or has replies, handle specially
-          if (isLastComment || hasReplies) {
-            // If it has replies, find and expand them
-            if (hasReplies) {
-              // Find the replies toggle button and click it if it's not already expanded
-              const repliesToggle = commentElement.querySelector('.replies-toggle') as HTMLButtonElement;
-              if (repliesToggle && repliesToggle.getAttribute('data-expanded') !== 'true') {
-                repliesToggle.click();
-                
-                // Give the replies time to render before scrolling
-                setTimeout(() => {
-                  // Find the last reply
-                  const replies = comments.filter(c => c.parentId === focusedCommentId);
-                  if (replies.length > 0) {
-                    const lastReplyElement = commentsRef.current.querySelector(`[data-comment-id="${replies[replies.length - 1].id}"]`) as HTMLElement;
-                    if (lastReplyElement) {
-                      // Align the bottom of the last reply with the highlighted text
-                      const lastReplyRect = lastReplyElement.getBoundingClientRect();
-                      const newScrollTop = currentScrollTop + (lastReplyRect.bottom - highlightTop);
-                      container.scrollTo({
-                        top: newScrollTop,
-                        behavior: 'smooth'
-                      });
-                    }
-                  }
-                }, 50);
-              }
-            } else if (isLastComment) {
-              // Align the bottom of the comment with the highlighted text
-              const newScrollTop = currentScrollTop + (commentRect.bottom - highlightTop);
-              container.scrollTo({
+          if (replies.length > 0 && commentsRef.current) {
+            const lastReplyId = replies[replies.length - 1].id;
+            const lastReplyElement = commentsRef.current.querySelector(`[data-comment-id="${lastReplyId}"]`);
+            
+            if (lastReplyElement instanceof HTMLElement) {
+              const lastReplyRect = lastReplyElement.getBoundingClientRect();
+              const newScrollTop = currentScrollTop + (lastReplyRect.bottom - highlightTop);
+              
+              commentsRef.current.scrollTo({
                 top: newScrollTop,
                 behavior: 'smooth'
               });
             }
-          } else {
-            // For other comments, align the top as before
-            const newScrollTop = currentScrollTop + (commentRect.top - highlightTop);
-            container.scrollTo({
-              top: newScrollTop,
-              behavior: 'smooth'
-            });
           }
-        }
+        }, 100);
       }
+    } else {
+      // Default: align top of comment with highlight
+      const newScrollTop = currentScrollTop + (commentRect.top - highlightTop);
+      container.scrollTo({
+        top: newScrollTop,
+        behavior: 'smooth'
+      });
     }
   }, [focusedCommentId, comments, topLevelComments]);
-
-  // Filter to get only top-level comments (no replies)
-  const topLevelComments = comments.filter(comment => !comment.parentId);
   
-  // Sort comments by selection position rather than time
+  // Sort comments by selection position
   const sortedComments = [...topLevelComments].sort((a, b) => {
     // If both comments have selection positions, sort by position
     if (a.selectionStart !== undefined && a.selectionStart !== null && 
@@ -122,8 +117,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  // Prepare style for comments container with dynamic height
-  // Set a minimal height that will be at least 100vh or match content height if it's taller
+  // Set height for comments container to match content
   const containerStyle = {
     minHeight: 'calc(100vh - 120px)', // Full viewport height minus header/margins
     height: contentHeight && contentHeight > 100 ? `${contentHeight + 100}px` : 'calc(100vh - 120px)',
@@ -164,28 +158,17 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
             ))}
           </div>
         ) : (
-          <div className="flex flex-col space-y-8">
+          <div className="flex flex-col space-y-2">
+            {/* Top buffer space */}
+            <div className="py-20"></div>
+              
             {sortedComments.length > 0 ? (
               <>
-                {/* Extra padding at the top for scrolling */}
-                <div>
-                  {/* Buffer space at the top for extensive scrolling */}
-                  {Array.from({ length: 100 }).map((_, index) => (
-                    <div key={`top-buffer-${index}`} className="py-10 opacity-0">
-                      Top buffer space {index + 1}
-                    </div>
-                  ))}
-                  <div className="py-10"></div>
-                </div>
-                
-                {sortedComments.map((comment, index) => (
+                {/* Map through comments sorted by position */}
+                {sortedComments.map((comment) => (
                   <div 
-                    key={`comment-${comment.id}`}
-                    className="transition-all duration-300 animate-comment-enter"
-                    style={{ 
-                      animationDelay: `${index * 50}ms`,
-                      animationFillMode: 'both'
-                    }}
+                    key={comment.id} 
+                    className={`gdocs-comment relative ${focusedCommentId === comment.id ? 'focused' : ''}`}
                     data-comment-id={comment.id}
                   >
                     <GoogleDocsComment
@@ -213,12 +196,6 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 {/* Extra padding at the bottom for scrolling */}
                 <div>
                   <div className="py-20"></div>
-                  {/* Additional buffer space for extreme scrolling */}
-                  {Array.from({ length: 100 }).map((_, index) => (
-                    <div key={`bottom-buffer-${index}`} className="py-10 opacity-0">
-                      Bottom buffer space {index + 1}
-                    </div>
-                  ))}
                 </div>
               </>
             ) : (
