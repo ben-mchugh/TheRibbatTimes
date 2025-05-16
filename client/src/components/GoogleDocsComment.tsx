@@ -362,12 +362,13 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="ml-2 flex-1 overflow-hidden" style={{ width: isReply ? '210px' : '230px' }}>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
-              <div className="flex flex-col items-end">
-                <span className="text-xs text-[#444444]">{dateFormatted}</span>
-                <span className="text-xs text-[#444444]">{timeFormatted}</span>
-                {comment.isEdited && <span className="text-xs text-[#444444] italic">(edited)</span>}
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-[#161718]">{comment.author.displayName}</span>
+              <div className="flex text-xs text-[#444444] mt-1">
+                <span>{dateFormatted}</span>
+                <span className="mx-1">·</span>
+                <span>{timeFormatted}</span>
+                {comment.isEdited && <span className="ml-1 italic">(edited)</span>}
               </div>
             </div>
             
