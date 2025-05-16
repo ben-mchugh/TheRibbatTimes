@@ -389,7 +389,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''} block`}>
       <div 
         ref={commentRef}
-        className={`${isActive ? 'bg-white' : 'bg-[#e8e8e8]/95'} backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-xl opacity-100 ${
+        className={`${isActive ? 'bg-white shadow-2xl translate-y-[-2px] border-b-[3px] border-[#a67a48]/90' : 'bg-[#e8e8e8]/95'} backdrop-blur-sm p-4 rounded-lg mb-2 relative group ${isActive ? 'shadow-[0_3px_10px_rgba(0,0,0,0.2)]' : 'shadow-xl'} opacity-100 ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-2xl' : ''
         } ${isReply ? 'w-[85%] min-w-[240px] ml-auto mr-0' : 'w-[95%] min-w-[260px]'} 
         transition duration-200 ease-in-out animate-comment-enter box-border table table-fixed
