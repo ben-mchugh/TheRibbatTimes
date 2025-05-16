@@ -97,7 +97,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       {/* Comments list with vertical scrolling */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto pt-8 pb-32 bg-[#161718] flex-1 px-6 overscroll-contain"
+        className="comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6 overscroll-contain"
         style={{
           ...containerStyle,
           scrollbarWidth: 'thin',
@@ -171,10 +171,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 
                 {/* Extra padding at the bottom for scrolling */}
                 <div>
-                  <div className="py-40"></div>
+                  <div className="py-20"></div>
                   {/* Additional buffer space for extreme scrolling */}
-                  {Array.from({ length: 20 }).map((_, index) => (
-                    <div key={`bottom-buffer-${index}`} className="py-20 opacity-0">
+                  {Array.from({ length: 100 }).map((_, index) => (
+                    <div key={`bottom-buffer-${index}`} className="py-10 opacity-0">
                       Bottom buffer space {index + 1}
                     </div>
                   ))}
