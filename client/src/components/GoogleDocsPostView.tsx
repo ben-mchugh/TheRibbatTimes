@@ -111,16 +111,11 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       
-      // After a slight delay to allow DOM updates, scroll to the newly created highlight
+      // No automatic scrolling - let the comment panel handle scrolling
+      // Set focused comment ID to trigger the comment panel's scroll logic
       setTimeout(() => {
-        const highlightElement = document.querySelector(`[data-comment-id="${data.id}"]`);
-        if (highlightElement) {
-          highlightElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-          });
-        }
-      }, 500);
+        setFocusedCommentId(data.id);
+      }, 300);
       
       toast({
         title: 'Comment added',
@@ -396,7 +391,15 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               const id = (event.target as Element).getAttribute('data-comment-id');
               if (id) {
                 const commentIdNum = parseInt(id, 10);
+                
+                // Prevent main content from scrolling
+                const currentScrollY = window.scrollY;
                 setFocusedCommentId(commentIdNum);
+                
+                // Restore main viewport scroll position
+                window.scrollTo({
+                  top: currentScrollY
+                });
                 return;
               }
             }
@@ -408,11 +411,15 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
                 const id = currentElement.getAttribute('data-comment-id');
                 if (id) {
                   const commentIdNum = parseInt(id, 10);
-                  // Found the highlight - focus the matching comment
+                  
+                  // Prevent main content from scrolling
+                  const currentScrollY = window.scrollY;
                   setFocusedCommentId(commentIdNum);
                   
-                  // Don't scroll the content view - only the comment will be scrolled into view
-                  // by the useEffect in GoogleDocsCommentSection
+                  // Restore main viewport scroll position
+                  window.scrollTo({
+                    top: currentScrollY
+                  });
                   
                   break;
                 }
