@@ -267,7 +267,7 @@ div[data-focused="true"] .connector-line {
 }
 
 .comments-container.ctrl-pressed::-webkit-scrollbar {
-  width: 8px; /* Show scrollbar when Ctrl is pressed */
+  width: 8px; /* Show scrollbar when S key is pressed */
 }
 
 .comments-container::-webkit-scrollbar-track {
