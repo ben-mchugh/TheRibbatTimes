@@ -397,7 +397,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
             <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="ml-2 flex-1 overflow-hidden" style={{ width: isReply ? '210px' : '230px' }}>
+          <div className="ml-2 flex-1 overflow-hidden" style={{ width: isReply ? '262px' : '287px' }}>
             <div className="flex flex-col">
               <span className="text-sm font-bold text-[#161718]">{comment.author.displayName}</span>
               <div className="flex text-xs text-[#444444] mt-1">
@@ -525,7 +525,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       </div>
       
       {isReplying && (
-        <div className="ml-6 mb-4 w-[220px]">
+        <div className="ml-6 mb-4 w-[275px]">
           <Textarea
             ref={replyInputRef}
             value={replyContent}
@@ -566,7 +566,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       )}
       
       {showReplies && replies.length > 0 && (
-        <div className="mt-1 mb-2 ml-6 pl-2 w-[95%] flex flex-col items-end">
+        <div className="mt-1 mb-2 ml-6 pl-2 w-[98%] flex flex-col items-end">
           {replies.map((reply) => (
             <GoogleDocsComment
               key={`reply-${reply.id}`}
