@@ -35,7 +35,32 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     if (focusedCommentId && commentsRef.current) {
       const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`);
       if (commentElement) {
-        commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Get the comment position within the container
+        const commentRect = commentElement.getBoundingClientRect();
+        const containerRect = commentsRef.current.getBoundingClientRect();
+        
+        // Calculate ideal position - keep comment in the most logical position
+        // based on its position in the document
+        const commentRelativePosition = (commentElement as HTMLElement).offsetTop / commentsRef.current.scrollHeight;
+        
+        // For comments in bottom third of document, scroll to show them near bottom 
+        if (commentRelativePosition > 0.7) {
+          commentsRef.current.scrollTop = commentElement.getBoundingClientRect().top - 
+                                         containerRect.top + 
+                                         commentsRef.current.scrollTop - 
+                                         (containerRect.height * 0.75); // Position toward bottom
+        } 
+        // For comments in top third, keep them near top
+        else if (commentRelativePosition < 0.3) {
+          commentsRef.current.scrollTop = commentElement.getBoundingClientRect().top - 
+                                         containerRect.top + 
+                                         commentsRef.current.scrollTop - 
+                                         (containerRect.height * 0.25); // Position toward top
+        }
+        // For middle comments, center them
+        else {
+          commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
     }
   }, [focusedCommentId]);
