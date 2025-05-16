@@ -606,7 +606,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   }
   
   return (
-    <div className="max-w-[1440px] mx-auto px-4 py-6 min-h-screen flex flex-col relative">
+    <div className="max-w-[1680px] mx-auto px-4 py-6 min-h-screen flex flex-col relative">
       {/* Fixed position controls - positioned even lower as requested */}
       <div className="fixed top-32 right-4 z-40 flex flex-col gap-2">
         {/* Close button */}
@@ -633,7 +633,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         </Button>
       </div>
       
-      <div className="flex flex-col md:flex-row gap-6 flex-1 max-w-[1280px] mx-auto">
+      <div className="flex flex-col md:flex-row gap-6 flex-1 max-w-[1520px] mx-auto">
         {/* Main content area */}
         <div 
           ref={contentContainerRef}
@@ -684,7 +684,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               
               <div 
                 ref={postContentRef}
-                className="post-content prose prose-slate max-w-none text-[#161718] relative"
+                className="post-content prose prose-slate max-w-none text-[#161718] relative prose-lg prose-p:text-[1.1rem] prose-p:leading-[1.7] prose-headings:text-[#161718]"
               >
                 <div dangerouslySetInnerHTML={{ __html: renderPostContentWithHighlights() }} />
                 
