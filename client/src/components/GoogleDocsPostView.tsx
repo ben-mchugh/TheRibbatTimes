@@ -407,8 +407,16 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               if (currentElement.classList?.contains('selection-highlight')) {
                 const id = currentElement.getAttribute('data-comment-id');
                 if (id) {
+                  const commentIdNum = parseInt(id, 10);
                   // Found the highlight - focus the matching comment
-                  setFocusedCommentId(parseInt(id, 10));
+                  setFocusedCommentId(commentIdNum);
+                  
+                  // Scroll the highlight into the center of the viewport
+                  currentElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                  });
+                  
                   break;
                 }
               }
