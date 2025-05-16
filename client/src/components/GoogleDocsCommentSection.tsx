@@ -35,20 +35,26 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     if (focusedCommentId && commentsRef.current) {
       const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
       if (commentElement && commentsRef.current) {
-        // Get the container's scroll position
-        const container = commentsRef.current;
-        const containerRect = container.getBoundingClientRect();
-        
-        // Get the comment element's position relative to the container
+        // Center the comment vertically in the viewport
+        const viewportHeight = window.innerHeight;
         const commentRect = commentElement.getBoundingClientRect();
         
-        // Calculate the scroll position to center the comment in the container
-        const scrollTop = commentElement.offsetTop - container.offsetTop - 
-                          (containerRect.height / 2) + (commentRect.height / 2);
+        // Get the vertical center of the viewport
+        const viewportCenter = viewportHeight / 2;
         
-        // Scroll the container, not the whole page
+        // Get how far the comment is from the center of the viewport
+        const commentDistanceFromCenter = commentRect.top + (commentRect.height / 2) - viewportCenter;
+        
+        // Get the current scroll position of the comments container
+        const container = commentsRef.current;
+        const currentScrollTop = container.scrollTop;
+        
+        // Calculate new scroll position to center the comment in the viewport
+        const newScrollTop = currentScrollTop + commentDistanceFromCenter;
+        
+        // Scroll the container (not the page)
         container.scrollTo({
-          top: scrollTop,
+          top: newScrollTop,
           behavior: 'smooth'
         });
       }
