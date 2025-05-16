@@ -411,11 +411,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
                   // Found the highlight - focus the matching comment
                   setFocusedCommentId(commentIdNum);
                   
-                  // Scroll the highlight into the center of the viewport
-                  currentElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                  });
+                  // Don't scroll the content view - only the comment will be scrolled into view
+                  // by the useEffect in GoogleDocsCommentSection
                   
                   break;
                 }
