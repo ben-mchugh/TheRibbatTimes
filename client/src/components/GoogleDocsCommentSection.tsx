@@ -59,7 +59,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     
     // Handle different scenarios
     if (isLastComment) {
-      // For last comment, align bottom with highlight
+      // For last comment, align bottom with highlight (special case)
       const newScrollTop = currentScrollTop + (commentRect.bottom - highlightTop);
       container.scrollTo({
         top: newScrollTop,
@@ -83,7 +83,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
             
             if (lastReplyElement instanceof HTMLElement) {
               const lastReplyRect = lastReplyElement.getBoundingClientRect();
-              const newScrollTop = currentScrollTop + (lastReplyRect.bottom - highlightTop);
+              // Align with highlighted text at the same position in viewport
+              const newScrollTop = currentScrollTop + (lastReplyRect.top - highlightTop);
               
               commentsRef.current.scrollTo({
                 top: newScrollTop,
@@ -92,9 +93,16 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
             }
           }
         }, 100);
+      } else {
+        // Already expanded - just align with the highlighted text
+        const newScrollTop = currentScrollTop + (commentRect.top - highlightTop);
+        container.scrollTo({
+          top: newScrollTop,
+          behavior: 'smooth'
+        });
       }
     } else {
-      // Default: align top of comment with highlight
+      // Default: align top of comment at same height as highlight
       const newScrollTop = currentScrollTop + (commentRect.top - highlightTop);
       container.scrollTo({
         top: newScrollTop,
