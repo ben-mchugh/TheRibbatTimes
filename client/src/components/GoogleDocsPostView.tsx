@@ -637,7 +637,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         {/* Main content area */}
         <div 
           ref={contentContainerRef}
-          className={`flex-1 ${showComments ? 'md:w-[70%]' : 'md:w-full'} transition-all duration-300`}
+          className={`flex-1 ${showComments ? 'md:w-[80%]' : 'md:w-full'} transition-all duration-300`}
         >
           {isLoadingPost ? (
             <div className="bg-[#e0d3af] p-6 rounded-lg">
@@ -684,7 +684,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               
               <div 
                 ref={postContentRef}
-                className="post-content prose prose-slate max-w-none text-[#161718] relative prose-lg prose-p:text-[1.1rem] prose-p:leading-[1.7] prose-headings:text-[#161718]"
+                className="post-content prose prose-slate max-w-none text-[#161718] relative"
               >
                 <div dangerouslySetInnerHTML={{ __html: renderPostContentWithHighlights() }} />
                 
@@ -712,7 +712,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         <div 
           className={`
             ${showComments ? 'block' : 'hidden'} 
-            md:w-[30%] md:max-w-md md:border-l border-[#444444]
+            md:w-[20%] md:max-w-md md:border-l border-[#444444]
             fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
             w-full md:w-auto z-30 md:z-auto bg-transparent
             transition-all duration-300 ease-in-out
