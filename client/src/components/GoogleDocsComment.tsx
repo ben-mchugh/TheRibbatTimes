@@ -29,7 +29,9 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   onUpdate,
   onReply,
   refetchComments,
-  focusedCommentId
+  focusedCommentId,
+  isActive,
+  setActive
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
@@ -40,7 +42,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoadingReplies, setIsLoadingReplies] = useState(false);
   const [hasReplyComments, setHasReplyComments] = useState(false);
-  const [isActive, setIsActive] = useState(false);
+  // isActive and setActive are now passed as props
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const commentRef = useRef<HTMLDivElement>(null);
@@ -106,8 +108,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const handleCommentClick = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation(); // Prevent event bubbling if event is provided
     
-    // Toggle active state - set to true when clicked (turn white)
-    setIsActive(true);
+    // Set this comment as the active one (and deactivate all others)
+    if (setActive) setActive(comment.id);
     
     if (comment.selectedText && !isEditing && !isReplying) {
       // Find the selection in the document
@@ -365,7 +367,10 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
       if (commentRef.current && !commentRef.current.contains(event.target as Node)) {
-        setIsActive(false);
+        // Reset active state if this comment is active
+        if (isActive && setActive) {
+          setActive(null);
+        }
       }
     };
     
@@ -373,7 +378,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isActive, setActive]);
 
   return (
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''} block`}>
