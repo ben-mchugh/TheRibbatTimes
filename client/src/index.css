@@ -29,8 +29,9 @@ textarea::-webkit-scrollbar-thumb:hover {
   cursor: pointer;
   position: relative;
   transition: background-color 0.2s ease;
-  padding: 0 2px;
-  border-radius: 2px;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
   display: inline;
   /* Allow stacking of highlights */
   mix-blend-mode: multiply;
@@ -40,8 +41,9 @@ textarea::-webkit-scrollbar-thumb:hover {
 .temp-selection-highlight {
   background-color: rgba(255, 217, 102, 0.4);
   border-bottom: 2px solid rgba(166, 122, 72, 0.8);
-  padding: 0 2px;
-  border-radius: 2px;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
   display: inline;
   /* Make temporary highlights stand out more */
   animation: pulse-highlight 2s infinite;
@@ -58,6 +60,8 @@ textarea::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 180, 80, 0.25);
   border-bottom: 1px dashed rgba(166, 122, 72, 0.5);
   box-shadow: none;
+  padding: 0;
+  margin: 0;
   /* Special style for nested comments */
   text-decoration: underline wavy rgba(166, 122, 72, 0.4);
 }
@@ -66,6 +70,8 @@ textarea::-webkit-scrollbar-thumb:hover {
 .selection-highlight .selection-highlight .selection-highlight {
   background-color: rgba(220, 150, 80, 0.25);
   border-bottom: 1px dotted rgba(138, 90, 40, 0.5);
+  padding: 0;
+  margin: 0;
 }
 
 .selection-highlight:hover {
@@ -232,6 +238,8 @@ div[data-focused="true"] {
   animation: highlight-text-pulse 0.5s ease-out; /* Reduced from 0.8s to 0.5s */
   background-color: rgba(255, 217, 102, 0.5);
   border-bottom: 2px solid rgba(166, 122, 72, 0.7);
+  padding: 0;
+  margin: 0;
   z-index: 20;
   will-change: transform, opacity;
   transform: translateZ(0); /* Force GPU acceleration */
@@ -243,6 +251,8 @@ div[data-focused="true"] {
   z-index: 20 !important; /* Higher z-index to appear above other highlights */
   background-color: rgba(255, 211, 89, 0.5) !important;
   border-bottom: 1px solid rgba(255, 126, 0, 0.7) !important;
+  padding: 0 !important;
+  margin: 0 !important;
   font-weight: 400;
 }
 
@@ -250,6 +260,8 @@ div[data-focused="true"] {
 .selection-highlight .selection-highlight[data-new="true"] {
   background-color: rgba(255, 190, 80, 0.4) !important;
   border-bottom: 1px solid rgba(255, 102, 0, 0.5) !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* Enhanced connector line for comments when focused */
