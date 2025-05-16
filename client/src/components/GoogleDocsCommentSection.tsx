@@ -98,6 +98,27 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       alignCommentWithHighlight(focusedCommentId);
     }
   }, [focusedCommentId, alignCommentWithHighlight]);
+  
+  // Prevent mouse wheel scrolling on the comments section
+  useEffect(() => {
+    const commentsContainer = commentsRef.current;
+    
+    // Handler to prevent wheel scrolling (for mouse, trackpad)
+    const preventWheelScroll = (e: WheelEvent) => {
+      // Prevent the default scroll behavior
+      e.preventDefault();
+    };
+    
+    if (commentsContainer) {
+      // Add wheel event listener with passive: false to allow preventDefault
+      commentsContainer.addEventListener('wheel', preventWheelScroll, { passive: false });
+      
+      // Cleanup function
+      return () => {
+        commentsContainer.removeEventListener('wheel', preventWheelScroll);
+      };
+    }
+  }, []);
 
   // Filter to get only top-level comments (no replies)
   const topLevelComments = comments.filter(comment => !comment.parentId);
