@@ -525,13 +525,22 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       </div>
       
       {isReplying && (
-        <div className="ml-6 mb-4 w-[260px]">
+        <div className="ml-6 mb-4 w-[220px]">
           <Textarea
             ref={replyInputRef}
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
-            placeholder="Write a reply..."
-            className="min-h-[60px] bg-white border-[#444444] text-[#161718] w-full"
+            placeholder="Write a reply... (Enter to submit, Esc to cancel)"
+            className="min-h-[60px] bg-white border-[#444444] text-[#161718] w-full text-sm"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmitReply();
+              } else if (e.key === 'Escape') {
+                e.preventDefault();
+                handleCancelReply();
+              }
+            }}
           />
           <div className="flex justify-end mt-2 space-x-2">
             <Button 
