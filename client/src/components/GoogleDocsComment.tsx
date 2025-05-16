@@ -357,8 +357,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''} block`}>
       <div 
         ref={commentRef}
-        className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-xl opacity-100 ${
-          comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-2xl' : ''
+        className={`bg-[#ffffff]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-xl opacity-100 ${
+          comment.selectedText ? 'cursor-pointer hover:bg-[#f5f5f5] hover:shadow-2xl' : ''
         } ${isReply ? 'w-[85%] min-w-[240px] ml-auto mr-0' : 'w-[95%] min-w-[260px]'} 
         transition duration-200 ease-in-out animate-comment-enter box-border table table-fixed
         ${isFocused ? 'ring-2 ring-[#444444]/40' : ''}`}
@@ -530,7 +530,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       </div>
       
       {isReplying && (
-        <div className="ml-6 mb-4 w-[220px] bg-[#e8e8e8] p-3 rounded-md shadow-xl">
+        <div className="ml-6 mb-4 w-[220px] bg-white p-3 rounded-md shadow-xl">
           <Textarea
             ref={replyInputRef}
             value={replyContent}
