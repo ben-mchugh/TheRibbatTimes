@@ -167,8 +167,14 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           </div>
         ) : (
           <div className="flex flex-col space-y-2">
-            {/* Top buffer space */}
+            {/* Top buffer space with additional scrolling room */}
             <div className="py-20"></div>
+            {/* Extra buffer elements at top for more scrolling space */}
+            {Array.from({ length: 50 }).map((_, index) => (
+              <div key={`top-buffer-${index}`} className="py-10 opacity-0">
+                Top buffer space {index + 1}
+              </div>
+            ))}
               
             {sortedComments.length > 0 ? (
               <>
