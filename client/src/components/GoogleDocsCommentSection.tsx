@@ -41,18 +41,26 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         if (highlightElement) {
           // Get the highlight element's position in the viewport
           const highlightRect = highlightElement.getBoundingClientRect();
-          const highlightTop = highlightRect.top;
+          const highlightCenter = highlightRect.top + (highlightRect.height / 2);
           
-          // Get the comment element's position
+          // Get the viewport height
+          const viewportHeight = window.innerHeight;
+          
+          // Get the comment element's dimensions
           const commentRect = commentElement.getBoundingClientRect();
+          const commentHeight = commentRect.height;
           
-          // Get the current scroll position of the comments container
+          // Get the comments container
           const container = commentsRef.current;
-          const currentScrollTop = container.scrollTop;
+          const containerRect = container.getBoundingClientRect();
           
-          // Calculate the new scroll position to align the comment with the highlight
-          // We want the comment to be at the same vertical position as the highlight
-          const newScrollTop = currentScrollTop + (commentRect.top - highlightTop);
+          // Calculate the offset from the top of the container to align with highlight
+          // We want the center of the comment to align with the highlight position
+          // Adjust for the container's position in the viewport
+          const offsetFromTop = highlightCenter - containerRect.top - (commentHeight / 2);
+          
+          // Calculate the new scroll position
+          const newScrollTop = container.scrollTop + offsetFromTop;
           
           // Scroll the container (not the page)
           container.scrollTo({
