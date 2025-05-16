@@ -338,8 +338,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             }
           }
         }
-      } catch (e) {
-        console.error(`Error processing comment ${comment.id}: ${e.message}`);
+      } catch (e: any) {
+        console.error(`Error processing comment ${comment.id}: ${e.message || 'Unknown error'}`);
       }
     }
     
@@ -473,6 +473,52 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   useEffect(() => {
     enhanceHighlights();
   }, [post?.content, enhanceHighlights]);
+  
+  // Auto-align the first comment with its highlighted text when the post loads
+  useEffect(() => {
+    // Only proceed if we have comments with selections and highlights are ready
+    const commentsWithSelection = comments.filter(
+      (c: Comment) => c.selectedText && c.selectionStart !== null && c.selectionEnd !== null
+    );
+    
+    if (commentsWithSelection.length > 0 && !isLoadingComments && post?.content) {
+      // Give the DOM time to render the highlights
+      const timer = setTimeout(() => {
+        try {
+          // Find the first comment with selection data
+          const firstComment = commentsWithSelection.sort((a: Comment, b: Comment) => {
+            // Sort by selectionStart to get the earliest comment in the document
+            return (a.selectionStart || 0) - (b.selectionStart || 0);
+          })[0];
+          
+          if (firstComment && firstComment.id) {
+            // Find the highlight element for this comment
+            const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${firstComment.id}"]`);
+            
+            if (highlightElement) {
+              // Get the highlight position
+              const highlightRect = highlightElement.getBoundingClientRect();
+              const highlightPosition = highlightRect.top;
+              
+              // Create and dispatch a custom event to align the comment
+              const commentsContainer = document.querySelector('.comments-container');
+              if (commentsContainer) {
+                const event = new CustomEvent('forceFocusComment', {
+                  detail: { commentId: firstComment.id, highlightPosition }
+                });
+                
+                commentsContainer.dispatchEvent(event);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error aligning first comment:', error);
+        }
+      }, 500); // Small delay to ensure DOM is ready
+      
+      return () => clearTimeout(timer);
+    }
+  }, [comments, isLoadingComments, post?.content]);
   
   // Utility function to escape regex special characters
   function escapeRegExp(string: string) {
