@@ -385,6 +385,15 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           highlight.setAttribute('role', 'button');
           highlight.setAttribute('aria-label', 'View comment on this text');
           
+          // Apply initial visibility based on comments panel state
+          const element = highlight as HTMLElement;
+          if (!showComments) {
+            // Hide highlights when comments are hidden
+            element.style.backgroundColor = 'transparent';
+            element.style.borderBottom = 'none';
+            element.style.cursor = 'text';
+          }
+          
           // Add event listeners with explicit event prevention
           highlight.addEventListener('click', (event) => {
             // Prevent default browser behavior and stop propagation
@@ -473,6 +482,29 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   useEffect(() => {
     enhanceHighlights();
   }, [post?.content, enhanceHighlights]);
+  
+  // Handle toggling visibility of highlights when comments panel is toggled
+  useEffect(() => {
+    if (!postContentRef.current) return;
+    
+    const highlights = postContentRef.current.querySelectorAll('.selection-highlight');
+    
+    // Set visibility of highlights based on comments panel state
+    highlights.forEach(highlight => {
+      const element = highlight as HTMLElement;
+      if (showComments) {
+        // Reset to original styling when comments are shown
+        element.style.backgroundColor = '';
+        element.style.borderBottom = '';
+        element.style.cursor = '';
+      } else {
+        // Hide highlights when comments are hidden
+        element.style.backgroundColor = 'transparent';
+        element.style.borderBottom = 'none';
+        element.style.cursor = 'text';
+      }
+    });
+  }, [showComments]);
   
   // Auto-align the first comment with its highlighted text when the post loads
   useEffect(() => {
