@@ -99,23 +99,32 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     }
   }, [focusedCommentId, alignCommentWithHighlight]);
   
-  // Prevent mouse wheel scrolling on the comments section
+  // Capture wheel events on comments section and scroll the main viewport instead
   useEffect(() => {
     const commentsContainer = commentsRef.current;
     
-    // Handler to prevent wheel scrolling (for mouse, trackpad)
-    const preventWheelScroll = (e: WheelEvent) => {
-      // Prevent the default scroll behavior
+    // Handler to scroll the viewport instead of the comments section
+    const scrollViewportInstead = (e: WheelEvent) => {
+      // Prevent the default scroll behavior on the comments container
       e.preventDefault();
+      
+      // Calculate the amount to scroll the window
+      const scrollAmount = e.deltaY;
+      
+      // Scroll the main window instead
+      window.scrollBy({
+        top: scrollAmount,
+        behavior: 'auto' // Using 'auto' for more natural scrolling
+      });
     };
     
     if (commentsContainer) {
       // Add wheel event listener with passive: false to allow preventDefault
-      commentsContainer.addEventListener('wheel', preventWheelScroll, { passive: false });
+      commentsContainer.addEventListener('wheel', scrollViewportInstead, { passive: false });
       
       // Cleanup function
       return () => {
-        commentsContainer.removeEventListener('wheel', preventWheelScroll);
+        commentsContainer.removeEventListener('wheel', scrollViewportInstead);
       };
     }
   }, []);
