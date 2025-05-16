@@ -135,8 +135,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         className="comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6 overscroll-contain"
         style={{
           ...containerStyle,
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#444444 #161718'
+          scrollbarWidth: 'none', /* Firefox */
+          msOverflowStyle: 'none' /* IE and Edge */
         }}
       >
         {isLoading ? (
