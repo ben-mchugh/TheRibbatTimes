@@ -613,16 +613,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Focus the associated comment
       setFocusedCommentId(commentId);
       
-      // More efficient animation technique
-      // Apply pulse effect using a temporary class that will be auto-removed
+      // Animation removed
       clickedElement.classList.remove('highlight-focus-pulse');
-      
-      // Use requestAnimationFrame for better timing of the animation
-      requestAnimationFrame(() => {
-        // Force a reflow to restart the animation in the next frame
-        void clickedElement.offsetWidth;
-        clickedElement.classList.add('highlight-focus-pulse');
-      });
+      // Don't apply the animation - removing the code that added pulse effect
       
       // Ensure comments panel is open on mobile
       if (isMobile) {

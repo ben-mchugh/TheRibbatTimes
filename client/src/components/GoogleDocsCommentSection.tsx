@@ -263,11 +263,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
                 {sortedComments.map((comment, index) => (
                   <div 
                     key={`comment-${comment.id}`}
-                    className="transition-all duration-300 animate-comment-enter"
-                    style={{ 
-                      animationDelay: `${index * 50}ms`,
-                      animationFillMode: 'both'
-                    }}
+                    className=""
                     data-comment-id={comment.id}
                   >
                     <GoogleDocsComment
