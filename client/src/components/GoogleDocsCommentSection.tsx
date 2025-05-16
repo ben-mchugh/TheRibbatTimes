@@ -70,45 +70,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
       
-      {/* Navigation controls for the vertical conveyor belt */}
-      <div className="flex justify-between items-center px-4 py-2 bg-[#161718] border-b border-[#252525]">
-        <div className="flex items-center space-x-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-[#888888] hover:text-white flex items-center"
-            onClick={() => {
-              if (commentsRef.current) {
-                commentsRef.current.scrollBy({ top: -300, behavior: 'smooth' });
-              }
-            }}
-          >
-            <ChevronRight className="h-5 w-5 transform -rotate-90" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-[#888888] hover:text-white flex items-center"
-            onClick={() => {
-              if (commentsRef.current) {
-                commentsRef.current.scrollBy({ top: 300, behavior: 'smooth' });
-              }
-            }}
-          >
-            <ChevronRight className="h-5 w-5 transform rotate-90" />
-          </Button>
-        </div>
-        
-        {/* Comment count indicator */}
-        <div className="text-[#888888] text-sm font-medium">
-          {sortedComments.length > 0 ? `${sortedComments.length} comment${sortedComments.length !== 1 ? 's' : ''}` : ''}
-        </div>
-      </div>
-      
-      {/* Comments list as vertical conveyor belt */}
+      {/* Comments list with vertical scrolling */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto py-6 bg-[#161718] flex-1 px-4"
+        className="comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6"
         style={containerStyle}
       >
         {isLoading ? (
