@@ -73,8 +73,12 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       {/* Comments list with vertical scrolling */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6"
-        style={containerStyle}
+        className="comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6 overscroll-contain"
+        style={{
+          ...containerStyle,
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#444444 #161718'
+        }}
       >
         {isLoading ? (
           <div className="flex flex-col space-y-6">
