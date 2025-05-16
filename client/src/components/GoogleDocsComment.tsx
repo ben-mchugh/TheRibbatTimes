@@ -323,7 +323,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         ref={commentRef}
         className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
-        } ${isReply ? 'border-l-2 border-[#444444] w-[90%] min-w-[240px]' : 'w-[95%] min-w-[260px]'} 
+        } ${isReply ? 'border-l-2 border-[#444444] w-[85%] min-w-[240px] ml-auto mr-0' : 'w-[95%] min-w-[260px]'} 
         transition duration-200 ease-in-out animate-comment-enter box-border table table-fixed
         ${isFocused ? 'border-2 border-[#444444] ring-1 ring-[#444444]/30' : 'border border-[#444444]/80'}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
@@ -520,7 +520,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       )}
       
       {showReplies && replies.length > 0 && (
-        <div className="mt-1 mb-2 ml-4 border-l-2 border-[#444444] pl-2">
+        <div className="mt-1 mb-2 ml-4 border-l-2 border-[#444444] pl-2 w-[95%] flex flex-col items-end">
           {replies.map((reply) => (
             <GoogleDocsComment
               key={`reply-${reply.id}`}
