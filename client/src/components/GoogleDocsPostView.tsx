@@ -735,8 +735,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             fixed md:relative top-0 right-0 bottom-0 md:top-auto md:right-auto md:bottom-auto
             w-full z-30 md:z-auto bg-transparent
             transition-all duration-300 ease-in-out
-            flex flex-col md:h-full
+            flex flex-col md:h-auto md:min-h-[800px]
           `}
+          style={{ height: contentHeight ? `${contentHeight + 200}px` : 'auto' }}
         >
           <GoogleDocsCommentSection
             postId={postId}
