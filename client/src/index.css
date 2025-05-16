@@ -139,15 +139,18 @@ textarea::-webkit-scrollbar-thumb:hover {
   100% { box-shadow: 0 0 0 0 rgba(68, 68, 68, 0); }
 }
 
-/* Highlight animation when a comment is clicked */
-.highlight-focus-pulse {
-  animation: highlight-pulse 1s ease-in-out 2;
+/* Static highlight for focused text (no animation) */
+.highlight-focus {
+  background-color: rgba(255, 217, 102, 0.6) !important;
+  border-bottom: 2px solid rgba(166, 122, 72, 0.8) !important;
+  box-shadow: 0 1px 2px rgba(166, 122, 72, 0.3) !important;
+  z-index: 10;
 }
 
-@keyframes highlight-pulse {
-  0% { background-color: rgba(255, 217, 102, 0.25); }
-  50% { background-color: rgba(255, 217, 102, 0.8); }
-  100% { background-color: rgba(255, 217, 102, 0.25); }
+/* Legacy animation - keeping for compatibility but not using anymore */
+.highlight-focus-pulse {
+  background-color: rgba(255, 217, 102, 0.6);
+  border-bottom: 2px solid rgba(166, 122, 72, 0.8);
 }
 
 /* Comment connector line */

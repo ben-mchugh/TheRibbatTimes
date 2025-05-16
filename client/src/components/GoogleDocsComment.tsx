@@ -122,11 +122,16 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         const highlightedEl = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`);
         
         if (highlightedEl) {
+          // Scroll to the highlighted text and add a persistent highlight
           highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          highlightedEl.classList.add('highlight-focus-pulse');
-          setTimeout(() => {
-            highlightedEl.classList.remove('highlight-focus-pulse');
-          }, 2000);
+          
+          // Add a consistent highlight style without the pulse animation
+          document.querySelectorAll('.selection-highlight').forEach(el => {
+            el.classList.remove('highlight-focus');
+          });
+          
+          // Add the static highlight class to this element
+          highlightedEl.classList.add('highlight-focus');
         }
       }
     }

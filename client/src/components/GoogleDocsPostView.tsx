@@ -646,9 +646,13 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Focus the associated comment
       setFocusedCommentId(commentId);
       
-      // Animation removed
-      clickedElement.classList.remove('highlight-focus-pulse');
-      // Don't apply the animation - removing the code that added pulse effect
+      // Remove any existing highlights first
+      document.querySelectorAll('.selection-highlight').forEach(el => {
+        el.classList.remove('highlight-focus');
+      });
+      
+      // Apply the static highlight style
+      clickedElement.classList.add('highlight-focus');
       
       // Ensure comments panel is open on mobile
       if (isMobile) {
