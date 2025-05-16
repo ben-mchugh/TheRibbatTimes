@@ -323,7 +323,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         ref={commentRef}
         className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-[0_6px_20px_rgba(0,0,0,0.18)]' : ''
-        } ${isReply ? 'border-l-2 border-[#444444] w-[260px] min-w-[260px] max-w-[260px]' : 'w-[280px] min-w-[280px] max-w-[280px]'} 
+        } ${isReply ? 'border-l-2 border-[#444444] w-[300px] min-w-[300px] max-w-[300px]' : 'w-[330px] min-w-[330px] max-w-[330px]'} 
         transition duration-200 ease-in-out animate-comment-enter box-border table table-fixed
         ${isFocused ? 'border-2 border-[#444444] ring-1 ring-[#444444]/30' : 'border border-[#444444]/80'}`}
         onClick={comment.selectedText ? handleCommentClick : undefined}
@@ -361,7 +361,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             <AvatarImage src={comment.author.photoURL} alt={comment.author.displayName} />
             <AvatarFallback>{comment.author.displayName.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="ml-2 flex-1 overflow-hidden" style={{ width: isReply ? '210px' : '230px' }}>
+          <div className="ml-2 flex-1 overflow-hidden" style={{ width: isReply ? '250px' : '280px' }}>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-[#161718]">{comment.author.displayName}</span>
               <div className="flex flex-col items-end">
