@@ -440,18 +440,18 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             )}
             
             {comment.selectedText && !isEditing && (
-              <div className="mt-2 text-xs text-[#888888] italic overflow-hidden text-ellipsis" style={{ maxWidth: '100%', wordBreak: 'break-word' }}>
+              <div className="mt-1 text-xs text-[#888888] italic overflow-hidden text-ellipsis" style={{ maxWidth: '100%', wordBreak: 'break-word' }}>
                 <span className="break-all whitespace-pre-wrap hyphens-auto" style={{ display: 'block', width: '100%' }}>"{comment.selectedText}"</span>
               </div>
             )}
             
             {!isEditing && !isReply && (
-              <div className="mt-2 flex justify-end space-x-2">
+              <div className="flex justify-end space-x-2">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={handleReply}
-                  className="flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-7 w-7 p-0 rounded-full"
+                  className="flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-6 w-6 p-0 rounded-full"
                   title="Reply to comment"
                 >
                   <Reply className="h-3.5 w-3.5" />
@@ -462,7 +462,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={toggleReplies}
-                    className="flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-7 px-2 rounded-full"
+                    className="flex items-center justify-center text-[#444444] hover:text-[#222222] hover:bg-[#e0e0e0] h-6 px-2 rounded-full"
                     disabled={isLoadingReplies}
                     title={showReplies ? "Hide replies" : "Show replies"}
                   >
