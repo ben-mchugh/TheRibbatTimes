@@ -30,7 +30,32 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
   
-  // Function to align a comment with the highlighted text
+  // Function to handle wheel events to redirect scrolling to the main content
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault(); // Prevent default scrolling behavior
+    
+    // Scroll the main content container instead
+    window.scrollBy({
+      top: e.deltaY,
+      behavior: 'auto' // Use auto for more responsive scrolling
+    });
+  }, []);
+  
+  // Add wheel event listener on mount, remove on unmount
+  useEffect(() => {
+    const commentsContainer = commentsRef.current;
+    if (commentsContainer) {
+      commentsContainer.addEventListener('wheel', handleWheel, { passive: false });
+    }
+    
+    return () => {
+      if (commentsContainer) {
+        commentsContainer.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, [handleWheel]);
+  
+  // Function to align a comment with its corresponding highlighted text
   const alignCommentWithHighlight = useCallback((commentId: number, providedHighlightPosition?: number) => {
     if (!commentsRef.current) return;
 
