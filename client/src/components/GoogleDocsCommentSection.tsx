@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Comment } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -29,6 +29,7 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
+  const [isCtrlPressed, setIsCtrlPressed] = useState(false);
   
   // Track accumulated scroll delta to create smoother scrolling
   const scrollState = useRef({
@@ -77,19 +78,43 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     }
   }, []);
   
+  // Handle key down events to detect Ctrl key press
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Control') {
+      setIsCtrlPressed(true);
+    }
+  }, []);
+
+  // Handle key up events to detect Ctrl key release
+  const handleKeyUp = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Control') {
+      setIsCtrlPressed(false);
+    }
+  }, []);
+
   // Add wheel event listener on mount, remove on unmount
   useEffect(() => {
     const commentsContainer = commentsRef.current;
-    if (commentsContainer) {
+    
+    // If Ctrl is pressed, don't add the wheel event listener so comments can scroll naturally
+    if (commentsContainer && !isCtrlPressed) {
       commentsContainer.addEventListener('wheel', handleWheel, { passive: false });
+    } else if (commentsContainer) {
+      commentsContainer.removeEventListener('wheel', handleWheel);
     }
+    
+    // Add keydown and keyup event listeners to document
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
     
     return () => {
       if (commentsContainer) {
         commentsContainer.removeEventListener('wheel', handleWheel);
       }
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [handleWheel]);
+  }, [handleWheel, handleKeyDown, handleKeyUp, isCtrlPressed]);
   
   // Function to align a comment with its corresponding highlighted text
   const alignCommentWithHighlight = useCallback((commentId: number, providedHighlightPosition?: number) => {
@@ -182,6 +207,8 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const containerStyle = {
     minHeight: 'calc(100vh - 120px)', // Full viewport height minus header/margins
     height: contentHeight && contentHeight > 100 ? `${contentHeight + 100}px` : 'calc(100vh - 120px)',
+    // Show webkit scrollbar when Ctrl is pressed
+    WebkitScrollbarWidth: isCtrlPressed ? '8px' : '0px',
   };
 
   return (
@@ -190,14 +217,23 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
       
+      {/* Visual indicator for independent scrolling */}
+      <div className={`bg-[#444444] text-xs py-1 px-4 text-center transition-opacity duration-300 ${isCtrlPressed ? 'opacity-100 text-white animate-pulse' : 'opacity-70 text-gray-300'}`}>
+        {isCtrlPressed ? (
+          <>Independent scrolling <span className="font-bold">enabled</span> (Ctrl key pressed)</>
+        ) : (
+          <>Hold <span className="px-1 py-0.5 bg-[#333333] rounded text-white">Ctrl</span> to scroll comments independently</>
+        )}
+      </div>
+      
       {/* Comments list with vertical scrolling */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6 overscroll-contain"
+        className={`comments-container overflow-y-auto py-8 bg-[#161718] flex-1 px-6 overscroll-contain ${isCtrlPressed ? 'cursor-ns-resize ctrl-pressed' : ''}`}
         style={{
           ...containerStyle,
-          scrollbarWidth: 'none', /* Firefox */
-          msOverflowStyle: 'none' /* IE and Edge */
+          scrollbarWidth: isCtrlPressed ? 'thin' : 'none', /* Show scrollbar when Ctrl is pressed in Firefox */
+          msOverflowStyle: isCtrlPressed ? 'auto' : 'none' /* Show scrollbar when Ctrl is pressed in IE and Edge */
         }}
       >
         {isLoading ? (
