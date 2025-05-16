@@ -70,14 +70,49 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
       </div>
       
-      {/* Comments list with dynamic height matching content container */}
+      {/* Navigation controls for the vertical conveyor belt */}
+      <div className="flex justify-between items-center px-4 py-2 bg-[#161718] border-b border-[#252525]">
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-[#888888] hover:text-white flex items-center"
+            onClick={() => {
+              if (commentsRef.current) {
+                commentsRef.current.scrollBy({ top: -300, behavior: 'smooth' });
+              }
+            }}
+          >
+            <ChevronRight className="h-5 w-5 transform -rotate-90" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-[#888888] hover:text-white flex items-center"
+            onClick={() => {
+              if (commentsRef.current) {
+                commentsRef.current.scrollBy({ top: 300, behavior: 'smooth' });
+              }
+            }}
+          >
+            <ChevronRight className="h-5 w-5 transform rotate-90" />
+          </Button>
+        </div>
+        
+        {/* Comment count indicator */}
+        <div className="text-[#888888] text-sm font-medium">
+          {sortedComments.length > 0 ? `${sortedComments.length} comment${sortedComments.length !== 1 ? 's' : ''}` : ''}
+        </div>
+      </div>
+      
+      {/* Comments list as vertical conveyor belt */}
       <div 
         ref={commentsRef}
-        className="comments-container overflow-y-auto px-4 py-6 space-y-6 bg-[#161718]"
+        className="comments-container overflow-y-auto py-6 bg-[#161718] flex-1 px-4"
         style={containerStyle}
       >
         {isLoading ? (
-          <div className="space-y-6">
+          <div className="flex flex-col space-y-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.15)] border border-[#e8e8e8]/80 opacity-100 w-[280px]">
                 <div className="flex items-start">
@@ -95,16 +130,17 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
             ))}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="flex flex-col space-y-8 conveyor-belt-container">
             {sortedComments.length > 0 ? (
               sortedComments.map((comment, index) => (
                 <div 
                   key={`comment-${comment.id}`}
-                  className="transition-all duration-300 animate-comment-enter"
+                  className="transition-all duration-300 animate-comment-enter conveyor-belt-item"
                   style={{ 
                     animationDelay: `${index * 50}ms`,
                     animationFillMode: 'both'
                   }}
+                  data-comment-id={comment.id}
                 >
                   <GoogleDocsComment
                     comment={comment} 

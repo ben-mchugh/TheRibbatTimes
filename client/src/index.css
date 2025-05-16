@@ -296,6 +296,40 @@ div[data-focused="true"] .connector-line {
 --radius: 0.5rem;
   }
 
+/* Conveyor belt styling for comments */
+.conveyor-belt-container {
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+  position: relative;
+  overflow: hidden;
+}
+
+.conveyor-belt-item {
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease;
+  transform: translateZ(0); /* Force GPU acceleration */
+  will-change: transform, opacity;
+}
+
+.conveyor-belt-item:hover {
+  transform: translateY(-5px);
+  z-index: 50;
+}
+
+@keyframes slide-in-from-bottom {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-comment-enter {
+  animation: slide-in-from-bottom 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
 @layer base {
   * {
     @apply border-border;
