@@ -104,6 +104,9 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const handleCommentClick = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation(); // Prevent event bubbling if event is provided
     
+    // Toggle active state - set to true when clicked (turn white)
+    setIsActive(true);
+    
     if (comment.selectedText && !isEditing && !isReplying) {
       // Find the selection in the document
       const selection = comment.selectedText;
@@ -379,10 +382,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         } ${isReply ? 'w-[85%] min-w-[240px] ml-auto mr-0' : 'w-[95%] min-w-[260px]'} 
         transition duration-200 ease-in-out animate-comment-enter box-border table table-fixed
         ${isFocused ? 'ring-2 ring-[#444444]/40' : ''}`}
-        onClick={(e) => {
-          setIsActive(true);
-          if (comment.selectedText) handleCommentClick(e);
-        }}
+        onClick={handleCommentClick}
         data-comment-id={comment.id}
         data-focused={isFocused ? "true" : "false"}
       >

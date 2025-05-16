@@ -287,7 +287,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             
             position += nodeLength;
           }
-        } catch (e) {
+        } catch (error) {
+          const e = error as { message: string, name: string };
           console.error(`Error highlighting text: ${e.message}`);
           
           // Special case for when surroundContents fails (usually due to DOM structure)
