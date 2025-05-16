@@ -130,12 +130,12 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
             ))}
           </div>
         ) : (
-          <div className="flex flex-col space-y-8 conveyor-belt-container">
+          <div className="flex flex-col space-y-8">
             {sortedComments.length > 0 ? (
               sortedComments.map((comment, index) => (
                 <div 
                   key={`comment-${comment.id}`}
-                  className="transition-all duration-300 animate-comment-enter conveyor-belt-item"
+                  className="transition-all duration-300 animate-comment-enter"
                   style={{ 
                     animationDelay: `${index * 50}ms`,
                     animationFillMode: 'both'
