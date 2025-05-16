@@ -98,55 +98,6 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       alignCommentWithHighlight(focusedCommentId);
     }
   }, [focusedCommentId, alignCommentWithHighlight]);
-  
-  // Capture wheel events on comments section and scroll the main viewport instead
-  useEffect(() => {
-    const commentsContainer = commentsRef.current;
-    let scrollAnimationId: number;
-    let accumulatedDelta = 0;
-    
-    // Handler to scroll the viewport instead of the comments section
-    const scrollViewportInstead = (e: WheelEvent) => {
-      // Prevent the default scroll behavior on the comments container
-      e.preventDefault();
-      
-      // Add to the accumulated delta
-      accumulatedDelta += e.deltaY;
-      
-      // Cancel any existing animation frame to avoid overlapping animations
-      if (scrollAnimationId) {
-        cancelAnimationFrame(scrollAnimationId);
-      }
-      
-      // Use requestAnimationFrame for smoother scrolling
-      scrollAnimationId = requestAnimationFrame(() => {
-        // Apply a multiplication factor for better responsiveness
-        const scrollMultiplier = 1.0;
-        
-        // Apply the accumulated delta with a multiplier
-        window.scrollBy({
-          top: accumulatedDelta * scrollMultiplier,
-          behavior: 'smooth'
-        });
-        
-        // Reset accumulated delta after applying
-        accumulatedDelta = 0;
-      });
-    };
-    
-    if (commentsContainer) {
-      // Add wheel event listener with passive: false to allow preventDefault
-      commentsContainer.addEventListener('wheel', scrollViewportInstead, { passive: false });
-      
-      // Cleanup function
-      return () => {
-        commentsContainer.removeEventListener('wheel', scrollViewportInstead);
-        if (scrollAnimationId) {
-          cancelAnimationFrame(scrollAnimationId);
-        }
-      };
-    }
-  }, []);
 
   // Filter to get only top-level comments (no replies)
   const topLevelComments = comments.filter(comment => !comment.parentId);
