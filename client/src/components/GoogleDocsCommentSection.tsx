@@ -41,30 +41,19 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
         if (highlightElement) {
           // Get the highlight element's position in the viewport
           const highlightRect = highlightElement.getBoundingClientRect();
-          const highlightMiddle = highlightRect.top + (highlightRect.height / 2);
+          const highlightCenter = highlightRect.top + (highlightRect.height / 2);
           
-          // Get the comment element's position and dimensions
+          // Get the comment element's position
           const commentRect = commentElement.getBoundingClientRect();
-          const commentHeight = commentRect.height;
+          const commentCenter = commentRect.height / 2;
           
           // Get the current scroll position of the comments container
           const container = commentsRef.current;
-          const containerRect = container.getBoundingClientRect();
-          
-          // Calculate the position where the comment's center should be in the container
-          const commentTargetCenter = containerRect.top + (containerRect.height / 2);
-          
-          // Calculate the current position of the comment's center
-          const commentCenter = commentRect.top + (commentHeight / 2);
-          
-          // Calculate the scroll adjustment needed to center the comment
-          const scrollAdjustment = commentCenter - commentTargetCenter;
-          
-          // Get the current scroll position
           const currentScrollTop = container.scrollTop;
           
-          // Calculate the new scroll position
-          const newScrollTop = currentScrollTop + scrollAdjustment;
+          // Calculate the new scroll position to center the comment with the highlight
+          // We want the center of the comment to align with the center of the highlight
+          const newScrollTop = currentScrollTop + (commentRect.top - highlightCenter + commentCenter);
           
           // Scroll the container (not the page)
           container.scrollTo({

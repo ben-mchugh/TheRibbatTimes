@@ -111,30 +111,16 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       
-      // After a slight delay to allow DOM updates, just set the focused comment ID
-      // We're not scrolling the highlight into view here - we'll let the comment alignment
-      // code in GoogleDocsCommentSection handle this based on the focusedCommentId
-      // This maintains the same centering behavior for new comments as for existing ones
+      // After a slight delay to allow DOM updates, scroll to the newly created highlight
       setTimeout(() => {
-        // Make sure we don't scroll the main content when creating a new comment
         const highlightElement = document.querySelector(`[data-comment-id="${data.id}"]`);
         if (highlightElement) {
-          // Save current scroll position
-          const scrollY = window.scrollY;
-          
-          // Set the focused comment ID to trigger comment section scrolling
-          setFocusedCommentId(data.id);
-          
-          // Restore the original scroll position after a small delay
-          setTimeout(() => {
-            window.scrollTo({
-              top: scrollY
-            });
-          }, 10);
-        } else {
-          setFocusedCommentId(data.id);
+          highlightElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
         }
-      }, 300);
+      }, 500);
       
       toast({
         title: 'Comment added',
