@@ -393,7 +393,7 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       {isPopupVisible && (
         <div
           ref={popupRef}
-          className="absolute z-50 bg-[#161718] border border-[#444444] rounded-md shadow-lg"
+          className="absolute z-50 bg-[#e8e8e8] border border-[#444444] rounded-md shadow-lg"
           style={{
             top: `${menuPosition.top}px`,
             left: `${menuPosition.left}px`,
