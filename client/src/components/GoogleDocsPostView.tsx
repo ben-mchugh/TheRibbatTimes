@@ -98,6 +98,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Track the new comment ID for highlighting
       setNewCommentIds(prev => [...prev, data.id]);
       
+      // Set the focused comment ID to auto-scroll the comment into view
+      setFocusedCommentId(data.id);
+      
       // Clear the "new" status after 5 seconds
       setTimeout(() => {
         setNewCommentIds(prev => prev.filter(id => id !== data.id));
@@ -107,6 +110,17 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       refetchComments();
       queryClient.invalidateQueries({ queryKey: ['/api/posts', postId] });
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      
+      // After a slight delay to allow DOM updates, scroll to the newly created highlight
+      setTimeout(() => {
+        const highlightElement = document.querySelector(`[data-comment-id="${data.id}"]`);
+        if (highlightElement) {
+          highlightElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      }, 500);
       
       toast({
         title: 'Comment added',
