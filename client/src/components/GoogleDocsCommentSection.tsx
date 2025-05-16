@@ -50,19 +50,60 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
           const container = commentsRef.current;
           const currentScrollTop = container.scrollTop;
           
-          // Calculate the new scroll position to align the comment with the highlight
-          // We want the comment to be at the same vertical position as the highlight
-          const newScrollTop = currentScrollTop + (commentRect.top - highlightTop);
+          // Check if this is the last comment
+          const lastCommentIndex = topLevelComments.findIndex(c => c.id === focusedCommentId);
+          const isLastComment = lastCommentIndex === topLevelComments.length - 1;
           
-          // Scroll the container (not the page)
-          container.scrollTo({
-            top: newScrollTop,
-            behavior: 'smooth'
-          });
+          // Find any replies to this comment
+          const hasReplies = comments.some(c => c.parentId === focusedCommentId);
+          
+          // If it's the last comment or has replies, handle specially
+          if (isLastComment || hasReplies) {
+            // If it has replies, find and expand them
+            if (hasReplies) {
+              // Find the replies toggle button and click it if it's not already expanded
+              const repliesToggle = commentElement.querySelector('.replies-toggle') as HTMLButtonElement;
+              if (repliesToggle && repliesToggle.getAttribute('data-expanded') !== 'true') {
+                repliesToggle.click();
+                
+                // Give the replies time to render before scrolling
+                setTimeout(() => {
+                  // Find the last reply
+                  const replies = comments.filter(c => c.parentId === focusedCommentId);
+                  if (replies.length > 0) {
+                    const lastReplyElement = commentsRef.current.querySelector(`[data-comment-id="${replies[replies.length - 1].id}"]`) as HTMLElement;
+                    if (lastReplyElement) {
+                      // Align the bottom of the last reply with the highlighted text
+                      const lastReplyRect = lastReplyElement.getBoundingClientRect();
+                      const newScrollTop = currentScrollTop + (lastReplyRect.bottom - highlightTop);
+                      container.scrollTo({
+                        top: newScrollTop,
+                        behavior: 'smooth'
+                      });
+                    }
+                  }
+                }, 50);
+              }
+            } else if (isLastComment) {
+              // Align the bottom of the comment with the highlighted text
+              const newScrollTop = currentScrollTop + (commentRect.bottom - highlightTop);
+              container.scrollTo({
+                top: newScrollTop,
+                behavior: 'smooth'
+              });
+            }
+          } else {
+            // For other comments, align the top as before
+            const newScrollTop = currentScrollTop + (commentRect.top - highlightTop);
+            container.scrollTo({
+              top: newScrollTop,
+              behavior: 'smooth'
+            });
+          }
         }
       }
     }
-  }, [focusedCommentId]);
+  }, [focusedCommentId, comments, topLevelComments]);
 
   // Filter to get only top-level comments (no replies)
   const topLevelComments = comments.filter(comment => !comment.parentId);
