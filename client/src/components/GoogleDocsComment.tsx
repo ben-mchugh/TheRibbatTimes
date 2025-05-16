@@ -318,45 +318,38 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     const newShowRepliesState = !showReplies;
     setShowReplies(newShowRepliesState);
     
-    // If we're showing replies and we have a selected text, align the highlight with the last reply
-    if (newShowRepliesState && comment.selectedText && comment.id) {
-      // Set a small timeout to allow the DOM to update with the replies before attempting to align
+    // If we're showing replies and this is a parent comment with selection text
+    if (newShowRepliesState && comment.selectedText && comment.id && !isReply) {
+      // We need to wait for DOM updates to complete after replies are shown
       setTimeout(() => {
-        // Find the highlight element in the content area
-        const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`) as HTMLElement;
-        
-        if (highlightElement) {
-          // Get the last reply element once the replies are rendered
-          const lastReplyElement = document.querySelector(`.gdocs-comment[data-comment-id="${replies[replies.length - 1]?.id}"]`) as HTMLElement;
+        try {
+          // First, find the highlight element in the post content
+          const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`);
+          if (!highlightElement) return;
           
-          if (lastReplyElement) {
-            // Get the highlight element's position in the viewport
-            const highlightRect = highlightElement.getBoundingClientRect();
-            const highlightCenter = highlightRect.top + (highlightRect.height / 2);
+          // Get the position of the highlight in the viewport
+          const highlightRect = highlightElement.getBoundingClientRect();
+          const highlightPosition = highlightRect.top; // Use the top of the highlight instead of the midpoint
+          
+          // Find the comment section container
+          const commentsContainer = document.querySelector('.comments-container');
+          if (!commentsContainer) return;
+          
+          // Force the comment ID to be focused in the comment section
+          // This calls the existing alignment logic in GoogleDocsCommentSection.tsx
+          if (typeof window !== 'undefined') {
+            // Create a custom event to notify the CommentSection component
+            const event = new CustomEvent('forceFocusComment', {
+              detail: { commentId: comment.id, highlightPosition: highlightPosition }
+            });
             
-            // Get the last reply element's position
-            const replyRect = lastReplyElement.getBoundingClientRect();
-            const replyCenter = replyRect.height / 2;
-            
-            // Get the comment container
-            const container = lastReplyElement.closest('.comments-container') as HTMLElement;
-            
-            if (container) {
-              // Get the current scroll position
-              const currentScrollTop = container.scrollTop;
-              
-              // Calculate the new scroll position to center the reply with the highlight
-              const newScrollTop = currentScrollTop + (replyRect.top - highlightCenter + replyCenter);
-              
-              // Scroll the container
-              container.scrollTo({
-                top: newScrollTop,
-                behavior: 'smooth'
-              });
-            }
+            // Dispatch the event on the comments container
+            commentsContainer.dispatchEvent(event);
           }
+        } catch (error) {
+          console.error("Error aligning comment:", error);
         }
-      }, 100); // Small delay to ensure DOM updates
+      }, 150); // Give DOM time to update
     }
   };
 

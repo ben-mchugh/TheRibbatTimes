@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Comment } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -30,40 +30,73 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
   
+  // Function to align a comment with the highlighted text
+  const alignCommentWithHighlight = useCallback((commentId: number, providedHighlightPosition?: number) => {
+    if (!commentsRef.current) return;
+
+    const commentElement = commentsRef.current.querySelector(`[data-comment-id="${commentId}"]`) as HTMLElement;
+    if (!commentElement) return;
+    
+    let highlightPosition: number;
+    
+    // If a highlight position was provided, use it
+    if (providedHighlightPosition !== undefined) {
+      highlightPosition = providedHighlightPosition;
+    } else {
+      // Otherwise, find the highlight element and get its position
+      const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${commentId}"]`) as HTMLElement;
+      if (!highlightElement) return;
+      
+      const highlightRect = highlightElement.getBoundingClientRect();
+      highlightPosition = highlightRect.top; // Use the top of the highlight
+    }
+    
+    // Get the comment element's position and dimensions
+    const commentRect = commentElement.getBoundingClientRect();
+    
+    // Get the current scroll position of the comments container
+    const container = commentsRef.current;
+    const currentScrollTop = container.scrollTop;
+    
+    // Calculate the new scroll position to align the BOTTOM of the comment with the highlight position
+    // This puts the comment right above the highlighted text
+    const newScrollTop = currentScrollTop + (commentRect.top + commentRect.height - highlightPosition);
+    
+    // Scroll the container (not the page)
+    container.scrollTo({
+      top: newScrollTop,
+      behavior: 'smooth'
+    });
+  }, []);
+
+  // Listen for forced focus events from the toggle replies function
+  useEffect(() => {
+    const handleForceFocus = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail && customEvent.detail.commentId) {
+        const { commentId, highlightPosition } = customEvent.detail;
+        alignCommentWithHighlight(commentId, highlightPosition);
+      }
+    };
+    
+    const container = commentsRef.current;
+    if (container) {
+      container.addEventListener('forceFocusComment', handleForceFocus);
+    }
+    
+    return () => {
+      if (container) {
+        container.removeEventListener('forceFocusComment', handleForceFocus);
+      }
+    };
+  }, [alignCommentWithHighlight]);
+
   // When focusedCommentId changes, scroll the comment to match the highlight position
   useEffect(() => {
-    if (focusedCommentId && commentsRef.current) {
-      const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
-      if (commentElement && commentsRef.current) {
-        // Find the corresponding highlight in the content area
-        const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
-        
-        if (highlightElement) {
-          // Get the highlight element's position in the viewport
-          const highlightRect = highlightElement.getBoundingClientRect();
-          const highlightCenter = highlightRect.top + (highlightRect.height / 2);
-          
-          // Get the comment element's position
-          const commentRect = commentElement.getBoundingClientRect();
-          const commentCenter = commentRect.height / 2;
-          
-          // Get the current scroll position of the comments container
-          const container = commentsRef.current;
-          const currentScrollTop = container.scrollTop;
-          
-          // Calculate the new scroll position to center the comment with the highlight
-          // We want the center of the comment to align with the center of the highlight
-          const newScrollTop = currentScrollTop + (commentRect.top - highlightCenter + commentCenter);
-          
-          // Scroll the container (not the page)
-          container.scrollTo({
-            top: newScrollTop,
-            behavior: 'smooth'
-          });
-        }
-      }
+    if (focusedCommentId) {
+      alignCommentWithHighlight(focusedCommentId);
     }
-  }, [focusedCommentId]);
+  }, [focusedCommentId, alignCommentWithHighlight]);
 
   // Filter to get only top-level comments (no replies)
   const topLevelComments = comments.filter(comment => !comment.parentId);

@@ -396,7 +396,25 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               const id = (event.target as Element).getAttribute('data-comment-id');
               if (id) {
                 const commentIdNum = parseInt(id, 10);
-                setFocusedCommentId(commentIdNum);
+                
+                // Get the highlight's position
+                const highlightRect = (event.target as Element).getBoundingClientRect();
+                const highlightPosition = highlightRect.top; // Use the top of the highlight
+                
+                // Create and dispatch a custom event for precise alignment
+                const commentsContainer = document.querySelector('.comments-container');
+                if (commentsContainer) {
+                  // Create a custom event to notify the CommentSection component
+                  const event = new CustomEvent('forceFocusComment', {
+                    detail: { commentId: commentIdNum, highlightPosition }
+                  });
+                  
+                  // Dispatch the event on the comments container
+                  commentsContainer.dispatchEvent(event);
+                } else {
+                  // Fallback to basic focusing if custom event can't be used
+                  setFocusedCommentId(commentIdNum);
+                }
                 return;
               }
             }
@@ -408,11 +426,24 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
                 const id = currentElement.getAttribute('data-comment-id');
                 if (id) {
                   const commentIdNum = parseInt(id, 10);
-                  // Found the highlight - focus the matching comment
-                  setFocusedCommentId(commentIdNum);
+                  // Get the highlight's position
+                  const highlightRect = currentElement.getBoundingClientRect();
+                  const highlightPosition = highlightRect.top; // Use the top of the highlight
                   
-                  // Don't scroll the content view - only the comment will be scrolled into view
-                  // by the useEffect in GoogleDocsCommentSection
+                  // Create and dispatch a custom event for precise alignment
+                  const commentsContainer = document.querySelector('.comments-container');
+                  if (commentsContainer) {
+                    // Create a custom event to notify the CommentSection component
+                    const event = new CustomEvent('forceFocusComment', {
+                      detail: { commentId: commentIdNum, highlightPosition }
+                    });
+                    
+                    // Dispatch the event on the comments container
+                    commentsContainer.dispatchEvent(event);
+                  } else {
+                    // Fallback to basic focusing if custom event can't be used
+                    setFocusedCommentId(commentIdNum);
+                  }
                   
                   break;
                 }
