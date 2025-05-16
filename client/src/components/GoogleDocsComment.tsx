@@ -38,6 +38,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isLoadingReplies, setIsLoadingReplies] = useState(false);
   const [hasReplyComments, setHasReplyComments] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const commentRef = useRef<HTMLDivElement>(null);
@@ -353,16 +354,33 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     }
   };
 
+  // Handle clicks outside the comment to reset active state
+  useEffect(() => {
+    const handleClickOutside = (event: Event) => {
+      if (commentRef.current && !commentRef.current.contains(event.target as Node)) {
+        setIsActive(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''} block`}>
       <div 
         ref={commentRef}
-        className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-xl opacity-100 ${
+        className={`${isActive ? 'bg-white' : 'bg-[#e8e8e8]/95'} backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-xl opacity-100 ${
           comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-2xl' : ''
         } ${isReply ? 'w-[85%] min-w-[240px] ml-auto mr-0' : 'w-[95%] min-w-[260px]'} 
         transition duration-200 ease-in-out animate-comment-enter box-border table table-fixed
         ${isFocused ? 'ring-2 ring-[#444444]/40' : ''}`}
-        onClick={comment.selectedText ? handleCommentClick : undefined}
+        onClick={(e) => {
+          setIsActive(true);
+          if (comment.selectedText) handleCommentClick(e);
+        }}
         data-comment-id={comment.id}
         data-focused={isFocused ? "true" : "false"}
       >
