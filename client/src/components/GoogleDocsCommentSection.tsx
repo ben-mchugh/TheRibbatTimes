@@ -30,33 +30,36 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   const queryClient = useQueryClient();
   const commentsRef = useRef<HTMLDivElement>(null);
   
-  // When focusedCommentId changes, scroll to that comment within the comments container only
+  // When focusedCommentId changes, scroll the comment to match the highlight position
   useEffect(() => {
     if (focusedCommentId && commentsRef.current) {
       const commentElement = commentsRef.current.querySelector(`[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
       if (commentElement && commentsRef.current) {
-        // Center the comment vertically in the viewport
-        const viewportHeight = window.innerHeight;
-        const commentRect = commentElement.getBoundingClientRect();
+        // Find the corresponding highlight in the content area
+        const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${focusedCommentId}"]`) as HTMLElement;
         
-        // Get the vertical center of the viewport
-        const viewportCenter = viewportHeight / 2;
-        
-        // Get how far the comment is from the center of the viewport
-        const commentDistanceFromCenter = commentRect.top + (commentRect.height / 2) - viewportCenter;
-        
-        // Get the current scroll position of the comments container
-        const container = commentsRef.current;
-        const currentScrollTop = container.scrollTop;
-        
-        // Calculate new scroll position to center the comment in the viewport
-        const newScrollTop = currentScrollTop + commentDistanceFromCenter;
-        
-        // Scroll the container (not the page)
-        container.scrollTo({
-          top: newScrollTop,
-          behavior: 'smooth'
-        });
+        if (highlightElement) {
+          // Get the highlight element's position in the viewport
+          const highlightRect = highlightElement.getBoundingClientRect();
+          const highlightTop = highlightRect.top;
+          
+          // Get the comment element's position
+          const commentRect = commentElement.getBoundingClientRect();
+          
+          // Get the current scroll position of the comments container
+          const container = commentsRef.current;
+          const currentScrollTop = container.scrollTop;
+          
+          // Calculate the new scroll position to align the comment with the highlight
+          // We want the comment to be at the same vertical position as the highlight
+          const newScrollTop = currentScrollTop + (commentRect.top - highlightTop);
+          
+          // Scroll the container (not the page)
+          container.scrollTo({
+            top: newScrollTop,
+            behavior: 'smooth'
+          });
+        }
       }
     }
   }, [focusedCommentId]);
