@@ -318,7 +318,7 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   };
 
   return (
-    <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''} block`}>
+    <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''} block conveyor-belt-item`}>
       <div 
         ref={commentRef}
         className={`bg-[#e8e8e8]/95 backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-[0_4px_16px_rgba(0,0,0,0.15)] opacity-100 ${
