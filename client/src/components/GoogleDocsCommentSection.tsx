@@ -212,7 +212,25 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     
     // Listen for deactivate comment events (from background clicks)
     const handleDeactivateComment = () => {
+      console.log("Deactivating comment");
       setActiveCommentId(null);
+      
+      // Clear all highlighted text as well
+      const clearHighlights = () => {
+        document.querySelectorAll('.selection-highlight').forEach(el => {
+          el.classList.remove('highlight-focus');
+        });
+        console.log("Cleared all highlights from deactivate handler");
+      };
+      
+      clearHighlights();
+      
+      // Send an event to the post content to clear the focusedCommentId
+      const postContent = document.querySelector('.post-content-container');
+      if (postContent) {
+        const clearFocusEvent = new CustomEvent('clearFocusedComment');
+        postContent.dispatchEvent(clearFocusEvent);
+      }
     };
     
     const container = commentsRef.current;

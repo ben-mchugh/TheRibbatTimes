@@ -629,6 +629,13 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       console.log("Cleared all highlights");
     };
     
+    // Handler for clearing the focused comment ID
+    const handleClearFocusedComment = () => {
+      setFocusedCommentId(null);
+      clearAllHighlights();
+      console.log("Cleared focused comment ID from clearFocusedComment event");
+    };
+    
     const handleSetFocusedComment = (event: Event) => {
       const customEvent = event as CustomEvent;
       if (customEvent.detail && customEvent.detail.commentId) {
@@ -749,11 +756,45 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       });
     };
     
-    // Add event listener to capture clicks on highlighted text
+    // Handler for clicks on the document (outside highlights/comments)
+    const handleDocumentClick = (e: MouseEvent) => {
+      // Early return if clicked on a selection-highlight element or inside a comment
+      if (e.target instanceof Element && 
+         (e.target.classList.contains('selection-highlight') || 
+          e.target.closest('.selection-highlight') ||
+          e.target.closest('.gdocs-comment') ||
+          e.target.closest('.comment-editor'))) {
+        return;
+      }
+      
+      // Clear focused comment ID
+      setFocusedCommentId(null);
+      
+      // Clear all highlighted text
+      const clearHighlights = () => {
+        document.querySelectorAll('.selection-highlight').forEach(el => {
+          el.classList.remove('highlight-focus');
+        });
+        console.log("Cleared all highlights from document click handler");
+      };
+      
+      clearHighlights();
+      
+      // Also notify the comments container to deactivate comments
+      const commentsContainer = document.querySelector('.comments-container');
+      if (commentsContainer) {
+        const deactivateEvent = new CustomEvent('deactivateComment');
+        commentsContainer.dispatchEvent(deactivateEvent);
+      }
+    };
+    
+    // Add event listeners
     document.addEventListener('click', handleHighlightClick);
+    document.addEventListener('click', handleDocumentClick);
     
     return () => {
       document.removeEventListener('click', handleHighlightClick);
+      document.removeEventListener('click', handleDocumentClick);
     };
   }, [focusedCommentId, setNewCommentIds, setFocusedCommentId, setShowComments, isMobile]);
   
