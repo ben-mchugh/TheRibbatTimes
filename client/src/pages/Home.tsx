@@ -65,31 +65,52 @@ export default function Home() {
     // Create ID from the month year (same logic as in PostList)
     const monthYearId = monthYear.toLowerCase().replace(/\s+/g, '-');
     
-    // Try to find the element by ID first (more reliable)
-    const targetElement = document.getElementById(monthYearId);
+    // For debugging
+    console.log(`Trying to scroll to month: ${monthYear}, ID: ${monthYearId}`);
     
-    if (targetElement) {
-      // Scroll to the element
-      window.scrollTo({
-        top: targetElement.getBoundingClientRect().top + window.scrollY - 20,
-        behavior: 'smooth'
-      });
-    } else {
-      // Fallback: try to find by heading text
-      setTimeout(() => {
+    // Use a delayed function to ensure DOM is fully processed
+    setTimeout(() => {
+      // Try to find the element by ID first
+      const targetElement = document.getElementById(monthYearId);
+      
+      if (targetElement) {
+        // Calculate position accounting for any fixed headers
+        const headerOffset = 80; // Adjust if you have a fixed header
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - headerOffset;
+        
+        // Scroll to the element
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+        
+        console.log(`Scrolling to element by ID: ${monthYearId}`);
+      } else {
+        // Fallback: find by heading text
         const headings = Array.from(document.querySelectorAll('h2.monthly-header'));
+        console.log(`Found ${headings.length} monthly headers`);
+        
         const targetHeading = headings.find(heading => 
           heading.textContent && heading.textContent.includes(monthYear)
         );
         
         if (targetHeading) {
+          const headerOffset = 80;
+          const elementPosition = targetHeading.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - headerOffset;
+          
           window.scrollTo({
-            top: targetHeading.getBoundingClientRect().top + window.scrollY - 20,
+            top: offsetPosition,
             behavior: 'smooth'
           });
+          
+          console.log(`Scrolling to heading with text: ${monthYear}`);
+        } else {
+          console.log(`Could not find heading for ${monthYear}`);
         }
-      }, 50);
-    }
+      }
+    }, 100); // Slightly longer delay to ensure DOM is ready
   };
 
   return (
