@@ -3,6 +3,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom scrollbar for font selector dropdown */
+.font-selector::-webkit-scrollbar {
+  width: 6px;
+}
+
+.font-selector::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.font-selector::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.font-selector::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Emoji picker styles */
+.emoji-picker {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.emoji-picker::-webkit-scrollbar {
+  width: 6px;
+}
+
+.emoji-picker::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.emoji-picker::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.emoji-picker::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.emoji-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 18px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.emoji-item:hover {
+  background-color: #f0f0f0;
+}
+
+.emoji-search {
+  margin-bottom: 8px;
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
 /* Styles for resizable images in posts */
 .resizable-image {
   display: block;

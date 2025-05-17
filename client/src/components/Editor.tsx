@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -15,7 +15,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, 
   List, ListOrdered, Quote, Undo, Redo,
   AlignLeft, AlignCenter, AlignRight, PaintBucket,
-  Image as ImageIcon, Palette, Type
+  Image as ImageIcon, Palette, Type, Smile
 } from 'lucide-react';
 import ImageUploadDialog from './ImageUploadDialog';
 import { 
@@ -432,49 +432,126 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     <Type className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-56 p-2">
-                  <div className="grid grid-cols-1 gap-2">
+                <PopoverContent className="w-56 p-1">
+                  <div className="max-h-72 overflow-y-auto pr-1 font-selector">
                     <button
-                      className="p-2 rounded hover:bg-gray-100 text-left"
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'inherit' }}
                       onClick={() => editor.chain().focus().unsetMark('textStyle').run()}
                     >
                       Default Font
                     </button>
                     <button
-                      className="p-2 rounded hover:bg-gray-100 text-left"
-                      style={{ fontFamily: 'serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'serif' }).run()}
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Arial, sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Arial, sans-serif' }).run()}
                     >
-                      Serif
+                      Arial
                     </button>
                     <button
-                      className="p-2 rounded hover:bg-gray-100 text-left"
-                      style={{ fontFamily: 'sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'sans-serif' }).run()}
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Calibri, sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Calibri, sans-serif' }).run()}
                     >
-                      Sans Serif
+                      Calibri
                     </button>
                     <button
-                      className="p-2 rounded hover:bg-gray-100 text-left"
-                      style={{ fontFamily: 'monospace' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'monospace' }).run()}
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Cambria, serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Cambria, serif' }).run()}
                     >
-                      Monospace
+                      Cambria
                     </button>
                     <button
-                      className="p-2 rounded hover:bg-gray-100 text-left"
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Comic Sans MS, cursive' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Comic Sans MS, cursive' }).run()}
+                    >
+                      Comic Sans MS
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Courier New, monospace' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Courier New, monospace' }).run()}
+                    >
+                      Courier New
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Georgia, serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Georgia, serif' }).run()}
+                    >
+                      Georgia
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Helvetica, sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Helvetica, sans-serif' }).run()}
+                    >
+                      Helvetica
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Impact, sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Impact, sans-serif' }).run()}
+                    >
+                      Impact
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Lucida Sans, sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Lucida Sans, sans-serif' }).run()}
+                    >
+                      Lucida Sans
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Open Sans", sans-serif' }).run()}
+                    >
+                      Open Sans
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: '"Playfair Display", serif' }}
                       onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Playfair Display", serif' }).run()}
                     >
                       Playfair Display
                     </button>
                     <button
-                      className="p-2 rounded hover:bg-gray-100 text-left"
-                      style={{ fontFamily: '"Open Sans", sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Open Sans", sans-serif' }).run()}
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Roboto, sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Roboto, sans-serif' }).run()}
                     >
-                      Open Sans
+                      Roboto
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Tahoma, sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Tahoma, sans-serif' }).run()}
+                    >
+                      Tahoma
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Times New Roman, serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Times New Roman, serif' }).run()}
+                    >
+                      Times New Roman
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Trebuchet MS, sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Trebuchet MS, sans-serif' }).run()}
+                    >
+                      Trebuchet MS
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: 'Verdana, sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Verdana, sans-serif' }).run()}
+                    >
+                      Verdana
                     </button>
                   </div>
                 </PopoverContent>
@@ -577,6 +654,25 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                 </TooltipTrigger>
                 <TooltipContent>Insert Image</TooltipContent>
               </Tooltip>
+            </div>
+            
+            {/* Emoji picker button */}
+            <div className="flex space-x-1 mr-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    style={{ color: "#333333" }}
+                  >
+                    <Smile className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 p-2">
+                  <EmojiPicker editor={editor} />
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* List formatting tools */}
