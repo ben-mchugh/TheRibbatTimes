@@ -1,3 +1,16 @@
+/**
+ * GoogleDocsTextSelection Component
+ * 
+ * This component handles the text selection and commenting functionality that mimics Google Docs.
+ * Key features include:
+ * - Detects and processes text selections in the document
+ * - Displays a context menu when text is right-clicked
+ * - Shows a comment creation popup with the selected text
+ * - Calculates precise selection positions in the document
+ * - Submits new comments with exact text coordinates
+ * - Synchronizes with the comment panel display
+ */
+
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';

@@ -1,3 +1,15 @@
+/**
+ * TextSelectionMenu Component
+ * 
+ * This component handles the right-click menu that appears when text is selected.
+ * It enables the Google Docs-style commenting functionality:
+ * - Detects text selection via right-click 
+ * - Displays a context menu at the selection position
+ * - Opens a comment input dialog when "Add Comment" is clicked
+ * - Tracks selection position and content for comment placement
+ * - Submits the comment with the exact text selection coordinates
+ */
+
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';

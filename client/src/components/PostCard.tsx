@@ -1,3 +1,15 @@
+/**
+ * PostCard Component
+ * 
+ * This component renders an individual post card on the home page and profile page.
+ * Features include:
+ * - Displays post title, author information, and creation date
+ * - Shows comment count for the post
+ * - Provides hover animation effects for better UX
+ * - Links to the full post view when clicked
+ * - Uses a consistent sepia-toned design matching the site's aesthetic
+ */
+
 import { Link } from 'wouter';
 import { Post } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';

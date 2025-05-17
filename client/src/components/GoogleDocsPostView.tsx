@@ -1,3 +1,17 @@
+/**
+ * GoogleDocsPostView Component
+ * 
+ * This component is the main post viewing experience that mimics Google Docs.
+ * Key features include:
+ * - Displays post content with author info and metadata
+ * - Manages text selection highlighting for comments
+ * - Synchronizes highlighted text with comment display
+ * - Handles adding, editing, and deleting comments on text selections
+ * - Manages the comment panel display and interaction
+ * - Supports keyboard shortcuts for comment navigation
+ * - Provides a responsive layout with adaptive behavior
+ */
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Comment, Post } from '@/lib/types';

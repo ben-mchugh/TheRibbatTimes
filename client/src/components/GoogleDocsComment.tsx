@@ -1,3 +1,17 @@
+/**
+ * GoogleDocsComment Component
+ * 
+ * This component renders an individual comment in the comment panel.
+ * It provides a Google Docs-like comment experience with features:
+ * - Displays user avatar, name, and comment timestamp
+ * - Shows the selected text that was commented on
+ * - Supports editing and deleting comments
+ * - Allows replying to comments with nested reply display
+ * - Provides expand/collapse functionality for long comments
+ * - Synchronizes with text highlighting in the document
+ * - Handles active state when a comment is selected
+ */
+
 import React, { useState, useRef, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Comment } from '@/lib/types';
