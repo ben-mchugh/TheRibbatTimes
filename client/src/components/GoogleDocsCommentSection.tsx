@@ -167,24 +167,37 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       }
     };
     
+    // Listen for activate comment events (from text selection clicks)
+    const handleActivateComment = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail && customEvent.detail.commentId) {
+        const commentId = customEvent.detail.commentId;
+        setActiveCommentId(commentId);
+      }
+    };
+    
     const container = commentsRef.current;
     if (container) {
       container.addEventListener('forceFocusComment', handleForceFocus);
+      container.addEventListener('activateComment', handleActivateComment);
     }
     
     return () => {
       if (container) {
         container.removeEventListener('forceFocusComment', handleForceFocus);
+        container.removeEventListener('activateComment', handleActivateComment);
       }
     };
-  }, [alignCommentWithHighlight]);
+  }, [alignCommentWithHighlight, setActiveCommentId]);
 
   // When focusedCommentId changes, scroll the comment to match the highlight position
+  // and also set the activeCommentId to match
   useEffect(() => {
     if (focusedCommentId) {
       alignCommentWithHighlight(focusedCommentId);
+      setActiveCommentId(focusedCommentId);
     }
-  }, [focusedCommentId, alignCommentWithHighlight]);
+  }, [focusedCommentId, alignCommentWithHighlight, setActiveCommentId]);
 
   // Filter to get only top-level comments (no replies)
   const topLevelComments = comments.filter(comment => !comment.parentId);
