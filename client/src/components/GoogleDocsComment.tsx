@@ -113,6 +113,22 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
       setActive(comment.id);
     }
     
+    // Even if we don't have selected text, still trigger the focus event for the comment ID
+    // to ensure synchronized highlighting between components
+    if (comment.id) {
+      // Set the active comment through the post view's focusedCommentId
+      const postContentRef = document.querySelector('.post-content');
+      if (postContentRef) {
+        // Create a custom event to notify the PostView component
+        const event = new CustomEvent('setFocusedComment', {
+          detail: { commentId: comment.id }
+        });
+        
+        // Dispatch the event on the post content
+        postContentRef.dispatchEvent(event);
+      }
+    }
+    
     if (comment.selectedText && !isEditing && !isReplying) {
       // Find the selection in the document
       const selection = comment.selectedText;

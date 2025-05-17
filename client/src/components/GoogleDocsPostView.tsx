@@ -617,6 +617,42 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     };
   }, [post]);
 
+  // Add listener for the custom setFocusedComment event from comments
+  useEffect(() => {
+    if (!postContentRef.current) return;
+    
+    const handleSetFocusedComment = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail && customEvent.detail.commentId) {
+        const commentId = customEvent.detail.commentId;
+        
+        // Set the focused comment ID
+        setFocusedCommentId(commentId);
+        
+        // Clear any existing highlights
+        document.querySelectorAll('.selection-highlight').forEach(el => {
+          el.classList.remove('highlight-focus');
+        });
+        
+        // Find and highlight the text associated with this comment
+        const highlightedEl = document.querySelector(`.selection-highlight[data-comment-id="${commentId}"]`);
+        if (highlightedEl) {
+          highlightedEl.classList.add('highlight-focus');
+          highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    };
+    
+    // Add the event listener to the post content container
+    postContentRef.current.addEventListener('setFocusedComment', handleSetFocusedComment);
+    
+    return () => {
+      if (postContentRef.current) {
+        postContentRef.current.removeEventListener('setFocusedComment', handleSetFocusedComment);
+      }
+    };
+  }, [setFocusedCommentId]);
+
   // Effect to add click handler to highlighted text spans
   useEffect(() => {
     // Optimized handler with better performance checks
