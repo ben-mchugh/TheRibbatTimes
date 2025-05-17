@@ -395,9 +395,9 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         className={`${
           isActive 
             ? 'bg-white shadow-2xl' 
-            : 'bg-[#e8e8e8]/95 shadow-xl'
+            : 'bg-[#e8e8e8]/95 shadow-xl hover:bg-[#f0f0f0]'
         } backdrop-blur-sm p-4 rounded-lg mb-2 relative group opacity-100 ${
-          comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0]' : ''
+          comment.selectedText ? 'cursor-pointer' : ''
         } ${isReply ? 'w-[85%] min-w-[240px] ml-auto mr-0' : 'w-[95%] min-w-[260px]'} 
         transition duration-150 ease-in-out animate-comment-enter box-border table table-fixed
         ${isFocused ? 'ring-2 ring-[#444444]/40' : ''}`}
