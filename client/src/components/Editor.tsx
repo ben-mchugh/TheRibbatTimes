@@ -6,6 +6,7 @@ import Heading from '@tiptap/extension-heading';
 import Placeholder from '@tiptap/extension-placeholder';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
+import TextAlign from '@tiptap/extension-text-align';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
@@ -53,6 +54,10 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       // Add text styling capabilities
       TextStyle,
       Color,
+      // Add text alignment capability
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -208,7 +213,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('underline') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleUnderline().run()}
-                    style={{ color: "#eeeeee" }}
+                    style={{ color: "#333333" }}
                   >
                     <UnderlineIcon className="h-4 w-4" />
                   </Button>
@@ -223,6 +228,87 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
             
             {/* Color and Font selectors removed for performance */}
             
+            {/* Text alignment tools */}
+            <div className="flex space-x-1 mr-4">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant={editor.isActive({ textAlign: 'left' }) ? 'default' : 'ghost'}
+                    size="icon"
+                    onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                    style={{ color: "#333333" }}
+                  >
+                    <AlignLeft className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Align Left</TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant={editor.isActive({ textAlign: 'center' }) ? 'default' : 'ghost'}
+                    size="icon"
+                    onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                    style={{ color: "#333333" }}
+                  >
+                    <AlignCenter className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Align Center</TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant={editor.isActive({ textAlign: 'right' }) ? 'default' : 'ghost'}
+                    size="icon"
+                    onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                    style={{ color: "#333333" }}
+                  >
+                    <AlignRight className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Align Right</TooltipContent>
+              </Tooltip>
+            </div>
+
+            {/* Text color selector */}
+            <div className="flex space-x-1 mr-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    style={{ color: "#333333" }}
+                  >
+                    <Palette className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-2">
+                  <div className="grid grid-cols-5 gap-2">
+                    {[
+                      '#000000', '#1a1a1a', '#505050', '#7a7a7a',
+                      '#C1121F', '#FFA07A', '#FB8B24', '#3a5a40',
+                      '#1e3d59', '#5c374c'
+                    ].map((color) => (
+                      <button
+                        key={color}
+                        className="h-8 w-8 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        style={{ backgroundColor: color }}
+                        onClick={() => editor.chain().focus().setColor(color).run()}
+                      />
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* List formatting tools */}
             <div className="flex space-x-1 mr-4">
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -231,7 +317,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('bulletList') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
-                    style={{ color: "#eeeeee" }}
+                    style={{ color: "#333333" }}
                   >
                     <List className="h-4 w-4" />
                   </Button>
@@ -246,7 +332,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('orderedList') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                    style={{ color: "#eeeeee" }}
+                    style={{ color: "#333333" }}
                   >
                     <ListOrdered className="h-4 w-4" />
                   </Button>
@@ -261,15 +347,13 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('blockquote') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                    style={{ color: "#eeeeee" }}
+                    style={{ color: "#333333" }}
                   >
                     <Quote className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Quote</TooltipContent>
               </Tooltip>
-              
-              {/* Image button removed for performance */}
             </div>
             
             <div className="flex space-x-1">
@@ -281,7 +365,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     size="icon"
                     onClick={() => editor.chain().focus().undo().run()}
                     disabled={!editor.can().undo()}
-                    style={{ color: "#eeeeee" }}
+                    style={{ color: "#333333" }}
                   >
                     <Undo className="h-4 w-4" />
                   </Button>
@@ -297,7 +381,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     size="icon"
                     onClick={() => editor.chain().focus().redo().run()}
                     disabled={!editor.can().redo()}
-                    style={{ color: "#eeeeee" }}
+                    style={{ color: "#333333" }}
                   >
                     <Redo className="h-4 w-4" />
                   </Button>
