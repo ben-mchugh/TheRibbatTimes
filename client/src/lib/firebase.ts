@@ -1,3 +1,15 @@
+/**
+ * Firebase Authentication Module
+ * 
+ * This module handles all the Firebase authentication functionality for the app.
+ * It provides:
+ * - Google authentication (sign-in with popup and redirect methods)
+ * - User session management and persistence
+ * - Account creation in our backend when new users sign in
+ * - Environment variable configuration and validation
+ * - Sign-out functionality
+ */
+
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 

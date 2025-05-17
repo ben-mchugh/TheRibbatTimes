@@ -1,3 +1,16 @@
+/**
+ * EditPost Page
+ * 
+ * This page provides the interface for creating new posts or editing existing ones.
+ * Features include:
+ * - Rich text editor with formatting, font selection, and image upload
+ * - Auto-populates with existing post data when editing
+ * - Pre-fills the date in the title field for new posts
+ * - Tag management for post categorization
+ * - Draft saving and auto-saving functionality
+ * - Validation before submission
+ */
+
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';

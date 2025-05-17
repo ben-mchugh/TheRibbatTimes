@@ -1,3 +1,16 @@
+/**
+ * PostList Component
+ * 
+ * This component displays the chronological list of posts on the homepage.
+ * Features include:
+ * - Groups posts by month and year
+ * - Displays posts in reverse chronological order (newest first)
+ * - Shows stylized month headers with sepia-toned background
+ * - Renders individual post cards with previews
+ * - Supports scrolling to specific months via month navigator
+ * - Handles loading states with skeleton placeholders
+ */
+
 import { useQuery } from '@tanstack/react-query';
 import PostCard from './PostCard';
 import { Post } from '@/lib/types';

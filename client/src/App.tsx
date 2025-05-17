@@ -1,3 +1,15 @@
+/**
+ * App Component
+ * 
+ * This is the main application component that serves as the entry point.
+ * It handles:
+ * - Routing configuration for all pages
+ * - Global providers (Authentication, QueryClient, Tooltips)
+ * - App-wide layout with consistent header
+ * - Scroll restoration for better navigation experience
+ * - Error boundaries and notifications via toast system
+ */
+
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
