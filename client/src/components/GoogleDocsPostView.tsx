@@ -687,20 +687,32 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Always focus the comment when clicking on highlighted text
       setFocusedCommentId(commentId);
       
+      // Center the clicked highlight in the viewport first
+      clickedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
       // Apply the static highlight style
       clickedElement.classList.add('highlight-focus');
+      
+      // Get the updated position after scrolling
+      const highlightRect = clickedElement.getBoundingClientRect();
+      const highlightPosition = highlightRect.top;
       
       // Also set the active comment through a custom event
       // This ensures the comment also turns white when text is clicked
       const commentsContainer = document.querySelector('.comments-container');
       if (commentsContainer) {
-        // Make sure to include the commentId in the event
+        // First send the activate event to turn the comment white
         const activateEvent = new CustomEvent('activateComment', {
           detail: { commentId: commentId }
         });
         commentsContainer.dispatchEvent(activateEvent);
         
-        // For debugging, we'll add a console log
+        // Then send a forceFocus event to align the comment with the highlight
+        const forceFocusEvent = new CustomEvent('forceFocusComment', {
+          detail: { commentId: commentId, highlightPosition: highlightPosition }
+        });
+        commentsContainer.dispatchEvent(forceFocusEvent);
+        
         console.log("Sent activateComment event with commentId:", commentId);
       }
       

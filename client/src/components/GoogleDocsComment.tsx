@@ -153,19 +153,23 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
           const highlightRect = highlightedEl.getBoundingClientRect();
           const highlightPosition = highlightRect.top;
           
-          // Create and dispatch a custom event for precise alignment
+          // First scroll the highlighted text to the center
+          highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Then create and dispatch a custom event for comment alignment
           const commentsContainer = document.querySelector('.comments-container');
           if (commentsContainer) {
+            // Get the new position after scrolling
+            const updatedHighlightRect = highlightedEl.getBoundingClientRect();
+            const updatedHighlightPosition = updatedHighlightRect.top;
+            
             // Create a custom event to notify the CommentSection component to align
             const alignEvent = new CustomEvent('forceFocusComment', {
-              detail: { commentId: comment.id, highlightPosition }
+              detail: { commentId: comment.id, highlightPosition: updatedHighlightPosition }
             });
             
             // Dispatch the event on the comments container to trigger alignment
             commentsContainer.dispatchEvent(alignEvent);
-          } else {
-            // Fallback to basic scrolling if custom event can't be used
-            highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
       }
