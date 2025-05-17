@@ -9,8 +9,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import GoogleDocsCommentSection from './GoogleDocsCommentSection';
 import GoogleDocsTextSelection from './GoogleDocsTextSelection';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, MessageSquare } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, MessageSquare, ChevronUp } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 
 // Helper function to escape special characters in string for RegExp
 function escapeRegExp(string: string): string {
@@ -25,6 +26,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   const [showComments, setShowComments] = useState(true);
   const [focusedCommentId, setFocusedCommentId] = useState<number | null>(null);
   const [contentHeight, setContentHeight] = useState<number>(0);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [isScrollButtonHovered, setIsScrollButtonHovered] = useState(false);
   const { currentUser } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -871,8 +874,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     >
       {/* Controls moved from fixed position */}
       
-      {/* Fixed buttons positioned just outside the right edge of the comments pane */}
-      <div className="fixed right-[25%] translate-x-[calc(100%+8px)] top-32 z-40 flex flex-col gap-2">
+      {/* Top-right fixed buttons */}
+      <div className="fixed right-4 top-4 z-40 flex gap-2">
         {/* Comments toggle button */}
         <Button
           variant="ghost"
@@ -896,6 +899,9 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           </Button>
         </a>
       </div>
+      
+      {/* We'll use the original ScrollToTopButton component */}
+      <ScrollToTopButton threshold={300} label="Scroll to Top" />
       
       <div className="flex flex-col md:flex-row gap-6 flex-1 max-w-[1520px] mx-auto w-full">
         {/* Main content area */}
