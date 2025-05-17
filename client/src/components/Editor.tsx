@@ -67,7 +67,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
         inline: false,
         HTMLAttributes: {
           draggable: true,
-          style: 'min-width: 100px; min-height: 100px;',
+          style: 'min-width: 100px; min-height: 50px; resize: both; overflow: auto; border: 2px solid transparent;',
           class: 'resizable-image',
         },
       }),
