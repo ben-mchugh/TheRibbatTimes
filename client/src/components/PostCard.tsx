@@ -17,7 +17,7 @@ const PostCard = ({ post, profile }: PostCardProps) => {
 
   return (
     <Link href={`/post/${post.id}`} className="block">
-      <Card className="post-card shadow overflow-hidden sm:rounded-lg cursor-pointer transform transition-all duration-300 ease-out hover:shadow-2xl hover:scale-[1.03] hover:shadow-[0_15px_30px_-8px_rgba(53,42,30,0.4)] hover:rotate-[0.5deg]" 
+      <Card className="post-card shadow overflow-hidden sm:rounded-lg cursor-pointer transform transition-all duration-300 ease-out hover:shadow-2xl hover:scale-[1.01] hover:shadow-[0_15px_30px_-8px_rgba(53,42,30,0.4)]" 
         style={{ backgroundColor: "#e0d3af" }}>
         <CardContent className="p-0">
           <div className="px-4 py-5 sm:px-6 flex justify-between">
