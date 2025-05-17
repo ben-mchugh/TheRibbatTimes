@@ -15,7 +15,8 @@ import {
   Bold, Italic, Underline as UnderlineIcon, 
   List, ListOrdered, Quote, Undo, Redo,
   AlignLeft, AlignCenter, AlignRight, PaintBucket,
-  Image as ImageIcon, Palette, Type, Smile
+  Image as ImageIcon, Palette, Type, Smile, 
+  Text
 } from 'lucide-react';
 import ImageUploadDialog from './ImageUploadDialog';
 import EmojiPicker from './EmojiPicker';
@@ -420,6 +421,51 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               <HeadingSelect />
             </div>
             
+            {/* Font Size selector */}
+            <div className="flex space-x-1 mr-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    style={{ color: "#333333" }}
+                  >
+                    <span className="text-xs font-bold">Aa</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-40 p-1">
+                  <div className="max-h-60 overflow-y-auto pr-1 font-selector">
+                    <div className="mb-2">
+                      <input 
+                        type="number" 
+                        min="8" 
+                        max="72" 
+                        className="w-full p-1 border rounded text-sm" 
+                        placeholder="Custom size"
+                        onChange={(e) => {
+                          const size = parseInt(e.target.value);
+                          if (size >= 8 && size <= 72) {
+                            editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
+                          }
+                        }}
+                      />
+                    </div>
+                    {[8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 42, 48, 56, 64, 72].map((size) => (
+                      <button
+                        key={size}
+                        className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                        style={{ fontSize: `${size}px` }}
+                        onClick={() => editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run()}
+                      >
+                        {size}px
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
             {/* Font Family dropdown */}
             <div className="flex space-x-1 mr-4">
               <Popover>
@@ -511,6 +557,13 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                       onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Open Sans", sans-serif' }).run()}
                     >
                       Open Sans
+                    </button>
+                    <button
+                      className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
+                      style={{ fontFamily: '"Crimson Text", serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Crimson Text", serif' }).run()}
+                    >
+                      Crimson Text
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
