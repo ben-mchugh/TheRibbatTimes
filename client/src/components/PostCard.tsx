@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, ChevronRight } from 'lucide-react';
 import { formatDate } from '@/lib/dateUtils';
+import '../styles/postcard.css';
 
 interface PostCardProps {
   post: Post;

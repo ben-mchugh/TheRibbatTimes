@@ -1,0 +1,5 @@
+/* Post card custom styles */
+.post-card {
+  transform-origin: bottom center;
+  will-change: transform, box-shadow;
+}
