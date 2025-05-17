@@ -387,17 +387,17 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                           reader.onload = (e) => {
                             const result = e.target?.result;
                             if (typeof result === 'string') {
-                              // Insert the image with specific resizable attributes
+                              // Insert the image directly - we'll style it with CSS for resizing
                               editor.chain().focus().setImage({ 
                                 src: result,
                                 alt: file.name,
-                                title: file.name,
+                                title: file.name
                               }).run();
                               
                               // Notify user about resizing capability
                               toast?.({
                                 title: "Image added",
-                                description: "You can resize the image by dragging its corners",
+                                description: "You can resize the image by dragging the bottom-right corner",
                                 duration: 3000,
                               });
                             }

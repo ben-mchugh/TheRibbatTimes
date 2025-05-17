@@ -8,33 +8,66 @@
   position: relative;
 }
 
-/* Basic styling for all images in the editor */
+/* Direct resizable image approach */
 .ProseMirror img {
+  box-sizing: border-box;
+  display: block;
   max-width: 100%;
   height: auto;
-  cursor: pointer;
-  margin: 1em 0;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
+  margin: 1em auto;
+  padding: 2px;
+  cursor: default;
   
-  /* This is the key for resizability */
-  display: inline-block;
+  /* Key resizing properties */
   resize: both;
   overflow: auto;
   min-width: 100px;
-  min-height: 50px;
+  min-height: auto;
 }
 
-/* Style for hovering over images */
+/* Add visual feedback when hovering */
 .ProseMirror img:hover {
-  border: 2px dashed #aaa;
-  border-radius: 4px;
+  border: 3px dashed #aaa;
+  border-radius: 2px;
 }
 
 /* Style for selected images */
 .ProseMirror img.ProseMirror-selectednode {
-  border: 2px solid #68cef8;
-  border-radius: 4px;
-  box-shadow: 0 0 0 3px rgba(104, 206, 248, 0.25);
+  border: 3px solid #68cef8;
+  border-radius: 2px;
+  box-shadow: 0 0 0 2px rgba(104, 206, 248, 0.25);
+}
+
+/* Add a visible handle at the bottom right */
+.ProseMirror img::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 10px;
+  height: 10px;
+  background-color: #68cef8;
+  border-radius: 50%;
+  cursor: nwse-resize;
+  opacity: 0;
+}
+
+.ProseMirror img:hover::after,
+.ProseMirror img.ProseMirror-selectednode::after {
+  opacity: 1;
+}
+
+/* Simple containers for proper alignment */
+.ProseMirror figure {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+.ProseMirror figure img {
+  display: inline-block;
+  margin: 0 auto;
 }
 
 /* Set width options for images - these can be applied via menus */
