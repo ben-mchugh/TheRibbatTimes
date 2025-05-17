@@ -60,7 +60,9 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
         placeholder: 'Start writing your post...',
       }),
       // Add text styling capabilities
-      TextStyle,
+      TextStyle.configure({
+        types: ['paragraph', 'text', 'heading'],
+      }),
       Color,
       // Add text alignment capability
       TextAlign.configure({
