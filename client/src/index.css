@@ -377,6 +377,22 @@ div[data-focused="true"] .connector-line {
   animation: slide-in-from-bottom 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
+/* Animation for the scroll to top button */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
 @layer base {
   * {
     @apply border-border;
