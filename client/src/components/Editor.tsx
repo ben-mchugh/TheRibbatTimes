@@ -14,7 +14,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, 
   List, ListOrdered, Quote, Undo, Redo,
   AlignLeft, AlignCenter, AlignRight, PaintBucket,
-  Palette
+  Image as ImageIcon, Palette
 } from 'lucide-react';
 import { 
   Select, 
