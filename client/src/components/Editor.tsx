@@ -8,6 +8,7 @@ import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import Image from '@tiptap/extension-image';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
@@ -36,6 +37,7 @@ interface EditorProps {
 }
 
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
+  const { toast } = useToast();
   const editor = useEditor({
     extensions: [
       // Enhanced features for rich text editing
@@ -393,7 +395,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                               }).run();
                               
                               // Notify user about resizing capability
-                              toast({
+                              toast?.({
                                 title: "Image added",
                                 description: "You can resize the image by dragging its corners",
                                 duration: 3000,
