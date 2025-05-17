@@ -22,8 +22,9 @@
 /* Image resize handle and container */
 .image-wrapper {
   position: relative;
-  display: inline-block;
+  display: block;
   margin: 1rem auto;
+  text-align: center;
 }
 
 .resize-handle {
@@ -33,8 +34,8 @@
   background-color: #1e88e5;
   border: 2px solid white;
   border-radius: 50%;
-  bottom: -6px;
-  right: -6px;
+  bottom: 0;
+  right: 0;
   cursor: nwse-resize;
   z-index: 10;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);

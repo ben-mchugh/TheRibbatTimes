@@ -87,12 +87,14 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
           return ({ node, editor, getPos }) => {
             const dom = document.createElement('div');
             dom.classList.add('image-wrapper');
+            dom.style.width = node.attrs.width;
+            dom.style.margin = '0 auto';
             
             const img = document.createElement('img');
             img.src = node.attrs.src;
             img.alt = node.attrs.alt || '';
             img.classList.add('resizable-image');
-            img.style.width = node.attrs.width;
+            img.style.width = '100%'; // Image fills the wrapper
             
             const handle = document.createElement('div');
             handle.classList.add('resize-handle');
@@ -127,8 +129,8 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               const newWidthPx = Math.max(50, Math.min(startWidth + dx, containerWidth));
               const newPercentage = Math.round((newWidthPx / containerWidth) * 100);
               
-              // Apply new width
-              img.style.width = `${newPercentage}%`;
+              // Apply new width to the wrapper div
+              dom.style.width = `${newPercentage}%`;
             };
             
             const onMouseUp = () => {
@@ -136,11 +138,11 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               document.removeEventListener('mousemove', onMouseMove);
               document.removeEventListener('mouseup', onMouseUp);
               
-              // Update the node attributes
+              // Update the node attributes with the wrapper width
               if (typeof getPos === 'function') {
                 const transaction = editor.view.state.tr.setNodeMarkup(getPos(), undefined, {
                   ...node.attrs,
-                  width: img.style.width
+                  width: dom.style.width
                 });
                 editor.view.dispatch(transaction);
               }
