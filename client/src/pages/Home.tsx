@@ -1,10 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import PostList from '@/components/PostList';
 
 export default function Home() {
-  // Set page title
+  const [isReturnedFromPost, setIsReturnedFromPost] = useState(false);
+
+  // Set page title and handle scroll restoration
   useEffect(() => {
     document.title = 'The Ribbat Times - News and Opinions';
+    
+    // Check if we have a lastViewedPost in sessionStorage
+    // This means we're returning from a post view
+    const lastViewedPost = sessionStorage.getItem('lastViewedPost');
+    
+    if (lastViewedPost) {
+      // Set a flag to indicate we've returned from a post
+      setIsReturnedFromPost(true);
+      // Clear the lastViewedPost from sessionStorage
+      sessionStorage.removeItem('lastViewedPost');
+    }
   }, []);
 
   return (
@@ -16,7 +29,7 @@ export default function Home() {
           </p>
         </div>
         
-        <PostList />
+        <PostList isReturnedFromPost={isReturnedFromPost} />
       </div>
     </div>
   );

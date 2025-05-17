@@ -4,6 +4,7 @@ import { Post } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, parseISO } from 'date-fns';
+import { useEffect, useRef } from 'react';
 
 // Helper function to group posts by month
 const groupPostsByMonth = (posts: Post[]) => {
@@ -29,10 +30,56 @@ const groupPostsByMonth = (posts: Post[]) => {
     });
 };
 
-const PostList = () => {
+interface PostListProps {
+  isReturnedFromPost?: boolean;
+}
+
+const PostList = ({ isReturnedFromPost = false }: PostListProps) => {
+  const scrollPositionRef = useRef<number | null>(null);
+  
   const { data: posts, isLoading, error } = useQuery<Post[]>({
     queryKey: ['/api/posts'],
   });
+  
+  // Handle scroll position restoration
+  useEffect(() => {
+    // When component mounts, check if we're returning from a post
+    if (isReturnedFromPost) {
+      const savedPosition = sessionStorage.getItem('scrollPosition');
+      if (savedPosition) {
+        window.scrollTo(0, parseInt(savedPosition, 10));
+        sessionStorage.removeItem('scrollPosition');
+      }
+    }
+  }, [isReturnedFromPost]);
+  
+  // Handle click event listeners for post links
+  useEffect(() => {
+    // Save scroll position when navigating to a post
+    const handleClick = () => {
+      const scrollPosition = window.scrollY;
+      sessionStorage.setItem('scrollPosition', scrollPosition.toString());
+    };
+    
+    // Only add event listeners after posts have loaded
+    if (posts && posts.length > 0) {
+      // Use a small timeout to ensure DOM is updated with posts
+      setTimeout(() => {
+        const postLinks = document.querySelectorAll('a[href^="/post/"]');
+        postLinks.forEach(link => {
+          link.addEventListener('click', handleClick);
+        });
+      }, 100);
+    }
+    
+    return () => {
+      // Clean up event listeners
+      const postLinks = document.querySelectorAll('a[href^="/post/"]');
+      postLinks.forEach(link => {
+        link.removeEventListener('click', handleClick);
+      });
+    };
+  }, [posts]);
 
   if (isLoading) {
     return (

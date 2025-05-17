@@ -13,6 +13,15 @@ import Resources from "@/pages/Resources";
 import About from "@/pages/About";
 import Profile from "@/pages/Profile";
 import Header from "@/components/Header";
+import { useEffect } from "react";
+
+// Enable browser's automatic scroll restoration for better user experience
+const enableScrollRestoration = () => {
+  if ('scrollRestoration' in history) {
+    // Tell the browser to restore scroll positions automatically
+    history.scrollRestoration = 'auto';
+  }
+};
 
 function Router() {
   return (
@@ -32,6 +41,11 @@ function Router() {
 }
 
 function App() {
+  // Enable scroll restoration when the app initializes
+  useEffect(() => {
+    enableScrollRestoration();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
