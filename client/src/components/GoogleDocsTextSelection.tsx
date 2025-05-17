@@ -169,6 +169,19 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       };
     };
     
+    /**
+     * Handles right-click context menu for adding comments to selected text
+     * 
+     * @param e - Mouse event from the right-click
+     * 
+     * This function:
+     * - Captures the current text selection when user right-clicks
+     * - Determines if the selection is valid for commenting
+     * - Prevents the default browser context menu
+     * - Calculates the exact position of the selected text in the document
+     * - Positions and displays a custom "Add Comment" menu
+     * - Stores the selection data for the comment creation process
+     */
     const handleContextMenu = (e: MouseEvent) => {
       // Get the current selection
       const selection = window.getSelection();
