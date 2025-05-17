@@ -60,9 +60,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
         placeholder: 'Start writing your post...',
       }),
       // Add text styling capabilities
-      TextStyle.configure({
-        types: ['text'],
-      }),
+      TextStyle,
       Color,
       // Add text alignment capability
       TextAlign.configure({
@@ -512,11 +510,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Arial, sans-serif' }}
                       onClick={() => {
-                        try {
-                          if (editor) editor.commands.setMark('textStyle', { fontFamily: 'Arial, sans-serif' });
-                        } catch (e) {
-                          console.error("Error applying font:", e);
-                        }
+                        editor.chain().focus().setMark('textStyle', { fontFamily: 'Arial' }).run();
                       }}
                     >
                       Arial
@@ -525,11 +519,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Calibri, sans-serif' }}
                       onClick={() => {
-                        try {
-                          if (editor) editor.commands.setMark('textStyle', { fontFamily: 'Calibri, sans-serif' });
-                        } catch (e) {
-                          console.error("Error applying font:", e);
-                        }
+                          editor.chain().focus().setMark('textStyle', { fontFamily: 'Calibri' }).run();
                       }}
                     >
                       Calibri
@@ -537,49 +527,49 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Cambria, serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Cambria, serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Cambria' }).run()}
                     >
                       Cambria
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Comic Sans MS, cursive' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Comic Sans MS, cursive' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Comic Sans MS' }).run()}
                     >
                       Comic Sans MS
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Courier New, monospace' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Courier New, monospace' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Courier New' }).run()}
                     >
                       Courier New
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Georgia, serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Georgia, serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Georgia' }).run()}
                     >
                       Georgia
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Helvetica, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Helvetica, sans-serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Helvetica' }).run()}
                     >
                       Helvetica
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Impact, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Impact, sans-serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Impact' }).run()}
                     >
                       Impact
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Lucida Sans, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Lucida Sans, sans-serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Lucida Sans' }).run()}
                     >
                       Lucida Sans
                     </button>
