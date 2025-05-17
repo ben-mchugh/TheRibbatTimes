@@ -8,7 +8,7 @@ import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import Image from '@tiptap/extension-image';
-import { Node } from '@tiptap/core';
+import { Node, Extension } from '@tiptap/core';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
@@ -276,9 +276,62 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     );
   };
 
-  // Color select function removed to improve performance
-
-  // Remove FontSelect since the extension is not properly configured
+  // Add Font Family selector component
+  const FontFamilySelect = () => {
+    const fonts = [
+      { label: 'Default', value: 'default' },
+      { label: 'Serif', value: 'serif' },
+      { label: 'Sans Serif', value: 'sans-serif' },
+      { label: 'Monospace', value: 'monospace' },
+      { label: 'Playfair Display', value: 'playfair' },
+      { label: 'Open Sans', value: 'opensans' },
+    ];
+    
+    // Function to get the actual font family CSS value
+    const getFontValue = (value: string) => {
+      switch(value) {
+        case 'serif': return 'serif';
+        case 'sans-serif': return 'sans-serif';
+        case 'monospace': return 'monospace';
+        case 'playfair': return '"Playfair Display", serif';
+        case 'opensans': return '"Open Sans", sans-serif';
+        default: return 'inherit';
+      }
+    };
+    
+    return (
+      <Select
+        onValueChange={(value) => {
+          if (value === 'default') {
+            // Reset to default font
+            editor?.chain().focus().unsetMark('textStyle').run();
+          } else {
+            // Set the font family using the textStyle mark
+            const fontFamily = getFontValue(value);
+            editor?.chain().focus().setMark('textStyle', { fontFamily }).run();
+          }
+        }}
+        defaultValue="default"
+      >
+        <SelectTrigger className="w-[140px] h-8" style={{ backgroundColor: "#d3d3d3", color: "#333333", borderColor: "#999" }}>
+          <SelectValue placeholder="Font" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            {fonts.map(font => (
+              <SelectItem 
+                key={font.value} 
+                value={font.value}
+                style={{ fontFamily: getFontValue(font.value) }}
+              >
+                {font.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    );
+  };
 
   // Handle inserting images
   const insertImage = (url: string, width: number) => {
@@ -366,7 +419,10 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               <HeadingSelect />
             </div>
             
-            {/* Color and Font selectors removed for performance */}
+            {/* Font Family selector */}
+            <div className="flex items-center mr-4">
+              <FontFamilySelect />
+            </div>
             
             {/* Text alignment tools */}
             <div className="flex space-x-1 mr-4">
