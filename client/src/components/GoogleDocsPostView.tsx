@@ -711,9 +711,27 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     };
   }, [setFocusedCommentId]);
 
-  // Effect to add click handler to highlighted text spans
+  /**
+   * Handles user clicks on highlighted text in the document
+   * 
+   * This effect:
+   * 1. Sets up event listeners for text highlight interactions
+   * 2. Manages the synchronization between text highlights and comment panel
+   * 3. Ensures the correct comment is focused when its text is clicked
+   */
   useEffect(() => {
-    // Optimized handler with better performance checks
+    /**
+     * Event handler for clicks on highlighted text
+     * 
+     * @param e - Mouse event from the click
+     * 
+     * This function:
+     * - Identifies if a highlighted text element was clicked
+     * - Gets the associated comment ID from the element
+     * - Updates the UI to focus that specific comment
+     * - Scrolls the comment panel to show the focused comment
+     * - Removes "new" status from comments after they're clicked
+     */
     const handleHighlightClick = (e: MouseEvent) => {
       // Early return for non-element targets
       if (!(e.target instanceof HTMLElement)) return;

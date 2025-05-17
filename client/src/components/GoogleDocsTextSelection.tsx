@@ -47,10 +47,27 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
   
   // Handle text selection and right-click context menu
   useEffect(() => {
-    // Get all text nodes in an element
+    /**
+     * Retrieves all text nodes within a given DOM node
+     * 
+     * @param node - The parent DOM node to search within
+     * @returns Array of Text nodes found within the provided node
+     * 
+     * This function is crucial for the comment functionality as it:
+     * - Recursively finds all text nodes in the post content
+     * - Enables tracking the exact position of selected text
+     * - Helps calculate the selectionStart and selectionEnd values
+     *   needed to properly highlight commented text
+     * - Creates the mapping between text positions and DOM nodes
+     *   that allows the system to highlight the correct text
+     */
     function getTextNodesIn(node: Node): Text[] {
       const textNodes: Text[] = [];
       
+      /**
+       * Helper function that recursively processes nodes
+       * @param node - Current node being processed
+       */
       function getTextNodes(node: Node) {
         if (node.nodeType === Node.TEXT_NODE) {
           textNodes.push(node as Text);
@@ -65,7 +82,19 @@ const GoogleDocsTextSelection = ({ postId, onAddComment }: GoogleDocsTextSelecti
       return textNodes;
     }
     
-    // Calculate selection position in text
+    /**
+     * Calculates the precise start and end positions of the selected text
+     * 
+     * @param selection - The browser's Selection object containing the selected text
+     * @param postContent - The DOM element containing the post content
+     * @returns Object with text selection data: start/end positions and selected text
+     * 
+     * This function is essential for the comment system as it:
+     * - Builds a complete text map of the document
+     * - Determines the exact character positions of selected text
+     * - Captures both the exact selection and trimmed version
+     * - Creates the data needed to properly highlight commented text later
+     */
     const calculateSelectionPositions = (selection: Selection, postContent: Element) => {
       // Always capture the exact selected text before trimming
       const exactText = selection.toString();
