@@ -132,34 +132,17 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
   });
 
   // Make sure our content stays updated if it's changed externally
-  // Keep track of resized images to preserve their dimensions
+  // Simple approach: just track resized images by source
   const [resizedImageMap, setResizedImageMap] = useState<Map<string, string>>(new Map());
   
-  // When content is updated from outside, preserve image sizes
+  // When content is updated from outside
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
-      // First set the content
       editor.commands.setContent(content);
-      
-      // Then restore any previously resized images
-      setTimeout(() => {
-        if (resizedImageMap.size > 0) {
-          const images = editor.view.dom.querySelectorAll('img');
-          images.forEach((img: HTMLImageElement) => {
-            // Use the image src as a key to identify specific images
-            const src = img.getAttribute('src');
-            if (src && resizedImageMap.has(src)) {
-              img.style.width = resizedImageMap.get(src) || '100%';
-              img.style.height = 'auto';
-            }
-          });
-        }
-      }, 0);
     }
-  }, [content, editor, resizedImageMap]);
+  }, [content, editor]);
 
-  // Simplified ID generation with throttling for better performance
-  // Setup handlers for editor updates and image persistence
+  // Setup ID generation for content blocks and maintain image sizing
   useEffect(() => {
     if (!editor) return;
     
@@ -175,84 +158,39 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       };
     };
     
-    // Function to preserve image dimensions through HTML transformations
-    const processEditorUpdate = () => {
-      // Add IDs to headings and paragraphs
+    // Simple function to add IDs to headings and paragraphs
+    const addIdsToNodes = () => {
+      // Find all headings and paragraphs
       const headings = editor.view.dom.querySelectorAll('h1, h2, h3, p, blockquote, ul, ol');
+      
       headings.forEach((node, index) => {
         if (!node.id) {
           node.id = `content-block-${index}`;
         }
       });
       
-      // Process all images to restore dimensions
-      const editorImages = editor.view.dom.querySelectorAll('img');
-      editorImages.forEach((img: HTMLImageElement) => {
+      // Apply saved dimensions to images
+      const images = editor.view.dom.querySelectorAll('img');
+      images.forEach((img: HTMLImageElement) => {
         const src = img.getAttribute('src');
-        
-        // First priority: check if image has data attribute for custom size
-        if (img.dataset.customWidth) {
-          img.style.width = img.dataset.customWidth;
-          img.style.height = 'auto';
-          img.classList.add('custom-sized');
-          
-          // Make sure this size is in our map
-          if (src && !resizedImageMap.has(src)) {
-            const newMap = new Map(resizedImageMap);
-            newMap.set(src, img.dataset.customWidth);
-            setResizedImageMap(newMap);
-          }
-        } 
-        // Second priority: check our map for saved dimensions
-        else if (src && resizedImageMap.has(src)) {
+        if (src && resizedImageMap.has(src)) {
           img.style.width = resizedImageMap.get(src) || '100%';
           img.style.height = 'auto';
-          img.classList.add('custom-sized');
-          
-          // Also add data attribute as backup
-          img.dataset.customWidth = resizedImageMap.get(src) || '100%';
         }
       });
     };
     
-    // Create an observer to watch for DOM mutations within the editor
-    const observer = new MutationObserver((mutations) => {
-      let shouldProcess = false;
-      
-      mutations.forEach(mutation => {
-        // Check if the mutation involves nodes being added/removed
-        if (mutation.type === 'childList' || 
-            (mutation.type === 'attributes' && mutation.attributeName === 'src')) {
-          shouldProcess = true;
-        }
-      });
-      
-      if (shouldProcess) {
-        processEditorUpdate();
-      }
-    });
-    
-    // Start observing the editor content
-    observer.observe(editor.view.dom, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-      attributes: true,
-      attributeFilter: ['src', 'style', 'class']
-    });
-    
     // Run initially
-    processEditorUpdate();
+    addIdsToNodes();
     
     // Throttled version to reduce processing load
-    const throttledProcess = throttle(processEditorUpdate, 100);
+    const throttledAddIds = throttle(addIdsToNodes, 300);
     
     // Listen for editor updates
-    editor.on('update', throttledProcess);
+    editor.on('update', throttledAddIds);
     
     return () => {
-      observer.disconnect();
-      editor.off('update', throttledProcess);
+      editor.off('update', throttledAddIds);
     };
   }, [editor, resizedImageMap]);
   
