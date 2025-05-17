@@ -970,17 +970,17 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             </div>
           ) : (
             <div className="bg-[#e0d3af] p-8 rounded-lg shadow-sm relative">
-              {/* Top right buttons in post box */}
+              {/* Top right buttons in post box - more subtle version */}
               <div className="absolute top-4 right-4 flex gap-2 z-10">
                 {/* Comments toggle button */}
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowComments(!showComments)}
-                  className={`bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-100' : 'opacity-80'}`}
+                  className={`bg-transparent hover:bg-[#d7c497]/40 text-[#666666] hover:text-[#444444] rounded-full w-9 h-9 flex items-center justify-center p-0 ${showComments ? 'opacity-100' : 'opacity-70'}`}
                   title={showComments ? "Hide comments" : "Show comments"}
                 >
-                  <MessageSquare className="h-5 w-5" />
+                  <MessageSquare className="h-4 w-4" />
                 </Button>
                 
                 {/* Close button */}
@@ -988,10 +988,10 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md"
+                    className="bg-transparent hover:bg-[#d7c497]/40 text-[#666666] hover:text-[#444444] rounded-full w-9 h-9 flex items-center justify-center p-0"
                     title="Close"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4" />
                   </Button>
                 </a>
               </div>
