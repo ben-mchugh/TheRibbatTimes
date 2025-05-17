@@ -7,6 +7,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
+import Image from '@tiptap/extension-image';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
