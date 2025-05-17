@@ -16,6 +16,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, PaintBucket,
   Image as ImageIcon, Palette
 } from 'lucide-react';
+import ImageUploadDialog from './ImageUploadDialog';
 import { 
   Select, 
   SelectContent, 
@@ -177,13 +178,22 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
   // Handle inserting images
   const insertImage = (url: string, width: number) => {
     if (url && editor) {
-      // Calculate width style attribute based on percentage
-      const styleAttr = `width: ${width}%;`;
+      // Use the Image extension's API
       editor.chain().focus().setImage({ 
         src: url,
         alt: 'Uploaded image',
-        style: styleAttr
       }).run();
+      
+      // Find the newly inserted image and set its style directly
+      setTimeout(() => {
+        const imgs = editor.view.dom.querySelectorAll('img:not([style])');
+        if (imgs.length > 0) {
+          // Cast to HTMLImageElement to access style properties
+          const lastImg = imgs[imgs.length - 1] as HTMLImageElement;
+          // Apply styling
+          lastImg.setAttribute('style', `width: ${width}%; margin: 0 auto; display: block;`);
+        }
+      }, 10);
     }
   };
 
@@ -328,6 +338,24 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                 </PopoverContent>
               </Popover>
             </div>
+            
+            {/* Image upload button */}
+            <div className="flex space-x-1 mr-4">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setImageDialogOpen(true)}
+                    style={{ color: "#333333" }}
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Insert Image</TooltipContent>
+              </Tooltip>
+            </div>
 
             {/* List formatting tools */}
             <div className="flex space-x-1 mr-4">
@@ -415,6 +443,13 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       </div>
       
       <EditorContent editor={editor} />
+      
+      {/* Image Upload Dialog */}
+      <ImageUploadDialog
+        isOpen={imageDialogOpen}
+        onClose={() => setImageDialogOpen(false)}
+        onInsert={insertImage}
+      />
     </div>
   );
 };

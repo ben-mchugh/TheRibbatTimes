@@ -3,6 +3,21 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Styles for resizable images in posts */
+.resizable-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem auto;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease-in-out;
+}
+
+.resizable-image:hover {
+  transform: scale(1.01);
+}
+
 @layer base {
   textarea:focus, input:focus {
     outline: none !important;
