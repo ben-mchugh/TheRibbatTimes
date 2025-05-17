@@ -62,9 +62,11 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       // Add image support with resizing capability
       Image.configure({
         allowBase64: true,
-        inline: true,
+        inline: false,
         HTMLAttributes: {
-          class: 'resize-handler'
+          draggable: true,
+          style: 'min-width: 100px; min-height: 100px;',
+          class: 'resizable-image',
         },
       }),
     ],
@@ -383,7 +385,19 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                           reader.onload = (e) => {
                             const result = e.target?.result;
                             if (typeof result === 'string') {
-                              editor.chain().focus().setImage({ src: result }).run();
+                              // Insert the image with specific resizable attributes
+                              editor.chain().focus().setImage({ 
+                                src: result,
+                                alt: file.name,
+                                title: file.name,
+                              }).run();
+                              
+                              // Notify user about resizing capability
+                              toast({
+                                title: "Image added",
+                                description: "You can resize the image by dragging its corners",
+                                duration: 3000,
+                              });
                             }
                           };
                           reader.readAsDataURL(file);

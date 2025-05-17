@@ -3,20 +3,71 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Image resizing styles for editor */
-.resize-handler {
-  max-width: 100%;
-  height: auto;
-  display: inline-block;
-  resize: both;
-  overflow: hidden;
-  border: 1px solid transparent;
-  padding: 4px;
-  margin: 5px 0;
+/* Simple and effective image styles for the editor */
+.ProseMirror {
+  position: relative;
 }
 
-.resize-handler:hover {
-  border: 1px dashed #ccc;
+/* Basic styling for all images in the editor */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+  margin: 1em 0;
+  border: 2px solid transparent;
+  
+  /* This is the key for resizability */
+  display: inline-block;
+  resize: both;
+  overflow: auto;
+  min-width: 100px;
+  min-height: 50px;
+}
+
+/* Style for hovering over images */
+.ProseMirror img:hover {
+  border: 2px dashed #aaa;
+  border-radius: 4px;
+}
+
+/* Style for selected images */
+.ProseMirror img.ProseMirror-selectednode {
+  border: 2px solid #68cef8;
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px rgba(104, 206, 248, 0.25);
+}
+
+/* Set width options for images - these can be applied via menus */
+.ProseMirror img.image-size-25 {
+  width: 25%;
+}
+
+.ProseMirror img.image-size-50 {
+  width: 50%;
+}
+
+.ProseMirror img.image-size-75 {
+  width: 75%;
+}
+
+.ProseMirror img.image-size-100 {
+  width: 100%;
+}
+
+/* Image container for alignment */
+.ProseMirror .image-container {
+  display: block;
+  position: relative;
+  margin: 1em 0;
+}
+
+/* For image captions if added later */
+.ProseMirror .image-caption {
+  display: block;
+  text-align: center;
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 0.5em;
 }
 
 @layer base {
