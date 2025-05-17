@@ -683,8 +683,6 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
           }
         });
       }
-        }
-      });
     };
     
     // Add event listener to capture clicks on highlighted text
@@ -693,7 +691,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     return () => {
       document.removeEventListener('click', handleHighlightClick);
     };
-  }, [setNewCommentIds, setFocusedCommentId, setShowComments, isMobile]);
+  }, [focusedCommentId, setNewCommentIds, setFocusedCommentId, setShowComments, isMobile]);
   
   // Effect to re-apply event handlers after content rendering
   useEffect(() => {
