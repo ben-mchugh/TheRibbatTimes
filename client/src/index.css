@@ -3,6 +3,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Image resizing styles for editor */
+.resize-handler {
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+  resize: both;
+  overflow: hidden;
+  border: 1px solid transparent;
+  padding: 4px;
+  margin: 5px 0;
+}
+
+.resize-handler:hover {
+  border: 1px dashed #ccc;
+}
+
 @layer base {
   textarea:focus, input:focus {
     outline: none !important;
