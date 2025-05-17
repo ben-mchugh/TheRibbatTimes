@@ -108,8 +108,14 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const handleCommentClick = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation(); // Prevent event bubbling if event is provided
     
-    // Set this comment as the active one (and deactivate all others)
-    if (setActive) setActive(comment.id);
+    // Toggle active state - if already active, deactivate it
+    if (setActive) {
+      if (isActive) {
+        setActive(null);
+      } else {
+        setActive(comment.id);
+      }
+    }
     
     if (comment.selectedText && !isEditing && !isReplying) {
       // Find the selection in the document
@@ -122,16 +128,19 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         const highlightedEl = document.querySelector(`.selection-highlight[data-comment-id="${comment.id}"]`);
         
         if (highlightedEl) {
-          // Scroll to the highlighted text and add a persistent highlight
-          highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
-          // Add a consistent highlight style without the pulse animation
+          // First, clear all existing highlights
           document.querySelectorAll('.selection-highlight').forEach(el => {
             el.classList.remove('highlight-focus');
           });
           
-          // Add the static highlight class to this element
-          highlightedEl.classList.add('highlight-focus');
+          // Only add highlight if we're activating (not deactivating)
+          if (!isActive) {
+            // Scroll to the highlighted text and add a persistent highlight
+            highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Add the static highlight class to this element
+            highlightedEl.classList.add('highlight-focus');
+          }
         }
       }
     }
@@ -389,10 +398,14 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
     <div className={`gdocs-comment ${isReply ? 'ml-4 mt-2' : ''} ${isFocused ? 'focused' : ''} block`}>
       <div 
         ref={commentRef}
-        className={`${isActive ? 'bg-white' : 'bg-[#e8e8e8]/95'} backdrop-blur-sm p-4 rounded-lg mb-2 relative group shadow-xl opacity-100 ${
-          comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0] hover:shadow-2xl' : ''
+        className={`${
+          isActive 
+            ? 'bg-white shadow-2xl' 
+            : 'bg-[#e8e8e8]/95 shadow-xl'
+        } backdrop-blur-sm p-4 rounded-lg mb-2 relative group opacity-100 ${
+          comment.selectedText ? 'cursor-pointer hover:bg-[#f0f0f0]' : ''
         } ${isReply ? 'w-[85%] min-w-[240px] ml-auto mr-0' : 'w-[95%] min-w-[260px]'} 
-        transition duration-200 ease-in-out animate-comment-enter box-border table table-fixed
+        transition duration-150 ease-in-out animate-comment-enter box-border table table-fixed
         ${isFocused ? 'ring-2 ring-[#444444]/40' : ''}`}
         onClick={handleCommentClick}
         data-comment-id={comment.id}

@@ -141,17 +141,20 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 /* Static highlight for focused text (no animation) */
 .highlight-focus {
-  background-color: rgba(255, 217, 102, 0.8) !important;
-  border-bottom: 3px solid rgba(166, 122, 72, 0.9) !important;
-  box-shadow: 0 3px 8px rgba(166, 122, 72, 0.5) !important;
+  background-color: rgba(255, 217, 102, 0.85) !important;
+  border-bottom: 3px solid rgba(166, 122, 72, 0.95) !important;
+  box-shadow: 0 4px 10px rgba(166, 122, 72, 0.55) !important;
   z-index: 20;
   transform: translateY(-1px) !important;
-  transition: all 0.2s ease !important;
-  padding: 0 2px !important;
-  margin: 0 -2px !important;
-  border-radius: 2px !important;
-  font-weight: 500 !important;
-  color: #161718 !important;
+  transition: all 0.15s ease-out !important;
+  padding: 0 3px !important;
+  margin: 0 -3px !important;
+  border-radius: 3px !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+  outline: 1px solid rgba(166, 122, 72, 0.6) !important;
+  position: relative !important;
 }
 
 /* Legacy animation - keeping for compatibility but not using anymore */
