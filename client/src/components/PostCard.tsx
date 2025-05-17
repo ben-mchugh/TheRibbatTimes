@@ -15,53 +15,50 @@ const PostCard = ({ post, profile }: PostCardProps) => {
   const formattedDate = formatDate(post.createdAt);
 
   return (
-    <Card className="post-card shadow overflow-hidden sm:rounded-lg" style={{ backgroundColor: "#e0d3af" }}>
-      <CardContent className="p-0">
-        <div className="px-4 py-5 sm:px-6 flex justify-between">
-          <div>
-            <h2 className="text-xl font-heading font-bold" style={{ color: "#161718" }}>{post.title}</h2>
-            <div className="mt-1 flex items-center">
-              <Avatar className="h-8 w-8">
-                <AvatarImage 
-                  src={post.author?.photoURL || profile?.photoURL || ''} 
-                  alt={post.author?.displayName || profile?.displayName || 'User'} 
-                />
-                <AvatarFallback>
-                  {(post.author?.displayName || profile?.displayName || 'U').charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="ml-2 text-sm" style={{ color: "#161718" }}>
-                {post.author?.displayName || profile?.displayName || 'User'}
-              </span>
-              <span className="mx-2" style={{ color: "#444444" }}>•</span>
-              <span className="text-sm" style={{ color: "#161718" }}>{formattedDate}</span>
+    <Link href={`/post/${post.id}`} className="block">
+      <Card className="post-card shadow overflow-hidden sm:rounded-lg cursor-pointer hover:shadow-lg transition-shadow duration-200" 
+        style={{ backgroundColor: "#e0d3af" }}>
+        <CardContent className="p-0">
+          <div className="px-4 py-5 sm:px-6 flex justify-between">
+            <div>
+              <h2 className="text-xl font-heading font-bold" style={{ color: "#161718" }}>{post.title}</h2>
+              <div className="mt-1 flex items-center">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage 
+                    src={post.author?.photoURL || profile?.photoURL || ''} 
+                    alt={post.author?.displayName || profile?.displayName || 'User'} 
+                  />
+                  <AvatarFallback>
+                    {(post.author?.displayName || profile?.displayName || 'U').charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="ml-2 text-sm" style={{ color: "#161718" }}>
+                  {post.author?.displayName || profile?.displayName || 'User'}
+                </span>
+                <span className="mx-2" style={{ color: "#444444" }}>•</span>
+                <span className="text-sm" style={{ color: "#161718" }}>{formattedDate}</span>
+              </div>
             </div>
           </div>
-          <Link href={`/post/${post.id}`}>
-            <Button variant="ghost" className="inline-flex items-center px-3 py-1.5 text-sm bg-opacity-10 hover:bg-opacity-20" style={{ color: "#444444" }}>
-              Read More
-              <ChevronRight className="ml-1 h-5 w-5" />
-            </Button>
-          </Link>
-        </div>
-        <div className="px-4 py-4 sm:px-6 border-t" style={{ borderColor: "#a67a48" }}>
-          <p className="line-clamp-3" style={{ color: "#161718" }}>
-            {/* Display a plain text preview from the content (strip HTML) */}
-            {post.content.replace(/<[^>]*>/g, '').substring(0, 250)}...
-          </p>
-          <div className="mt-3 flex items-center text-sm" style={{ color: "#a67a48" }}>
-            <MessageSquare className="h-5 w-5 mr-1" style={{ color: "#a67a48" }} />
-            <span>{post.commentCount} comments</span>
-            {post.tags && post.tags.length > 0 && (
-              <>
-                <span className="mx-2">•</span>
-                <span>{post.tags.join(', ')}</span>
-              </>
-            )}
+          <div className="px-4 py-4 sm:px-6 border-t" style={{ borderColor: "#a67a48" }}>
+            <p className="line-clamp-3" style={{ color: "#161718" }}>
+              {/* Display a plain text preview from the content (strip HTML) */}
+              {post.content.replace(/<[^>]*>/g, '').substring(0, 250)}...
+            </p>
+            <div className="mt-3 flex items-center text-sm" style={{ color: "#a67a48" }}>
+              <MessageSquare className="h-5 w-5 mr-1" style={{ color: "#a67a48" }} />
+              <span>{post.commentCount} comments</span>
+              {post.tags && post.tags.length > 0 && (
+                <>
+                  <span className="mx-2">•</span>
+                  <span>{post.tags.join(', ')}</span>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 };
 
