@@ -141,9 +141,14 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
         
         if (highlightedEl) {
           // First, clear all existing highlights
-          document.querySelectorAll('.selection-highlight').forEach(el => {
-            el.classList.remove('highlight-focus');
-          });
+          const clearAllHighlights = () => {
+            document.querySelectorAll('.selection-highlight').forEach(el => {
+              el.classList.remove('highlight-focus');
+            });
+            console.log("Cleared all highlights from comment click handler");
+          };
+          
+          clearAllHighlights();
           
           // Always add the highlight when this comment is clicked
           // Add the static highlight class to this element

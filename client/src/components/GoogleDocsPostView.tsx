@@ -621,6 +621,14 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   useEffect(() => {
     if (!postContentRef.current) return;
     
+    // Central function to clear all highlights
+    const clearAllHighlights = () => {
+      document.querySelectorAll('.selection-highlight').forEach(el => {
+        el.classList.remove('highlight-focus');
+      });
+      console.log("Cleared all highlights");
+    };
+    
     const handleSetFocusedComment = (event: Event) => {
       const customEvent = event as CustomEvent;
       if (customEvent.detail && customEvent.detail.commentId) {
@@ -630,9 +638,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         setFocusedCommentId(commentId);
         
         // Clear any existing highlights
-        document.querySelectorAll('.selection-highlight').forEach(el => {
-          el.classList.remove('highlight-focus');
-        });
+        clearAllHighlights();
         
         // Find and highlight the text associated with this comment
         const highlightedEl = document.querySelector(`.selection-highlight[data-comment-id="${commentId}"]`);
@@ -680,9 +686,15 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       }
       
       // Remove any existing highlights first
-      document.querySelectorAll('.selection-highlight').forEach(el => {
-        el.classList.remove('highlight-focus');
-      });
+      // Use a consistent method for clearing highlights
+      const clearAllHighlights = () => {
+        document.querySelectorAll('.selection-highlight').forEach(el => {
+          el.classList.remove('highlight-focus');
+        });
+        console.log("Cleared all highlights from highlight click handler");
+      };
+      
+      clearAllHighlights();
       
       // Always focus the comment when clicking on highlighted text
       setFocusedCommentId(commentId);
