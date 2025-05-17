@@ -869,31 +869,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         }
       }}
     >
-      {/* Fixed position controls - positioned even lower as requested */}
-      <div className="fixed top-32 right-4 z-40 flex flex-col gap-2">
-        {/* Close button */}
-        <a href="/">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md"
-            title="Close"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </a>
-        
-        {/* Comments toggle button - simplified to just an icon with normal opacity */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowComments(!showComments)}
-          className={`bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-100' : 'opacity-80'}`}
-          title={showComments ? "Hide comments" : "Show comments"}
-        >
-          <MessageSquare className="h-5 w-5" />
-        </Button>
-      </div>
+      {/* Controls moved from fixed position */}
       
       <div className="flex flex-col md:flex-row gap-6 flex-1 max-w-[1520px] mx-auto w-full">
         {/* Main content area */}
@@ -919,8 +895,34 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
               <Skeleton className="h-4 w-4/5 mb-2" />
             </div>
           ) : (
-            <div className="bg-[#e0d3af] p-8 rounded-lg shadow-sm">
-              <h1 className="text-2xl md:text-3xl font-semibold text-[#161718] mb-4">
+            <div className="bg-[#e0d3af] p-8 rounded-lg shadow-sm relative">
+              {/* Controls moved to top right of content box */}
+              <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                {/* Comments toggle button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowComments(!showComments)}
+                  className={`bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-100' : 'opacity-80'}`}
+                  title={showComments ? "Hide comments" : "Show comments"}
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+                
+                {/* Close button */}
+                <a href="/">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md"
+                    title="Close"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </a>
+              </div>
+              
+              <h1 className="text-2xl md:text-3xl font-semibold text-[#161718] mb-4 pr-24">
                 {post?.title}
               </h1>
               

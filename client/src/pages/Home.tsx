@@ -101,15 +101,6 @@ export default function Home() {
           </p>
           
           <div className="flex items-center gap-4 mt-2 sm:mt-0">
-            <Link href="/posts/new">
-              <Button 
-                className="rounded-lg"
-                style={{ backgroundColor: '#a67a48', color: 'white' }}
-              >
-                New Post
-              </Button>
-            </Link>
-            
             {monthOptions.length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
