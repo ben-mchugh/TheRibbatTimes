@@ -105,7 +105,23 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       }),
     ],
     content,
-    onUpdate: ({ editor }) => {
+    onUpdate: ({ editor, transaction }) => {
+      // Track changes right before they're applied to the DOM
+      if (transaction.docChanged && resizedImageMap.size > 0) {
+        // Schedule restoration of image sizes after the update
+        setTimeout(() => {
+          const images = editor.view.dom.querySelectorAll('img');
+          images.forEach((img: HTMLImageElement) => {
+            const src = img.getAttribute('src');
+            if (src && resizedImageMap.has(src)) {
+              img.style.width = resizedImageMap.get(src) || '100%';
+              img.style.height = 'auto';
+            }
+          });
+        }, 0);
+      }
+      
+      // Pass the updated HTML to parent component
       onChange(editor.getHTML());
     },
     editorProps: {
@@ -143,7 +159,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
   }, [content, editor, resizedImageMap]);
 
   // Simplified ID generation with throttling for better performance
-  // Setup image click event handling for resize slider
+  // Setup handlers for editor updates and image persistence
   useEffect(() => {
     if (!editor) return;
     
@@ -159,6 +175,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       };
     };
     
+    // Function to preserve image dimensions through HTML transformations
     const processEditorUpdate = () => {
       // Add IDs to headings and paragraphs
       const headings = editor.view.dom.querySelectorAll('h1, h2, h3, p, blockquote, ul, ol');
@@ -168,29 +185,73 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
         }
       });
       
-      // Restore image sizes from our map
-      if (resizedImageMap.size > 0) {
-        const images = editor.view.dom.querySelectorAll('img');
-        images.forEach((img: HTMLImageElement) => {
-          const src = img.getAttribute('src');
-          if (src && resizedImageMap.has(src)) {
-            img.style.width = resizedImageMap.get(src) || '100%';
-            img.style.height = 'auto';
+      // Process all images to restore dimensions
+      const editorImages = editor.view.dom.querySelectorAll('img');
+      editorImages.forEach((img: HTMLImageElement) => {
+        const src = img.getAttribute('src');
+        
+        // First priority: check if image has data attribute for custom size
+        if (img.dataset.customWidth) {
+          img.style.width = img.dataset.customWidth;
+          img.style.height = 'auto';
+          img.classList.add('custom-sized');
+          
+          // Make sure this size is in our map
+          if (src && !resizedImageMap.has(src)) {
+            const newMap = new Map(resizedImageMap);
+            newMap.set(src, img.dataset.customWidth);
+            setResizedImageMap(newMap);
           }
-        });
-      }
+        } 
+        // Second priority: check our map for saved dimensions
+        else if (src && resizedImageMap.has(src)) {
+          img.style.width = resizedImageMap.get(src) || '100%';
+          img.style.height = 'auto';
+          img.classList.add('custom-sized');
+          
+          // Also add data attribute as backup
+          img.dataset.customWidth = resizedImageMap.get(src) || '100%';
+        }
+      });
     };
+    
+    // Create an observer to watch for DOM mutations within the editor
+    const observer = new MutationObserver((mutations) => {
+      let shouldProcess = false;
+      
+      mutations.forEach(mutation => {
+        // Check if the mutation involves nodes being added/removed
+        if (mutation.type === 'childList' || 
+            (mutation.type === 'attributes' && mutation.attributeName === 'src')) {
+          shouldProcess = true;
+        }
+      });
+      
+      if (shouldProcess) {
+        processEditorUpdate();
+      }
+    });
+    
+    // Start observing the editor content
+    observer.observe(editor.view.dom, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ['src', 'style', 'class']
+    });
     
     // Run initially
     processEditorUpdate();
     
     // Throttled version to reduce processing load
-    const throttledProcess = throttle(processEditorUpdate, 300);
+    const throttledProcess = throttle(processEditorUpdate, 100);
     
     // Listen for editor updates
     editor.on('update', throttledProcess);
     
     return () => {
+      observer.disconnect();
       editor.off('update', throttledProcess);
     };
   }, [editor, resizedImageMap]);
@@ -317,6 +378,12 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       selectedImage.style.width = `${value}%`;
       selectedImage.style.height = 'auto';
       
+      // Mark image as custom sized with a class
+      selectedImage.classList.add('custom-sized');
+      
+      // Add a data attribute to store the size directly on the element
+      selectedImage.dataset.customWidth = `${value}%`;
+      
       // Store the size in our map using the image src as a key
       const src = selectedImage.getAttribute('src');
       if (src) {
@@ -324,6 +391,9 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
         const newMap = new Map(resizedImageMap);
         newMap.set(src, `${value}%`);
         setResizedImageMap(newMap);
+        
+        // Force the editor to recognize the change
+        editor?.commands.focus();
       }
     }
   };
