@@ -119,23 +119,36 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
   
   // Function to align a comment with its corresponding highlighted text
   const alignCommentWithHighlight = useCallback((commentId: number, providedHighlightPosition?: number) => {
-    if (!commentsRef.current) return;
+    console.log(`Aligning comment ${commentId} with highlight position:`, providedHighlightPosition);
+    
+    if (!commentsRef.current) {
+      console.log("Comments ref is not available");
+      return;
+    }
 
     const commentElement = commentsRef.current.querySelector(`[data-comment-id="${commentId}"]`) as HTMLElement;
-    if (!commentElement) return;
+    if (!commentElement) {
+      console.log(`Could not find comment element with ID ${commentId} in comments container`);
+      return;
+    }
     
     let highlightPosition: number;
     
     // If a highlight position was provided, use it
     if (providedHighlightPosition !== undefined) {
       highlightPosition = providedHighlightPosition;
+      console.log(`Using provided highlight position: ${highlightPosition}`);
     } else {
       // Otherwise, find the highlight element and get its position
       const highlightElement = document.querySelector(`.selection-highlight[data-comment-id="${commentId}"]`) as HTMLElement;
-      if (!highlightElement) return;
+      if (!highlightElement) {
+        console.log(`Could not find highlight element for comment ${commentId}`);
+        return;
+      }
       
       const highlightRect = highlightElement.getBoundingClientRect();
       highlightPosition = highlightRect.top; // Use the top of the highlight
+      console.log(`Found highlight element at position: ${highlightPosition}`);
     }
     
     // Get the comment element's position and dimensions
@@ -163,7 +176,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       const customEvent = event as CustomEvent;
       if (customEvent.detail && customEvent.detail.commentId) {
         const { commentId, highlightPosition } = customEvent.detail;
+        console.log("Received forceFocusComment event with commentId:", commentId, "and position:", highlightPosition);
         alignCommentWithHighlight(commentId, highlightPosition);
+      } else {
+        console.log("Received forceFocusComment event with missing details:", customEvent.detail);
       }
     };
     

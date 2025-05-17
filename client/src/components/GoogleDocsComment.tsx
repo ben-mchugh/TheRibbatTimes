@@ -146,11 +146,27 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
           });
           
           // Always add the highlight when this comment is clicked
-          // Scroll to the highlighted text and add a persistent highlight
-          highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          
           // Add the static highlight class to this element
           highlightedEl.classList.add('highlight-focus');
+          
+          // Get the highlight's position
+          const highlightRect = highlightedEl.getBoundingClientRect();
+          const highlightPosition = highlightRect.top;
+          
+          // Create and dispatch a custom event for precise alignment
+          const commentsContainer = document.querySelector('.comments-container');
+          if (commentsContainer) {
+            // Create a custom event to notify the CommentSection component to align
+            const alignEvent = new CustomEvent('forceFocusComment', {
+              detail: { commentId: comment.id, highlightPosition }
+            });
+            
+            // Dispatch the event on the comments container to trigger alignment
+            commentsContainer.dispatchEvent(alignEvent);
+          } else {
+            // Fallback to basic scrolling if custom event can't be used
+            highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
         }
       }
     }
