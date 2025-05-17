@@ -100,20 +100,21 @@ const MonthNavigator = ({ threshold = 300 }: MonthNavigatorProps) => {
     }
   };
 
-  return isVisible && monthOptions.length > 0 ? (
+  return monthOptions.length > 0 ? (
     <div 
-      className="fixed bottom-6 left-6 z-50 animate-fade-in"
+      className={`fixed top-4 right-4 z-50 ${isVisible ? 'animate-fade-in' : 'opacity-0 pointer-events-none'}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
         transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-        transition: 'transform 0.3s ease'
+        transition: 'all 0.3s ease',
+        opacity: isVisible ? 1 : 0
       }}
     >
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 
-            className="rounded-lg shadow-lg px-4 py-3 flex items-center gap-2"
+            className="rounded-lg shadow-lg px-4 py-2 flex items-center gap-2"
             style={{ 
               backgroundColor: isHovered ? '#8a5a28' : '#a67a48', 
               color: 'white',
@@ -123,13 +124,13 @@ const MonthNavigator = ({ threshold = 300 }: MonthNavigatorProps) => {
                 : '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}
           >
-            Go To
+            Go To Month
             <ChevronDown className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
-          align="start"
-          className="bg-white border border-neutral-200 rounded-md shadow-lg"
+          align="end"
+          className="bg-white border border-neutral-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
         >
           {monthOptions.map((monthYear) => (
             <DropdownMenuItem 
