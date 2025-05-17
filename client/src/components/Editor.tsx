@@ -41,6 +41,7 @@ interface EditorProps {
 
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [currentFontSize, setCurrentFontSize] = useState(11); // Default font size
   const editor = useEditor({
     extensions: [
       // Enhanced features for rich text editing
@@ -421,46 +422,71 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               <HeadingSelect />
             </div>
             
-            {/* Font Size selector */}
-            <div className="flex space-x-1 mr-4">
+            {/* Google Docs style font size control */}
+            <div className="flex items-center space-x-1 mr-4">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    style={{ color: "#333333" }}
+                    variant="outline"
+                    role="combobox"
+                    size="sm"
+                    className="min-w-[4rem] h-8 px-2 flex items-center justify-between"
                   >
-                    <span className="text-xs font-bold">Aa</span>
+                    <span>{currentFontSize}</span>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-40 p-1">
-                  <div className="max-h-60 overflow-y-auto pr-1 font-selector">
-                    <div className="mb-2">
-                      <input 
-                        type="number" 
-                        min="8" 
-                        max="72" 
-                        className="w-full p-1 border rounded text-sm" 
-                        placeholder="Custom size"
+                <PopoverContent className="w-48 p-1">
+                  <div className="flex flex-col space-y-1">
+                    <div className="flex border rounded overflow-hidden">
+                      <button 
+                        className="flex-none px-2 bg-gray-50 hover:bg-gray-100 border-r"
+                        onClick={() => {
+                          const fontSize = editor.getAttributes('textStyle').fontSize;
+                          const currentSize = fontSize ? parseInt(fontSize.replace('px', '')) : currentFontSize;
+                          const newSize = Math.max(8, currentSize - 1);
+                          setCurrentFontSize(newSize);
+                          editor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
+                        }}
+                      >−</button>
+                      <input
+                        type="number"
+                        min="8"
+                        max="72"
+                        defaultValue="11"
+                        className="flex-1 text-center px-2 border-none focus:outline-none focus:ring-0"
                         onChange={(e) => {
                           const size = parseInt(e.target.value);
                           if (size >= 8 && size <= 72) {
+                            setCurrentFontSize(size);
                             editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
                           }
                         }}
                       />
+                      <button 
+                        className="flex-none px-2 bg-gray-50 hover:bg-gray-100 border-l"
+                        onClick={() => {
+                          const fontSize = editor.getAttributes('textStyle').fontSize;
+                          const currentSize = fontSize ? parseInt(fontSize.replace('px', '')) : currentFontSize;
+                          const newSize = Math.min(72, currentSize + 1);
+                          setCurrentFontSize(newSize);
+                          editor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
+                        }}
+                      >+</button>
                     </div>
-                    {[8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 42, 48, 56, 64, 72].map((size) => (
-                      <button
-                        key={size}
-                        className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
-                        style={{ fontSize: `${size}px` }}
-                        onClick={() => editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run()}
-                      >
-                        {size}px
-                      </button>
-                    ))}
+                    
+                    <div className="font-size-presets grid grid-cols-4 gap-1">
+                      {[8, 9, 10, 11, 12, 14, 16, 18, 24, 30, 36, 48, 60, 72].map(size => (
+                        <button
+                          key={size}
+                          className="py-1 px-2 text-center hover:bg-gray-100 rounded text-sm"
+                          onClick={() => {
+                            editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
+                          }}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </PopoverContent>
               </Popover>
