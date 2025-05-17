@@ -8,6 +8,7 @@ import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import Image from '@tiptap/extension-image';
+import { Node } from '@tiptap/core';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
@@ -61,7 +62,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
-      // Add image handling with resizing
+      // Use the standard Image extension but with enhanced HTMLAttributes
       Image.configure({
         inline: false,
         allowBase64: true,
@@ -189,42 +190,41 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
   // Handle inserting images
   const insertImage = (url: string, width: number) => {
     if (url && editor) {
-      // Instead of using setImage directly, create a custom node with HTML attributes
-      // This ensures the width persists through edits
-      const uniqueId = `img-${Date.now()}`;
-      const htmlContent = `<img src="${url}" alt="Uploaded image" class="resizable-image" style="width: ${width}%;" data-size="${width}" id="${uniqueId}" />`;
+      // Insert paragraph before and after to ensure proper spacing and line breaks
+      editor.chain()
+        .focus()
+        .insertContent({
+          type: 'paragraph',
+          content: []
+        })
+        .run();
+        
+      // Insert the image with explicit HTML attributes
+      // We wrap in a div to maintain block-level control
+      const imageHtml = `
+        <div class="image-container" style="text-align: center; margin: 10px 0;">
+          <img 
+            src="${url}" 
+            alt="Uploaded image" 
+            class="resizable-image" 
+            style="width: ${width}%; display: inline-block;" 
+          />
+        </div>
+      `;
       
-      // Insert HTML directly to preserve attributes
-      editor.chain().focus().insertContent(htmlContent).run();
-      
-      // Add a custom listener to this editor instance to make sure images maintain their width
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach(() => {
-          // Find all images with data-size attribute
-          const images = editor.view.dom.querySelectorAll('img[data-size]');
-          images.forEach((img) => {
-            const imgElement = img as HTMLImageElement;
-            const size = imgElement.getAttribute('data-size');
-            if (size && imgElement.style.width !== `${size}%`) {
-              imgElement.style.width = `${size}%`;
-              imgElement.style.margin = '0 auto';
-              imgElement.style.display = 'block';
-            }
-          });
-        });
-      });
-      
-      // Observe changes to the editor content
-      observer.observe(editor.view.dom, { 
-        childList: true, 
-        subtree: true,
-        attributes: true,
-        characterData: true
-      });
-      
-      // Store observer reference to prevent memory leaks
-      editor.storage.imageObservers = editor.storage.imageObservers || [];
-      editor.storage.imageObservers.push(observer);
+      editor.chain()
+        .focus()
+        .insertContent(imageHtml)
+        .run();
+        
+      // Another paragraph after the image to continue typing
+      editor.chain()
+        .focus()
+        .insertContent({
+          type: 'paragraph',
+          content: []
+        })
+        .run();
     }
   };
 
