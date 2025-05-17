@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -36,6 +36,7 @@ interface EditorProps {
 }
 
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const editor = useEditor({
     extensions: [
       // Enhanced features for rich text editing
@@ -58,6 +59,14 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       // Add text alignment capability
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+      }),
+      // Add image handling with resizing
+      Image.configure({
+        inline: false,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'resizable-image',
+        },
       }),
     ],
     content,
@@ -165,7 +174,18 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
 
   // Remove FontSelect since the extension is not properly configured
 
-  // Image functionality removed to improve performance
+  // Handle inserting images
+  const insertImage = (url: string, width: number) => {
+    if (url && editor) {
+      // Calculate width style attribute based on percentage
+      const styleAttr = `width: ${width}%;`;
+      editor.chain().focus().setImage({ 
+        src: url,
+        alt: 'Uploaded image',
+        style: styleAttr
+      }).run();
+    }
+  };
 
   if (!editor) {
     return null;
