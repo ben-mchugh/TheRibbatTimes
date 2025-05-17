@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Load fonts */
+@import url('https://fonts.googleapis.com/css2?family=Arial&family=Calibri&family=Cambria&family=Courier+New&family=Georgia&family=Helvetica&family=Impact&family=Tahoma&family=Times+New+Roman&family=Trebuchet+MS&family=Verdana&family=Crimson+Text&family=Playfair+Display&family=Open+Sans&family=Roboto&display=swap');
+
 /* Custom scrollbar for font selector dropdown */
 .font-selector::-webkit-scrollbar {
   width: 6px;
