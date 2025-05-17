@@ -64,53 +64,73 @@ export default function Home() {
   const scrollToMonth = (monthYear: string) => {
     // Create ID from the month year (same logic as in PostList)
     const monthYearId = monthYear.toLowerCase().replace(/\s+/g, '-');
+    const sectionId = `month-section-${monthYearId}`;
     
     // For debugging
-    console.log(`Trying to scroll to month: ${monthYear}, ID: ${monthYearId}`);
+    console.log(`Trying to scroll to month: ${monthYear}, Section ID: ${sectionId}`);
     
-    // Use a delayed function to ensure DOM is fully processed
+    // Use event loop to ensure rendering is complete
     setTimeout(() => {
-      // Try to find the element by ID first
-      const targetElement = document.getElementById(monthYearId);
+      // Try each possible ID in order of preference
+      const sectionElement = document.getElementById(sectionId);
+      const headingElement = document.getElementById(monthYearId);
+      const textElement = document.getElementById(`month-text-${monthYearId}`);
+      
+      // Use whichever element we find first
+      const targetElement = sectionElement || headingElement || textElement;
       
       if (targetElement) {
-        // Calculate position accounting for any fixed headers
-        const headerOffset = 80; // Adjust if you have a fixed header
+        // Calculate position accounting for fixed header
+        const headerOffset = 100; // Adjust based on your header height
+        
+        // Use native scrollIntoView with offset calculation
         const elementPosition = targetElement.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
         
-        // Scroll to the element
+        // Manual scrolling - more reliable than scrollIntoView
+        console.log(`Scrolling to position: ${offsetPosition}`);
         window.scrollTo({
           top: offsetPosition,
           behavior: 'smooth'
         });
         
-        console.log(`Scrolling to element by ID: ${monthYearId}`);
+        // Highlight the section briefly to help user locate it
+        targetElement.classList.add('highlight-section');
+        setTimeout(() => {
+          targetElement.classList.remove('highlight-section');
+        }, 1500);
       } else {
-        // Fallback: find by heading text
-        const headings = Array.from(document.querySelectorAll('h2.monthly-header'));
-        console.log(`Found ${headings.length} monthly headers`);
+        // Last resort: try to find by heading text content
+        const allHeadings = document.querySelectorAll('h2.monthly-header');
+        console.log(`Searching ${allHeadings.length} headers for text matching "${monthYear}"`);
         
-        const targetHeading = headings.find(heading => 
-          heading.textContent && heading.textContent.includes(monthYear)
-        );
+        let found = false;
+        allHeadings.forEach(heading => {
+          if (heading.textContent && heading.textContent.trim() === monthYear.trim()) {
+            const headerOffset = 100;
+            const elementPosition = heading.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.scrollY - headerOffset;
+            
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+            
+            // Highlight for visibility
+            heading.classList.add('highlight-section');
+            setTimeout(() => {
+              heading.classList.remove('highlight-section');
+            }, 1500);
+            
+            found = true;
+          }
+        });
         
-        if (targetHeading) {
-          const headerOffset = 80;
-          const elementPosition = targetHeading.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.scrollY - headerOffset;
-          
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-          
-          console.log(`Scrolling to heading with text: ${monthYear}`);
-        } else {
-          console.log(`Could not find heading for ${monthYear}`);
+        if (!found) {
+          console.error(`Could not find any element for month: ${monthYear}`);
         }
       }
-    }, 100); // Slightly longer delay to ensure DOM is ready
+    }, 150); // Increased delay to ensure DOM is completely ready
   };
 
   return (

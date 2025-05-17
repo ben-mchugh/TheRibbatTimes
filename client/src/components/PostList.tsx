@@ -151,8 +151,10 @@ const PostList = ({ isReturnedFromPost = false }: PostListProps) => {
         const monthYearId = monthYear.toLowerCase().replace(/\s+/g, '-');
         
         return (
-          <div key={monthYear} className="space-y-6">
-            <h2 id={monthYearId} className="monthly-header">{monthYear}</h2>
+          <div key={monthYear} className="space-y-6" id={`month-section-${monthYearId}`}>
+            <h2 id={monthYearId} className="monthly-header">
+              <span id={`month-text-${monthYearId}`}>{monthYear}</span>
+            </h2>
             <div className="space-y-8">
               {monthPosts.map((post) => (
                 <PostCard key={post.id} post={post} />
