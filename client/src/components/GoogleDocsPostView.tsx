@@ -654,6 +654,16 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // Apply the static highlight style
       clickedElement.classList.add('highlight-focus');
       
+      // Also set the active comment through a custom event
+      // This ensures the comment also turns white when text is clicked
+      const commentsContainer = document.querySelector('.comments-container');
+      if (commentsContainer) {
+        const activateEvent = new CustomEvent('activateComment', {
+          detail: { commentId: commentId }
+        });
+        commentsContainer.dispatchEvent(activateEvent);
+      }
+      
       // Ensure comments panel is open on mobile
       if (isMobile) {
         setShowComments(true);
