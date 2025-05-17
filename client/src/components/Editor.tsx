@@ -62,7 +62,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
-      // Extended image node with width preservation
+      // Extended image node with draggable resize handle
       Image.extend({
         addAttributes() {
           return {
@@ -76,10 +76,85 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               renderHTML: attributes => {
                 return {
                   style: `width: ${attributes.width}; margin: 0 auto; display: block;`,
-                  class: 'resizable-image'
+                  class: 'resizable-image',
+                  'data-resizable': 'true',
                 };
               },
             },
+          };
+        },
+        addNodeView() {
+          return ({ node, editor, getPos }) => {
+            const dom = document.createElement('div');
+            dom.classList.add('image-wrapper');
+            
+            const img = document.createElement('img');
+            img.src = node.attrs.src;
+            img.alt = node.attrs.alt || '';
+            img.classList.add('resizable-image');
+            img.style.width = node.attrs.width;
+            
+            const handle = document.createElement('div');
+            handle.classList.add('resize-handle');
+            
+            dom.appendChild(img);
+            dom.appendChild(handle);
+            
+            // Add resize functionality
+            let startWidth = 0;
+            let startX = 0;
+            let startPercentWidth = 0;
+            
+            const onMouseDown = (e: MouseEvent) => {
+              e.preventDefault();
+              
+              // Calculate starting values
+              startWidth = img.offsetWidth;
+              startX = e.clientX;
+              startPercentWidth = parseInt(img.style.width) || 100;
+              
+              // Add event listeners for dragging
+              document.addEventListener('mousemove', onMouseMove);
+              document.addEventListener('mouseup', onMouseUp);
+            };
+            
+            const onMouseMove = (e: MouseEvent) => {
+              // Calculate how far the mouse has moved
+              const dx = e.clientX - startX;
+              
+              // Calculate new width as a percentage
+              const containerWidth = dom.parentElement ? dom.parentElement.offsetWidth : startWidth;
+              const newWidthPx = Math.max(50, Math.min(startWidth + dx, containerWidth));
+              const newPercentage = Math.round((newWidthPx / containerWidth) * 100);
+              
+              // Apply new width
+              img.style.width = `${newPercentage}%`;
+            };
+            
+            const onMouseUp = () => {
+              // Remove event listeners
+              document.removeEventListener('mousemove', onMouseMove);
+              document.removeEventListener('mouseup', onMouseUp);
+              
+              // Update the node attributes
+              if (typeof getPos === 'function') {
+                const transaction = editor.view.state.tr.setNodeMarkup(getPos(), undefined, {
+                  ...node.attrs,
+                  width: img.style.width
+                });
+                editor.view.dispatch(transaction);
+              }
+            };
+            
+            // Add event listener to resize handle
+            handle.addEventListener('mousedown', onMouseDown);
+            
+            return {
+              dom,
+              destroy: () => {
+                handle.removeEventListener('mousedown', onMouseDown);
+              },
+            };
           };
         },
       }).configure({
