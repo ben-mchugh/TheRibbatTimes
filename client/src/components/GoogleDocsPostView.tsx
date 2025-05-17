@@ -658,10 +658,12 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     
     // Add the event listener to the post content container
     postContentRef.current.addEventListener('setFocusedComment', handleSetFocusedComment);
+    postContentRef.current.addEventListener('clearFocusedComment', handleClearFocusedComment);
     
     return () => {
       if (postContentRef.current) {
         postContentRef.current.removeEventListener('setFocusedComment', handleSetFocusedComment);
+        postContentRef.current.removeEventListener('clearFocusedComment', handleClearFocusedComment);
       }
     };
   }, [setFocusedCommentId]);
