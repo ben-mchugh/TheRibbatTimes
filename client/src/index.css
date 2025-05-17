@@ -3,60 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* TipTap Editor Image Styling */
-.ProseMirror img {
-  position: relative;
-  max-width: 100%;
-  height: auto;
-  cursor: move;
-  margin: 1rem auto;
-  display: block;
-  /* Make images resizable */
-  resize: both;
-  overflow: hidden;
-  min-width: 100px;
-  min-height: 50px;
-  border: 1px solid transparent;
-  /* Add data attribute to identify our custom-sized images */
-  transition: transform 0.1s ease-in-out;
-}
-
-.ProseMirror img:hover {
-  border: 1px solid #a67a48;
-  box-shadow: 0 0 0 3px rgba(166, 122, 72, 0.2);
-}
-
-.ProseMirror img::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 12px;
-  height: 12px;
-  background-color: #a67a48;
-  cursor: nwse-resize;
-}
-
-/* Add special class for tracking custom-sized images */
-.ProseMirror img.custom-sized {
-  /* This class helps us track images that have been custom resized */
-}
-
-/* Drag handle for movable elements */
-.ProseMirror .resize-handle {
-  position: relative;
-}
-
-/* Highlight selected text in editor */
-.ProseMirror .selected-text {
-  background-color: rgba(166, 122, 72, 0.2);
-}
-
-/* Style for active dragging */
-.ProseMirror .dragging {
-  opacity: 0.5;
-}
-
 @layer base {
   textarea:focus, input:focus {
     outline: none !important;

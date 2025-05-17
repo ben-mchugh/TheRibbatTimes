@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -14,7 +14,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, 
   List, ListOrdered, Quote, Undo, Redo,
   AlignLeft, AlignCenter, AlignRight, PaintBucket,
-  Palette, Image as ImageIcon, Move
+  Palette
 } from 'lucide-react';
 import { 
   Select, 
@@ -35,44 +35,7 @@ interface EditorProps {
   onChange: (html: string) => void;
 }
 
-// Helper function to resize selected image
-const resizeSelectedImage = (editor: any, size: 'small' | 'medium' | 'large') => {
-  // Get all images in the editor
-  const images = document.querySelectorAll('.ProseMirror img');
-  
-  // If no images or editor is empty, return
-  if (!editor || images.length === 0) return;
-  
-  // Get the selected node
-  const { selection } = editor.state;
-  
-  // Define sizes based on width percentages
-  const sizes = {
-    small: '30%',
-    medium: '50%',
-    large: '100%'
-  };
-  
-  // Resize all selected images
-  images.forEach((img) => {
-    // Cast to HTMLImageElement to access style properties
-    const imgElement = img as HTMLImageElement;
-    // Apply the selected size to all images - this makes it work even if selection isn't precise
-    imgElement.style.width = sizes[size];
-    imgElement.style.height = 'auto';
-  });
-  
-  // Focus back to editor
-  editor.commands.focus();
-};
-
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
-  // State for image resize slider
-  const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
-  const [sliderValue, setSliderValue] = useState(100); // Default to 100% width
-  const [sliderPosition, setSliderPosition] = useState({ top: 0, left: 0 });
-  const [showSlider, setShowSlider] = useState(false);
-  
   const editor = useEditor({
     extensions: [
       // Enhanced features for rich text editing
@@ -96,32 +59,9 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
-      // Add image support with resizing and dragging
-      Image.configure({
-        allowBase64: true,
-        HTMLAttributes: {
-          class: 'resize-handle', // For resizable images
-        },
-      }),
     ],
     content,
-    onUpdate: ({ editor, transaction }) => {
-      // Track changes right before they're applied to the DOM
-      if (transaction.docChanged && resizedImageMap.size > 0) {
-        // Schedule restoration of image sizes after the update
-        setTimeout(() => {
-          const images = editor.view.dom.querySelectorAll('img');
-          images.forEach((img: HTMLImageElement) => {
-            const src = img.getAttribute('src');
-            if (src && resizedImageMap.has(src)) {
-              img.style.width = resizedImageMap.get(src) || '100%';
-              img.style.height = 'auto';
-            }
-          });
-        }, 0);
-      }
-      
-      // Pass the updated HTML to parent component
+    onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
     editorProps: {
@@ -132,17 +72,13 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
   });
 
   // Make sure our content stays updated if it's changed externally
-  // Simple approach: just track resized images by source
-  const [resizedImageMap, setResizedImageMap] = useState<Map<string, string>>(new Map());
-  
-  // When content is updated from outside
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
   }, [content, editor]);
 
-  // Setup ID generation for content blocks and maintain image sizing
+  // Simplified ID generation with throttling for better performance
   useEffect(() => {
     if (!editor) return;
     
@@ -158,7 +94,6 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       };
     };
     
-    // Simple function to add IDs to headings and paragraphs
     const addIdsToNodes = () => {
       // Find all headings and paragraphs
       const headings = editor.view.dom.querySelectorAll('h1, h2, h3, p, blockquote, ul, ol');
@@ -168,90 +103,21 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
           node.id = `content-block-${index}`;
         }
       });
-      
-      // Apply saved dimensions to images
-      const images = editor.view.dom.querySelectorAll('img');
-      images.forEach((img: HTMLImageElement) => {
-        const src = img.getAttribute('src');
-        if (src && resizedImageMap.has(src)) {
-          img.style.width = resizedImageMap.get(src) || '100%';
-          img.style.height = 'auto';
-        }
-      });
     };
     
     // Run initially
     addIdsToNodes();
     
     // Throttled version to reduce processing load
-    const throttledAddIds = throttle(addIdsToNodes, 300);
+    const throttledAddIds = throttle(addIdsToNodes, 500);
     
-    // Listen for editor updates
+    // Use simpler event approach instead of MutationObserver
     editor.on('update', throttledAddIds);
     
     return () => {
       editor.off('update', throttledAddIds);
     };
-  }, [editor, resizedImageMap]);
-  
-  // Handle image click events to show the resize slider
-  useEffect(() => {
-    if (!editor) return;
-    
-    const handleImageClick = (event: MouseEvent) => {
-      // Check if the clicked element is an image
-      const target = event.target as HTMLElement;
-      if (target.tagName === 'IMG') {
-        const imageElement = target as HTMLImageElement;
-        
-        // Get current image size
-        const currentWidth = imageElement.style.width || '100%';
-        const percentValue = parseInt(currentWidth);
-        setSliderValue(!isNaN(percentValue) ? percentValue : 100);
-        
-        // Calculate position for the slider to appear near the image
-        const rect = imageElement.getBoundingClientRect();
-        const editorRect = editor.view.dom.getBoundingClientRect();
-        
-        setSliderPosition({
-          top: rect.bottom - editorRect.top,
-          left: rect.left - editorRect.left + (rect.width / 2) - 75 // Center the slider
-        });
-        
-        // Show the slider and store selected image reference
-        setSelectedImage(imageElement);
-        setShowSlider(true);
-        
-        // Prevent further propagation
-        event.stopPropagation();
-      }
-    };
-    
-    // Click outside to close the slider
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      // Don't close if clicking on slider or its children
-      if (target.closest('.image-resize-slider')) {
-        return;
-      }
-      // Don't close if clicking on the image itself
-      if (selectedImage && target === selectedImage) {
-        return;
-      }
-      setShowSlider(false);
-    };
-    
-    // Add event listeners
-    const editorElement = editor.view.dom;
-    editorElement.addEventListener('click', handleImageClick);
-    document.addEventListener('click', handleClickOutside);
-    
-    // Cleanup
-    return () => {
-      editorElement.removeEventListener('click', handleImageClick);
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [editor, selectedImage]);
+  }, [editor]);
 
   const setHeading = useCallback((level: 1 | 2 | 3) => {
     if (!editor) return;
@@ -305,67 +171,8 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     return null;
   }
 
-  // Handler for slider value change
-  const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(event.target.value);
-    setSliderValue(value);
-    
-    // Apply the new size to the selected image
-    if (selectedImage) {
-      // Set the new size
-      selectedImage.style.width = `${value}%`;
-      selectedImage.style.height = 'auto';
-      
-      // Mark image as custom sized with a class
-      selectedImage.classList.add('custom-sized');
-      
-      // Add a data attribute to store the size directly on the element
-      selectedImage.dataset.customWidth = `${value}%`;
-      
-      // Store the size in our map using the image src as a key
-      const src = selectedImage.getAttribute('src');
-      if (src) {
-        // Create a new map to trigger re-render
-        const newMap = new Map(resizedImageMap);
-        newMap.set(src, `${value}%`);
-        setResizedImageMap(newMap);
-        
-        // Force the editor to recognize the change
-        editor?.commands.focus();
-      }
-    }
-  };
-  
   return (
-    <div className="relative">
-      {/* Image resize slider - shown only when an image is selected */}
-      {showSlider && selectedImage && (
-        <div 
-          className="image-resize-slider absolute z-50 bg-white shadow-lg rounded-lg p-3 flex flex-col gap-2"
-          style={{
-            top: `${sliderPosition.top + 10}px`,
-            left: `${sliderPosition.left}px`,
-            width: '150px',
-          }}
-        >
-          <div className="flex justify-between text-xs text-gray-500">
-            <span>Small</span>
-            <span>Large</span>
-          </div>
-          <input
-            type="range"
-            min="10"
-            max="100"
-            value={sliderValue}
-            onChange={handleSliderChange}
-            className="w-full accent-amber-700"
-          />
-          <div className="text-center text-xs font-medium">
-            {sliderValue}%
-          </div>
-        </div>
-      )}
-      
+    <div>
       <div className="border border-neutral-300 rounded-t-lg">
         <div className="flex flex-wrap items-center px-3 py-2 border-b border-neutral-300 gap-1" style={{ backgroundColor: "#e8e8e8", color: "#333333" }}>
           <TooltipProvider>
@@ -548,94 +355,6 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                 </TooltipTrigger>
                 <TooltipContent>Quote</TooltipContent>
               </Tooltip>
-            </div>
-            
-            {/* Image insertion tool */}
-            <div className="flex space-x-1 mr-4">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    style={{ color: "#333333" }}
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-64 p-4">
-                  <div className="flex flex-col gap-4">
-                    <h4 className="font-semibold text-center">Image Options</h4>
-                    
-                    {/* Upload button */}
-                    <Button 
-                      variant="outline"
-                      className="w-full" 
-                      onClick={() => {
-                        const fileInput = document.getElementById('image-upload');
-                        if (fileInput) {
-                          fileInput.click();
-                        }
-                      }}
-                    >
-                      Upload Image
-                      <input
-                        type="file"
-                        id="image-upload"
-                        accept="image/*"
-                        onChange={(event) => {
-                          const file = event.target.files?.[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                              const result = e.target?.result;
-                              if (result && typeof result === 'string') {
-                                // Insert the image at the current cursor position
-                                editor.chain().focus().setImage({ src: result }).run();
-                              }
-                            };
-                            reader.readAsDataURL(file);
-                            // Reset the input to allow selecting the same file again
-                            event.target.value = '';
-                          }
-                        }}
-                        style={{ display: 'none' }}
-                      />
-                    </Button>
-                    
-                    {/* Image size buttons */}
-                    <div className="flex flex-col gap-2">
-                      <p className="text-sm text-gray-500">Selected image size:</p>
-                      <div className="grid grid-cols-3 gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => resizeSelectedImage(editor, 'small')}
-                          className="text-xs"
-                        >
-                          Small
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => resizeSelectedImage(editor, 'medium')}
-                          className="text-xs"
-                        >
-                          Medium
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => resizeSelectedImage(editor, 'large')}
-                          className="text-xs"
-                        >
-                          Large
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
             </div>
             
             <div className="flex space-x-1">
