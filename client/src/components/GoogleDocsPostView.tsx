@@ -871,8 +871,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     >
       {/* Controls moved from fixed position */}
       
-      {/* Fixed buttons positioned to match post content spacing from header */}
-      <div className="fixed right-4 top-32 z-40 flex flex-col gap-2">
+      {/* Fixed buttons positioned close to the comments pane */}
+      <div className="fixed right-[calc(25%+16px)] top-32 z-40 flex flex-col gap-2">
         {/* Comments toggle button */}
         <Button
           variant="ghost"
