@@ -422,75 +422,50 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               <HeadingSelect />
             </div>
             
-            {/* Google Docs style font size control */}
-            <div className="flex items-center space-x-1 mr-4">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    size="sm"
-                    className="min-w-[4rem] h-8 px-2 flex items-center justify-between"
-                  >
-                    <span>{currentFontSize}</span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-48 p-1">
-                  <div className="flex flex-col space-y-1">
-                    <div className="flex border rounded overflow-hidden">
-                      <button 
-                        className="flex-none px-2 bg-gray-50 hover:bg-gray-100 border-r"
-                        onClick={() => {
-                          const fontSize = editor.getAttributes('textStyle').fontSize;
-                          const currentSize = fontSize ? parseInt(fontSize.replace('px', '')) : currentFontSize;
-                          const newSize = Math.max(8, currentSize - 1);
-                          setCurrentFontSize(newSize);
-                          editor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
-                        }}
-                      >−</button>
-                      <input
-                        type="number"
-                        min="8"
-                        max="72"
-                        defaultValue="11"
-                        className="flex-1 text-center px-2 border-none focus:outline-none focus:ring-0"
-                        onChange={(e) => {
-                          const size = parseInt(e.target.value);
-                          if (size >= 8 && size <= 72) {
-                            setCurrentFontSize(size);
-                            editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
-                          }
-                        }}
-                      />
-                      <button 
-                        className="flex-none px-2 bg-gray-50 hover:bg-gray-100 border-l"
-                        onClick={() => {
-                          const fontSize = editor.getAttributes('textStyle').fontSize;
-                          const currentSize = fontSize ? parseInt(fontSize.replace('px', '')) : currentFontSize;
-                          const newSize = Math.min(72, currentSize + 1);
-                          setCurrentFontSize(newSize);
-                          editor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
-                        }}
-                      >+</button>
-                    </div>
-                    
-                    <div className="font-size-presets grid grid-cols-4 gap-1">
-                      {[8, 9, 10, 11, 12, 14, 16, 18, 24, 30, 36, 48, 60, 72].map(size => (
-                        <button
-                          key={size}
-                          className="py-1 px-2 text-center hover:bg-gray-100 rounded text-sm"
-                          onClick={() => {
-                            setCurrentFontSize(size);
-                            editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
-                          }}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
+            {/* Google Docs style font size control - directly in toolbar */}
+            <div className="flex items-center h-8 mr-4">
+              <button 
+                type="button"
+                className="flex-none w-8 h-full flex items-center justify-center bg-white hover:bg-gray-100 border border-gray-300 rounded-l-sm"
+                onClick={() => {
+                  const fontSize = editor.getAttributes('textStyle').fontSize;
+                  const currentSize = fontSize ? parseInt(fontSize.replace('px', '')) : currentFontSize;
+                  const newSize = Math.max(8, currentSize - 1);
+                  setCurrentFontSize(newSize);
+                  editor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
+                }}
+              >
+                <span className="text-sm font-medium">−</span>
+              </button>
+              
+              <input
+                type="number"
+                min="8"
+                max="72"
+                value={currentFontSize}
+                className="w-12 h-full text-center text-sm border-t border-b border-gray-300 focus:outline-none focus:ring-0"
+                onChange={(e) => {
+                  const size = parseInt(e.target.value) || 11;
+                  if (size >= 8 && size <= 72) {
+                    setCurrentFontSize(size);
+                    editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
+                  }
+                }}
+              />
+              
+              <button 
+                type="button"
+                className="flex-none w-8 h-full flex items-center justify-center bg-white hover:bg-gray-100 border border-gray-300 rounded-r-sm"
+                onClick={() => {
+                  const fontSize = editor.getAttributes('textStyle').fontSize;
+                  const currentSize = fontSize ? parseInt(fontSize.replace('px', '')) : currentFontSize;
+                  const newSize = Math.min(72, currentSize + 1);
+                  setCurrentFontSize(newSize);
+                  editor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
+                }}
+              >
+                <span className="text-sm font-medium">+</span>
+              </button>
             </div>
 
             {/* Font Family dropdown */}
