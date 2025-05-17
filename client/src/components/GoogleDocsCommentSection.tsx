@@ -1,3 +1,16 @@
+/**
+ * GoogleDocsCommentSection Component
+ * 
+ * This component renders the comments panel that appears on the right side of a post.
+ * It closely mimics Google Docs commenting functionality with the following features:
+ * - Displays a scrollable list of comments for the current post
+ * - Comments are organized in the order they appear in the document
+ * - Supports showing/hiding the comment panel
+ * - Provides ability to view, edit, and delete comments
+ * - Manages comment display and user interactions including keyboard shortcuts
+ * - Syncs with highlighted text selections in the post content
+ */
+
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Comment } from '@/lib/types';

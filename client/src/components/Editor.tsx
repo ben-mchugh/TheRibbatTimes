@@ -1,3 +1,20 @@
+/**
+ * Rich Text Editor Component
+ * 
+ * This component provides a powerful rich text editor for creating and editing posts.
+ * Features include:
+ * - Text formatting (bold, italic, underline)
+ * - Text alignment
+ * - Font family selection
+ * - Font size control
+ * - Image upload with resizing capabilities
+ * - Emoji picker integration
+ * - Paragraph and heading styles
+ * 
+ * The editor uses Tiptap as the underlying editor framework with extensions
+ * to provide a Google Docs-like editing experience.
+ */
+
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
