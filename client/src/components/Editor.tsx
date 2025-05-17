@@ -42,6 +42,9 @@ interface EditorProps {
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [currentFontSize, setCurrentFontSize] = useState(11); // Default font size
+  const [currentFontFamily, setCurrentFontFamily] = useState(''); // Track selected font
+
+  
   const editor = useEditor({
     extensions: [
       // Enhanced features for rich text editing
@@ -170,6 +173,19 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
+      
+      // Update the UI to match the current selection's font size and family
+      const attrs = editor.getAttributes('textStyle');
+      if (attrs.fontSize) {
+        const size = parseInt(attrs.fontSize.replace('px', ''));
+        if (!isNaN(size) && size >= 8 && size <= 72) {
+          setCurrentFontSize(size);
+        }
+      }
+      
+      if (attrs.fontFamily) {
+        setCurrentFontFamily(attrs.fontFamily);
+      }
     },
     editorProps: {
       attributes: {
@@ -435,7 +451,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                   editor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
                 }}
               >
-                <span className="text-sm font-medium">−</span>
+                <span className="text-sm font-bold">−</span>
               </button>
               
               <input
@@ -464,7 +480,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                   editor.chain().focus().setMark('textStyle', { fontSize: `${newSize}px` }).run();
                 }}
               >
-                <span className="text-sm font-medium">+</span>
+                <span className="text-sm font-bold">+</span>
               </button>
             </div>
 
@@ -493,7 +509,10 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Arial, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Arial, sans-serif' }).run()}
+                      onClick={() => {
+                        setCurrentFontFamily('Arial, sans-serif');
+                        editor.chain().focus().setMark('textStyle', { fontFamily: 'Arial, sans-serif' }).run();
+                      }}
                     >
                       Arial
                     </button>
