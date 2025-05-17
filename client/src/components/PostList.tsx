@@ -146,16 +146,21 @@ const PostList = ({ isReturnedFromPost = false }: PostListProps) => {
 
   return (
     <div className="space-y-12">
-      {groupedPosts.map(([monthYear, monthPosts]) => (
-        <div key={monthYear} className="space-y-6">
-          <h2 className="monthly-header">{monthYear}</h2>
-          <div className="space-y-8">
-            {monthPosts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
+      {groupedPosts.map(([monthYear, monthPosts]) => {
+        // Create a kebab-case ID from the month year for easier targeting
+        const monthYearId = monthYear.toLowerCase().replace(/\s+/g, '-');
+        
+        return (
+          <div key={monthYear} className="space-y-6">
+            <h2 id={monthYearId} className="monthly-header">{monthYear}</h2>
+            <div className="space-y-8">
+              {monthPosts.map((post) => (
+                <PostCard key={post.id} post={post} />
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

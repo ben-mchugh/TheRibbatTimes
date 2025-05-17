@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import PostList from '@/components/PostList';
 import ScrollToTopButton from '@/components/ScrollToTopButton';
+import MonthNavigator from '@/components/MonthNavigator';
 
 export default function Home() {
   const [isReturnedFromPost, setIsReturnedFromPost] = useState(false);
@@ -32,8 +33,9 @@ export default function Home() {
         
         <PostList isReturnedFromPost={isReturnedFromPost} />
         
-        {/* Scroll to top button - appears after scrolling down 300px */}
+        {/* Navigation buttons */}
         <ScrollToTopButton threshold={300} label="Scroll to Latest" />
+        <MonthNavigator threshold={300} />
       </div>
     </div>
   );
