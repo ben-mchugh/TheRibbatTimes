@@ -189,7 +189,22 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       if (customEvent.detail && customEvent.detail.commentId) {
         const commentId = customEvent.detail.commentId;
         console.log("Received activateComment event, setting activeCommentId to:", commentId);
+        
+        // Set both active and focused comment IDs for consistent state
         setActiveCommentId(commentId);
+        
+        // Add this in case someone directly calls activateComment without setting focusedCommentId
+        if (focusedCommentId !== commentId) {
+          const focusEvent = new CustomEvent('setFocusedComment', {
+            detail: { commentId: commentId }
+          });
+          
+          // Send the event to the post content container
+          const contentContainer = document.querySelector('.post-content-container');
+          if (contentContainer) {
+            contentContainer.dispatchEvent(focusEvent);
+          }
+        }
       } else {
         console.log("Received activateComment event but no commentId in detail:", customEvent.detail);
       }
