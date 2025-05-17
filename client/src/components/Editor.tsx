@@ -124,8 +124,19 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     // Use simpler event approach instead of MutationObserver
     editor.on('update', throttledAddIds);
     
+    // Initialize storage for image observers if needed
+    editor.storage.imageObservers = editor.storage.imageObservers || [];
+    
     return () => {
       editor.off('update', throttledAddIds);
+      
+      // Clean up any image observers when the editor is destroyed
+      if (editor.storage.imageObservers) {
+        editor.storage.imageObservers.forEach((observer: MutationObserver) => {
+          observer.disconnect();
+        });
+        editor.storage.imageObservers = [];
+      }
     };
   }, [editor]);
 
@@ -178,22 +189,42 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
   // Handle inserting images
   const insertImage = (url: string, width: number) => {
     if (url && editor) {
-      // Use the Image extension's API
-      editor.chain().focus().setImage({ 
-        src: url,
-        alt: 'Uploaded image',
-      }).run();
+      // Instead of using setImage directly, create a custom node with HTML attributes
+      // This ensures the width persists through edits
+      const uniqueId = `img-${Date.now()}`;
+      const htmlContent = `<img src="${url}" alt="Uploaded image" class="resizable-image" style="width: ${width}%;" data-size="${width}" id="${uniqueId}" />`;
       
-      // Find the newly inserted image and set its style directly
-      setTimeout(() => {
-        const imgs = editor.view.dom.querySelectorAll('img:not([style])');
-        if (imgs.length > 0) {
-          // Cast to HTMLImageElement to access style properties
-          const lastImg = imgs[imgs.length - 1] as HTMLImageElement;
-          // Apply styling
-          lastImg.setAttribute('style', `width: ${width}%; margin: 0 auto; display: block;`);
-        }
-      }, 10);
+      // Insert HTML directly to preserve attributes
+      editor.chain().focus().insertContent(htmlContent).run();
+      
+      // Add a custom listener to this editor instance to make sure images maintain their width
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach(() => {
+          // Find all images with data-size attribute
+          const images = editor.view.dom.querySelectorAll('img[data-size]');
+          images.forEach((img) => {
+            const imgElement = img as HTMLImageElement;
+            const size = imgElement.getAttribute('data-size');
+            if (size && imgElement.style.width !== `${size}%`) {
+              imgElement.style.width = `${size}%`;
+              imgElement.style.margin = '0 auto';
+              imgElement.style.display = 'block';
+            }
+          });
+        });
+      });
+      
+      // Observe changes to the editor content
+      observer.observe(editor.view.dom, { 
+        childList: true, 
+        subtree: true,
+        attributes: true,
+        characterData: true
+      });
+      
+      // Store observer reference to prevent memory leaks
+      editor.storage.imageObservers = editor.storage.imageObservers || [];
+      editor.storage.imageObservers.push(observer);
     }
   };
 
