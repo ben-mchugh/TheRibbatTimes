@@ -970,6 +970,31 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
             </div>
           ) : (
             <div className="bg-[#e0d3af] p-8 rounded-lg shadow-sm relative">
+              {/* Top right buttons in post box */}
+              <div className="absolute top-4 right-4 flex gap-2 z-10">
+                {/* Comments toggle button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowComments(!showComments)}
+                  className={`bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-100' : 'opacity-80'}`}
+                  title={showComments ? "Hide comments" : "Show comments"}
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+                
+                {/* Close button */}
+                <a href="/">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md"
+                    title="Close"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </a>
+              </div>
               
               <h1 className="text-2xl md:text-3xl font-semibold text-[#161718] mb-4 pr-24">
                 {post?.title}
