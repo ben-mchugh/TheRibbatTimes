@@ -18,6 +18,7 @@ import {
   Image as ImageIcon, Palette, Type, Smile
 } from 'lucide-react';
 import ImageUploadDialog from './ImageUploadDialog';
+import EmojiPicker from './EmojiPicker';
 import { 
   Select, 
   SelectContent, 
