@@ -1,3 +1,16 @@
+/**
+ * API Routes Configuration
+ * 
+ * This module defines all backend API endpoints for the application.
+ * It handles:
+ * - User authentication and session management
+ * - Post creation, retrieval, updating, and deletion
+ * - Comment functionality including text selection comments
+ * - Firebase admin integration for token verification
+ * - Request validation using schema definitions
+ * - Error handling and appropriate HTTP responses
+ */
+
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";

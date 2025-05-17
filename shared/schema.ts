@@ -1,3 +1,15 @@
+/**
+ * Database Schema Definitions
+ * 
+ * This module defines the database structure for the entire application.
+ * It includes:
+ * - Table definitions for users, posts, and comments
+ * - Schema validation using Zod for data integrity
+ * - Type definitions used throughout the application
+ * - Relationship definitions between tables
+ * - Special fields for Google Docs-style comment functionality
+ */
+
 import { pgTable, text, serial, integer, boolean, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";

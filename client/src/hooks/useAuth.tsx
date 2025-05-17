@@ -1,3 +1,16 @@
+/**
+ * Authentication Context and Hook
+ * 
+ * This module provides authentication functionality throughout the app.
+ * It includes:
+ * - Context provider that wraps the entire application
+ * - User authentication state management
+ * - Firebase auth integration with Google sign-in
+ * - User persistence in both Firebase and our backend
+ * - Loading states during authentication operations
+ * - Automatic user synchronization with backend
+ */
+
 import { createContext, useState, useContext, useEffect, ReactNode, useMemo } from 'react';
 import { auth, checkRedirectResult, sendUserToBackend } from '@/lib/firebase';
 import type { User } from 'firebase/auth';
