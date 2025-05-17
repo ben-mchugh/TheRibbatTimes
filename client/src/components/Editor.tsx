@@ -61,7 +61,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       }),
       // Add text styling capabilities
       TextStyle.configure({
-        types: ['paragraph', 'text', 'heading'],
+        types: ['text'],
       }),
       Color,
       // Add text alignment capability
@@ -498,21 +498,39 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'inherit' }}
-                      onClick={() => editor.chain().focus().unsetMark('textStyle').run()}
+                      onClick={() => {
+                        try {
+                          if (editor) editor.commands.unsetMark('textStyle');
+                        } catch (e) {
+                          console.error("Error unsetting mark:", e);
+                        }
+                      }}
                     >
                       Default Font
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Arial, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Arial, sans-serif' }).run()}
+                      onClick={() => {
+                        try {
+                          if (editor) editor.commands.setMark('textStyle', { fontFamily: 'Arial, sans-serif' });
+                        } catch (e) {
+                          console.error("Error applying font:", e);
+                        }
+                      }}
                     >
                       Arial
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Calibri, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Calibri, sans-serif' }).run()}
+                      onClick={() => {
+                        try {
+                          if (editor) editor.commands.setMark('textStyle', { fontFamily: 'Calibri, sans-serif' });
+                        } catch (e) {
+                          console.error("Error applying font:", e);
+                        }
+                      }}
                     >
                       Calibri
                     </button>
