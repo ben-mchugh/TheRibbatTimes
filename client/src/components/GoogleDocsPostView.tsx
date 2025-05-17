@@ -9,9 +9,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import GoogleDocsCommentSection from './GoogleDocsCommentSection';
 import GoogleDocsTextSelection from './GoogleDocsTextSelection';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, MessageSquare, ChevronUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import ScrollToTopButton from '@/components/ScrollToTopButton';
+import PostScrollControls from '@/components/PostScrollControls';
 
 // Helper function to escape special characters in string for RegExp
 function escapeRegExp(string: string): string {
@@ -874,34 +874,8 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     >
       {/* Controls moved from fixed position */}
       
-      {/* Top-right fixed buttons */}
-      <div className="fixed right-4 top-4 z-40 flex gap-2">
-        {/* Comments toggle button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowComments(!showComments)}
-          className={`bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-100' : 'opacity-80'}`}
-          title={showComments ? "Hide comments" : "Show comments"}
-        >
-          <MessageSquare className="h-5 w-5" />
-        </Button>
-        
-        {/* Close button */}
-        <a href="/">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md"
-            title="Close"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </a>
-      </div>
-      
-      {/* We'll use the original ScrollToTopButton component */}
-      <ScrollToTopButton threshold={300} label="Scroll to Top" />
+      {/* Use our new PostScrollControls component */}
+      <PostScrollControls showComments={showComments} setShowComments={setShowComments} />
       
       <div className="flex flex-col md:flex-row gap-6 flex-1 max-w-[1520px] mx-auto w-full">
         {/* Main content area */}
