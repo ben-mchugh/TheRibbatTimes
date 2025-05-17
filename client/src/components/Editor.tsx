@@ -7,15 +7,13 @@ import Placeholder from '@tiptap/extension-placeholder';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
-import Image from '@tiptap/extension-image';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   Bold, Italic, Underline as UnderlineIcon, 
   List, ListOrdered, Quote, Undo, Redo,
   AlignLeft, AlignCenter, AlignRight, PaintBucket,
-  Palette, Image as ImageIcon
+  Palette
 } from 'lucide-react';
 import { 
   Select, 
@@ -37,7 +35,6 @@ interface EditorProps {
 }
 
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
-  const { toast } = useToast();
   const editor = useEditor({
     extensions: [
       // Enhanced features for rich text editing
@@ -60,16 +57,6 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       // Add text alignment capability
       TextAlign.configure({
         types: ['heading', 'paragraph'],
-      }),
-      // Add image support with resizing capability
-      Image.configure({
-        allowBase64: true,
-        inline: false,
-        HTMLAttributes: {
-          draggable: true,
-          style: 'min-width: 100px; min-height: 50px; resize: both; overflow: auto; border: 2px solid transparent;',
-          class: 'resizable-image',
-        },
       }),
     ],
     content,
@@ -366,52 +353,6 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Quote</TooltipContent>
-              </Tooltip>
-              
-              {/* Image insertion tool */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    style={{ color: "#333333" }}
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = 'image/*';
-                      input.onchange = (event) => {
-                        const file = (event.target as HTMLInputElement).files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (e) => {
-                            const result = e.target?.result;
-                            if (typeof result === 'string') {
-                              // Insert the image directly - we'll style it with CSS for resizing
-                              editor.chain().focus().setImage({ 
-                                src: result,
-                                alt: file.name,
-                                title: file.name
-                              }).run();
-                              
-                              // Notify user about resizing capability
-                              toast?.({
-                                title: "Image added",
-                                description: "You can resize the image by dragging the bottom-right corner",
-                                duration: 3000,
-                              });
-                            }
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      };
-                      input.click();
-                    }}
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Insert Image</TooltipContent>
               </Tooltip>
             </div>
             
