@@ -496,13 +496,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'inherit' }}
-                      onClick={() => {
-                        try {
-                          if (editor) editor.commands.unsetMark('textStyle');
-                        } catch (e) {
-                          console.error("Error unsetting mark:", e);
-                        }
-                      }}
+                      onClick={() => editor.chain().focus().unsetMark('textStyle').run()}
                     >
                       Default Font
                     </button>
@@ -618,14 +612,14 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Trebuchet MS, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Trebuchet MS, sans-serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Trebuchet MS' }).run()}
                     >
                       Trebuchet MS
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Verdana, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Verdana, sans-serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Verdana' }).run()}
                     >
                       Verdana
                     </button>
