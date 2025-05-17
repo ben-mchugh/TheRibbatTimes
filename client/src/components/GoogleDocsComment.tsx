@@ -108,13 +108,9 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
   const handleCommentClick = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation(); // Prevent event bubbling if event is provided
     
-    // Toggle active state - if already active, deactivate it
+    // Always set this comment as active when clicked, making sure the white color is applied
     if (setActive) {
-      if (isActive) {
-        setActive(null);
-      } else {
-        setActive(comment.id);
-      }
+      setActive(comment.id);
     }
     
     if (comment.selectedText && !isEditing && !isReplying) {
@@ -133,14 +129,12 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
             el.classList.remove('highlight-focus');
           });
           
-          // Only add highlight if we're activating (not deactivating)
-          if (!isActive) {
-            // Scroll to the highlighted text and add a persistent highlight
-            highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Add the static highlight class to this element
-            highlightedEl.classList.add('highlight-focus');
-          }
+          // Always add the highlight when this comment is clicked
+          // Scroll to the highlighted text and add a persistent highlight
+          highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Add the static highlight class to this element
+          highlightedEl.classList.add('highlight-focus');
         }
       }
     }

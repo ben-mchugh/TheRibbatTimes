@@ -643,46 +643,36 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
         setNewCommentIds(prev => prev.filter(id => id !== commentId));
       }
       
-      // Check if this element is already focused
-      const isAlreadyFocused = focusedCommentId === commentId;
-      
       // Remove any existing highlights first
       document.querySelectorAll('.selection-highlight').forEach(el => {
         el.classList.remove('highlight-focus');
       });
       
-      // Toggle focus - if it was already focused, unfocus it
-      if (isAlreadyFocused) {
-        setFocusedCommentId(null);
-      } else {
-        // Focus the associated comment
-        setFocusedCommentId(commentId);
-        
-        // Apply the static highlight style
-        clickedElement.classList.add('highlight-focus');
-      }
+      // Always focus the comment when clicking on highlighted text
+      setFocusedCommentId(commentId);
+      
+      // Apply the static highlight style
+      clickedElement.classList.add('highlight-focus');
       
       // Ensure comments panel is open on mobile
       if (isMobile) {
         setShowComments(true);
       }
       
-      // Only scroll to comment if we're focusing (not unfocusing)
-      if (!isAlreadyFocused) {
-        // Use one requestAnimationFrame instead of nesting them
-        requestAnimationFrame(() => {
-          const commentElement = document.querySelector(`.gdocs-comment[data-comment-id="${commentId}"]`);
-          if (commentElement) {
-            commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            commentElement.setAttribute('data-focused', 'true');
-            
-            // Use requestAnimationFrame instead of setTimeout for better performance
-            const animationId = window.setTimeout(() => {
-              commentElement.removeAttribute('data-focused');
-            }, 1000); // Further reduced from 1500ms to 1000ms
-          }
-        });
-      }
+      // Always scroll to the comment
+      // Use one requestAnimationFrame instead of nesting them
+      requestAnimationFrame(() => {
+        const commentElement = document.querySelector(`.gdocs-comment[data-comment-id="${commentId}"]`);
+        if (commentElement) {
+          commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          commentElement.setAttribute('data-focused', 'true');
+          
+          // Use requestAnimationFrame instead of setTimeout for better performance
+          const animationId = window.setTimeout(() => {
+            commentElement.removeAttribute('data-focused');
+          }, 1000); // Further reduced from 1500ms to 1000ms
+        }
+      });
     };
     
     // Add event listener to capture clicks on highlighted text
