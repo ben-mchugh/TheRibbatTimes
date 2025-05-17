@@ -172,7 +172,10 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       const customEvent = event as CustomEvent;
       if (customEvent.detail && customEvent.detail.commentId) {
         const commentId = customEvent.detail.commentId;
+        console.log("Received activateComment event, setting activeCommentId to:", commentId);
         setActiveCommentId(commentId);
+      } else {
+        console.log("Received activateComment event but no commentId in detail:", customEvent.detail);
       }
     };
     

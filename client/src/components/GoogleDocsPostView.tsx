@@ -694,10 +694,14 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       // This ensures the comment also turns white when text is clicked
       const commentsContainer = document.querySelector('.comments-container');
       if (commentsContainer) {
+        // Make sure to include the commentId in the event
         const activateEvent = new CustomEvent('activateComment', {
           detail: { commentId: commentId }
         });
         commentsContainer.dispatchEvent(activateEvent);
+        
+        // For debugging, we'll add a console log
+        console.log("Sent activateComment event with commentId:", commentId);
       }
       
       // Ensure comments panel is open on mobile

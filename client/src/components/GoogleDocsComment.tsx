@@ -637,6 +637,8 @@ const GoogleDocsComment: React.FC<GoogleDocsCommentProps> = ({
               onUpdate={onUpdate}
               refetchComments={refetchComments}
               focusedCommentId={focusedCommentId}
+              isActive={isActive}
+              setActive={setActive}
             />
           ))}
         </div>
