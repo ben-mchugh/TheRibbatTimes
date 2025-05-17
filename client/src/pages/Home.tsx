@@ -171,7 +171,11 @@ export default function Home() {
                     <DropdownMenuItem 
                       key={monthYear}
                       onClick={() => scrollToMonth(monthYear)}
-                      className="cursor-pointer hover:bg-neutral-100 focus:bg-neutral-100 text-neutral-800"
+                      className="cursor-pointer text-neutral-800 hover:text-neutral-900 focus:text-neutral-900"
+                      style={{
+                        padding: '8px 12px',
+                        transition: 'background-color 0.2s ease'
+                      }}
                     >
                       {monthYear}
                     </DropdownMenuItem>

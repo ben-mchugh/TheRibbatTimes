@@ -213,15 +213,9 @@ div[data-focused="true"]::before {
   100% { box-shadow: 0 0 0 0 rgba(166, 122, 72, 0); }
 }
 
-/* Section highlight animation for month navigation */
-@keyframes section-highlight-pulse {
-  0% { background-color: transparent; }
-  30% { background-color: rgba(166, 122, 72, 0.2); }
-  100% { background-color: transparent; }
-}
-
+/* No highlight animation for month navigation */
 .highlight-section {
-  animation: section-highlight-pulse 1.5s ease-in-out;
+  /* No animation */
 }
 
 @keyframes highlight-text-pulse {
