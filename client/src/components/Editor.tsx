@@ -62,13 +62,29 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
-      // Use the standard Image extension but with enhanced HTMLAttributes
-      Image.configure({
+      // Extended image node with width preservation
+      Image.extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            width: {
+              default: '100%',
+              parseHTML: element => {
+                const width = element.style.width;
+                return width || '100%';
+              },
+              renderHTML: attributes => {
+                return {
+                  style: `width: ${attributes.width}; margin: 0 auto; display: block;`,
+                  class: 'resizable-image'
+                };
+              },
+            },
+          };
+        },
+      }).configure({
         inline: false,
         allowBase64: true,
-        HTMLAttributes: {
-          class: 'resizable-image',
-        },
       }),
     ],
     content,
@@ -190,40 +206,25 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
   // Handle inserting images
   const insertImage = (url: string, width: number) => {
     if (url && editor) {
-      // Insert paragraph before and after to ensure proper spacing and line breaks
-      editor.chain()
-        .focus()
-        .insertContent({
-          type: 'paragraph',
-          content: []
-        })
-        .run();
-        
-      // Insert the image with explicit HTML attributes
-      // We wrap in a div to maintain block-level control
-      const imageHtml = `
-        <div class="image-container" style="text-align: center; margin: 10px 0;">
-          <img 
-            src="${url}" 
-            alt="Uploaded image" 
-            class="resizable-image" 
-            style="width: ${width}%; display: inline-block;" 
-          />
-        </div>
-      `;
+      // Insert a paragraph before the image if needed
+      if (!editor.isActive('paragraph')) {
+        editor.chain().focus().setNode('paragraph').run();
+      }
       
+      // Insert the image with proper attributes using the Image extension
       editor.chain()
         .focus()
-        .insertContent(imageHtml)
-        .run();
-        
-      // Another paragraph after the image to continue typing
-      editor.chain()
-        .focus()
+        .setNode('paragraph')
         .insertContent({
-          type: 'paragraph',
-          content: []
+          type: 'image',
+          attrs: {
+            src: url,
+            alt: 'Uploaded image',
+            width: `${width}%` // Store width as a percentage
+          }
         })
+        .setNode('paragraph') // Add a paragraph after the image
+        .focus()
         .run();
     }
   };
