@@ -14,7 +14,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, 
   List, ListOrdered, Quote, Undo, Redo,
   AlignLeft, AlignCenter, AlignRight, PaintBucket,
-  Palette
+  Palette, Image as ImageIcon, Move
 } from 'lucide-react';
 import { 
   Select, 
@@ -58,6 +58,13 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       // Add text alignment capability
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+      }),
+      // Add image support with resizing and dragging
+      Image.configure({
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'resize-handle', // For resizable images
+        },
       }),
     ],
     content,
@@ -354,6 +361,52 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Quote</TooltipContent>
+              </Tooltip>
+            </div>
+            
+            {/* Image insertion tool */}
+            <div className="flex space-x-1 mr-4">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      // Find the file input element and trigger a click
+                      const fileInput = document.getElementById('image-upload');
+                      if (fileInput) {
+                        fileInput.click();
+                      }
+                    }}
+                    style={{ color: "#333333" }}
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                    <input
+                      type="file"
+                      id="image-upload"
+                      accept="image/*"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (e) => {
+                            const result = e.target?.result;
+                            if (result && typeof result === 'string') {
+                              // Insert the image at the current cursor position
+                              editor.chain().focus().setImage({ src: result }).run();
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                          // Reset the input to allow selecting the same file again
+                          event.target.value = '';
+                        }
+                      }}
+                      style={{ display: 'none' }}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Insert Image</TooltipContent>
               </Tooltip>
             </div>
             
