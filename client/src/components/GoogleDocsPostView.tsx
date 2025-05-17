@@ -663,7 +663,16 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
       console.log("Cleared all highlights");
     };
     
-    // Handler for clearing the focused comment ID
+    /**
+     * Handles clearing the focused comment state
+     * 
+     * This function:
+     * 1. Resets the focusedCommentId state to null
+     * 2. Removes the highlight-focus class from all highlighted text elements
+     * 3. Ensures no comment is visually selected in both the comment panel and text
+     * 
+     * Called when a user clicks outside of comments or when the escape key is pressed.
+     */
     const handleClearFocusedComment = () => {
       setFocusedCommentId(null);
       clearAllHighlights();
