@@ -4,11 +4,15 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Heading from '@tiptap/extension-heading';
 import Placeholder from '@tiptap/extension-placeholder';
+import TextStyle from '@tiptap/extension-text-style';
+import Color from '@tiptap/extension-color';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   Bold, Italic, Underline as UnderlineIcon, 
-  List, ListOrdered, Quote, Undo, Redo 
+  List, ListOrdered, Quote, Undo, Redo,
+  AlignLeft, AlignCenter, AlignRight, PaintBucket,
+  Palette
 } from 'lucide-react';
 import { 
   Select, 
@@ -18,6 +22,11 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 interface EditorProps {
   content: string;
@@ -27,7 +36,7 @@ interface EditorProps {
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
   const editor = useEditor({
     extensions: [
-      // Basic features only to improve performance
+      // Enhanced features for rich text editing
       StarterKit.configure({
         heading: false,
         history: {
@@ -41,7 +50,9 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       Placeholder.configure({
         placeholder: 'Start writing your post...',
       }),
-      // Only include essential extensions
+      // Add text styling capabilities
+      TextStyle,
+      Color,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -129,7 +140,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
             : 'paragraph'
         }
       >
-        <SelectTrigger className="w-[140px] h-8" style={{ backgroundColor: "#161718", color: "#eeeeee", borderColor: "#666" }}>
+        <SelectTrigger className="w-[140px] h-8" style={{ backgroundColor: "#d3d3d3", color: "#333333", borderColor: "#999" }}>
           <SelectValue placeholder="Paragraph" />
         </SelectTrigger>
         <SelectContent>
@@ -157,7 +168,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
   return (
     <div>
       <div className="border border-neutral-300 rounded-t-lg">
-        <div className="flex flex-wrap items-center px-3 py-2 border-b border-neutral-300 gap-1" style={{ backgroundColor: "#161718", color: "#eeeeee" }}>
+        <div className="flex flex-wrap items-center px-3 py-2 border-b border-neutral-300 gap-1" style={{ backgroundColor: "#e8e8e8", color: "#333333" }}>
           <TooltipProvider>
             <div className="flex space-x-1 mr-4">
               <Tooltip>
@@ -167,7 +178,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('bold') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleBold().run()}
-                    style={{ color: "#eeeeee" }}
+                    style={{ color: "#333333" }}
                   >
                     <Bold className="h-4 w-4" />
                   </Button>
@@ -182,7 +193,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     variant={editor.isActive('italic') ? 'default' : 'ghost'}
                     size="icon"
                     onClick={() => editor.chain().focus().toggleItalic().run()}
-                    style={{ color: "#eeeeee" }}
+                    style={{ color: "#333333" }}
                   >
                     <Italic className="h-4 w-4" />
                   </Button>
