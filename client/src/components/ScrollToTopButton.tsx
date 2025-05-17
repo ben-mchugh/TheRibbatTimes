@@ -1,3 +1,15 @@
+/**
+ * ScrollToTopButton Component
+ * 
+ * This component provides a button that appears when the user scrolls down the page.
+ * Features include:
+ * - Appears after scrolling past a configurable threshold
+ * - Scrolls the page back to the top with smooth animation
+ * - Configurable button label (defaults to "Scroll to Latest")
+ * - Fades in/out with a smooth transition effect
+ * - Positioned fixed at the bottom of the viewport
+ */
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowUp } from 'lucide-react';

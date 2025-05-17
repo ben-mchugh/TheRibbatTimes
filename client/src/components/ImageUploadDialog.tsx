@@ -1,3 +1,16 @@
+/**
+ * ImageUploadDialog Component
+ * 
+ * This component provides image upload functionality for the rich text editor.
+ * Features include:
+ * - File selection through system dialog or URL input
+ * - Image preview before insertion
+ * - Width adjustment slider for responsive sizing
+ * - Support for common image formats
+ * - Validation for image URLs and files
+ * - Proper error handling for failed uploads
+ */
+
 import React, { useState, useRef } from 'react';
 import {
   Dialog,

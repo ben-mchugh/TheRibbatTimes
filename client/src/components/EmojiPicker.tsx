@@ -1,3 +1,15 @@
+/**
+ * EmojiPicker Component
+ * 
+ * This component provides emoji selection functionality for the rich text editor.
+ * Features include:
+ * - Displays a categorized list of common emojis
+ * - Provides a search function to find specific emojis
+ * - Inserts selected emojis into the editor at cursor position
+ * - Groups emojis by category for easier browsing
+ * - Responsive dropdown design with scrollable content
+ */
+
 import { useState, useEffect, useMemo } from 'react';
 
 interface EmojiPickerProps {

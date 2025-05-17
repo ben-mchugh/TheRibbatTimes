@@ -1,3 +1,15 @@
+/**
+ * MonthNavigator Component
+ * 
+ * This component provides a dropdown menu for navigating to specific months in the post timeline.
+ * Features include:
+ * - Automatically generates a list of months from available posts
+ * - Formats month/year options in a user-friendly way
+ * - Scrolls the page to the selected month's section
+ * - Appears with a smooth animation effect
+ * - Positioned fixed at the bottom of the viewport for easy access
+ */
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {

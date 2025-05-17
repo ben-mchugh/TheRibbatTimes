@@ -1,3 +1,15 @@
+/**
+ * PostScrollControls Component
+ * 
+ * This component provides floating controls that appear when scrolling through a post.
+ * Features include:
+ * - Scroll to top button that appears after scrolling down
+ * - Toggle button for showing/hiding the comments panel
+ * - Smooth transition animations for better UX
+ * - Fixed positioning that stays visible while scrolling
+ * - Responsive design that works on both mobile and desktop
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronUp, X, MessageSquare } from 'lucide-react';
