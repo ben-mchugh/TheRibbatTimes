@@ -288,31 +288,6 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
     <div className="gdocs-comment-section w-full h-full flex flex-col border-l-2 border-[#444444] bg-[#161718]">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#444444] bg-[#161718]">
         <h3 className="font-heading font-semibold text-lg text-[#888888]">Comments</h3>
-        <div className="flex flex-col items-center gap-2">
-          {/* Close button on top */}
-          <a href="/">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="bg-[#333333] hover:bg-[#444444] text-[#e8e8e8] hover:text-white rounded-full w-8 h-8 flex items-center justify-center p-0 shadow-md"
-              title="Close"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </a>
-          
-          {/* Comments toggle button below */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowComments(!showComments)}
-            className={`bg-[#333333] hover:bg-[#444444] text-[#e8e8e8] hover:text-white rounded-full w-8 h-8 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-100' : 'opacity-80'}`}
-            title={showComments ? "Hide comments" : "Show comments"}
-          >
-            {/* Text icon instead of MessageSquare */}
-            <span className="text-xs font-bold">{"{ }"}</span>
-          </Button>
-        </div>
       </div>
       
       {/* Comments list with vertical scrolling */}
