@@ -67,6 +67,12 @@ const resizeSelectedImage = (editor: any, size: 'small' | 'medium' | 'large') =>
 };
 
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
+  // State for image resize slider
+  const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
+  const [sliderValue, setSliderValue] = useState(100); // Default to 100% width
+  const [sliderPosition, setSliderPosition] = useState({ top: 0, left: 0 });
+  const [showSlider, setShowSlider] = useState(false);
+  
   const editor = useEditor({
     extensions: [
       // Enhanced features for rich text editing
@@ -117,6 +123,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
   }, [content, editor]);
 
   // Simplified ID generation with throttling for better performance
+  // Setup image click event handling for resize slider
   useEffect(() => {
     if (!editor) return;
     
@@ -156,6 +163,65 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
       editor.off('update', throttledAddIds);
     };
   }, [editor]);
+  
+  // Handle image click events to show the resize slider
+  useEffect(() => {
+    if (!editor) return;
+    
+    const handleImageClick = (event: MouseEvent) => {
+      // Check if the clicked element is an image
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'IMG') {
+        const imageElement = target as HTMLImageElement;
+        
+        // Get current image size
+        const currentWidth = imageElement.style.width || '100%';
+        const percentValue = parseInt(currentWidth);
+        setSliderValue(!isNaN(percentValue) ? percentValue : 100);
+        
+        // Calculate position for the slider to appear near the image
+        const rect = imageElement.getBoundingClientRect();
+        const editorRect = editor.view.dom.getBoundingClientRect();
+        
+        setSliderPosition({
+          top: rect.bottom - editorRect.top,
+          left: rect.left - editorRect.left + (rect.width / 2) - 75 // Center the slider
+        });
+        
+        // Show the slider and store selected image reference
+        setSelectedImage(imageElement);
+        setShowSlider(true);
+        
+        // Prevent further propagation
+        event.stopPropagation();
+      }
+    };
+    
+    // Click outside to close the slider
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Don't close if clicking on slider or its children
+      if (target.closest('.image-resize-slider')) {
+        return;
+      }
+      // Don't close if clicking on the image itself
+      if (selectedImage && target === selectedImage) {
+        return;
+      }
+      setShowSlider(false);
+    };
+    
+    // Add event listeners
+    const editorElement = editor.view.dom;
+    editorElement.addEventListener('click', handleImageClick);
+    document.addEventListener('click', handleClickOutside);
+    
+    // Cleanup
+    return () => {
+      editorElement.removeEventListener('click', handleImageClick);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [editor, selectedImage]);
 
   const setHeading = useCallback((level: 1 | 2 | 3) => {
     if (!editor) return;
@@ -209,8 +275,48 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
     return null;
   }
 
+  // Handler for slider value change
+  const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(event.target.value);
+    setSliderValue(value);
+    
+    // Apply the new size to the selected image
+    if (selectedImage) {
+      selectedImage.style.width = `${value}%`;
+      selectedImage.style.height = 'auto';
+    }
+  };
+  
   return (
-    <div>
+    <div className="relative">
+      {/* Image resize slider - shown only when an image is selected */}
+      {showSlider && selectedImage && (
+        <div 
+          className="image-resize-slider absolute z-50 bg-white shadow-lg rounded-lg p-3 flex flex-col gap-2"
+          style={{
+            top: `${sliderPosition.top + 10}px`,
+            left: `${sliderPosition.left}px`,
+            width: '150px',
+          }}
+        >
+          <div className="flex justify-between text-xs text-gray-500">
+            <span>Small</span>
+            <span>Large</span>
+          </div>
+          <input
+            type="range"
+            min="10"
+            max="100"
+            value={sliderValue}
+            onChange={handleSliderChange}
+            className="w-full accent-amber-700"
+          />
+          <div className="text-center text-xs font-medium">
+            {sliderValue}%
+          </div>
+        </div>
+      )}
+      
       <div className="border border-neutral-300 rounded-t-lg">
         <div className="flex flex-wrap items-center px-3 py-2 border-b border-neutral-300 gap-1" style={{ backgroundColor: "#e8e8e8", color: "#333333" }}>
           <TooltipProvider>
