@@ -576,42 +576,42 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: '"Open Sans", sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Open Sans", sans-serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Open Sans' }).run()}
                     >
                       Open Sans
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: '"Crimson Text", serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Crimson Text", serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Crimson Text' }).run()}
                     >
                       Crimson Text
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: '"Playfair Display", serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Playfair Display", serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Playfair Display' }).run()}
                     >
                       Playfair Display
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Roboto, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Roboto, sans-serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Roboto' }).run()}
                     >
                       Roboto
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Tahoma, sans-serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Tahoma, sans-serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Tahoma' }).run()}
                     >
                       Tahoma
                     </button>
                     <button
                       className="w-full py-1 px-2 rounded hover:bg-gray-100 text-left text-sm"
                       style={{ fontFamily: 'Times New Roman, serif' }}
-                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Times New Roman, serif' }).run()}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'Times New Roman' }).run()}
                     >
                       Times New Roman
                     </button>
