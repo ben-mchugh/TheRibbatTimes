@@ -15,7 +15,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, 
   List, ListOrdered, Quote, Undo, Redo,
   AlignLeft, AlignCenter, AlignRight, PaintBucket,
-  Image as ImageIcon, Palette
+  Image as ImageIcon, Palette, Type
 } from 'lucide-react';
 import ImageUploadDialog from './ImageUploadDialog';
 import { 
@@ -419,9 +419,66 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
               <HeadingSelect />
             </div>
             
-            {/* Font Family selector */}
-            <div className="flex items-center mr-4">
-              <FontFamilySelect />
+            {/* Font Family dropdown */}
+            <div className="flex space-x-1 mr-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    style={{ color: "#333333" }}
+                  >
+                    <Type className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-2">
+                  <div className="grid grid-cols-1 gap-2">
+                    <button
+                      className="p-2 rounded hover:bg-gray-100 text-left"
+                      style={{ fontFamily: 'inherit' }}
+                      onClick={() => editor.chain().focus().unsetMark('textStyle').run()}
+                    >
+                      Default Font
+                    </button>
+                    <button
+                      className="p-2 rounded hover:bg-gray-100 text-left"
+                      style={{ fontFamily: 'serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'serif' }).run()}
+                    >
+                      Serif
+                    </button>
+                    <button
+                      className="p-2 rounded hover:bg-gray-100 text-left"
+                      style={{ fontFamily: 'sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'sans-serif' }).run()}
+                    >
+                      Sans Serif
+                    </button>
+                    <button
+                      className="p-2 rounded hover:bg-gray-100 text-left"
+                      style={{ fontFamily: 'monospace' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: 'monospace' }).run()}
+                    >
+                      Monospace
+                    </button>
+                    <button
+                      className="p-2 rounded hover:bg-gray-100 text-left"
+                      style={{ fontFamily: '"Playfair Display", serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Playfair Display", serif' }).run()}
+                    >
+                      Playfair Display
+                    </button>
+                    <button
+                      className="p-2 rounded hover:bg-gray-100 text-left"
+                      style={{ fontFamily: '"Open Sans", sans-serif' }}
+                      onClick={() => editor.chain().focus().setMark('textStyle', { fontFamily: '"Open Sans", sans-serif' }).run()}
+                    >
+                      Open Sans
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
             
             {/* Text alignment tools */}

@@ -251,6 +251,12 @@ export default function EditPost() {
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full"
                 placeholder="Enter a descriptive title..."
+                style={{ 
+                  backgroundColor: "#d3d3d3", 
+                  color: "#333333", 
+                  borderColor: "#999",
+                  height: "38px"
+                }}
               />
             </div>
             
@@ -271,6 +277,12 @@ export default function EditPost() {
                 onChange={(e) => setTags(e.target.value)}
                 className="w-full"
                 placeholder="Add tags separated by commas..."
+                style={{ 
+                  backgroundColor: "#d3d3d3", 
+                  color: "#333333", 
+                  borderColor: "#999",
+                  height: "38px"
+                }}
               />
               <p className="mt-1 text-sm text-neutral-500">
                 Example: gardening, rainwater, community projects
