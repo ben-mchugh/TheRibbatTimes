@@ -12,11 +12,10 @@ import { Post } from '@/lib/types';
 import { format, parseISO } from 'date-fns';
 
 interface MonthNavigatorProps {
-  threshold?: number; // Scroll threshold in pixels when button appears
+  threshold?: number; // Not used but kept for API compatibility
 }
 
 const MonthNavigator = ({ threshold = 300 }: MonthNavigatorProps) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [monthOptions, setMonthOptions] = useState<string[]>([]);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -45,26 +44,6 @@ const MonthNavigator = ({ threshold = 300 }: MonthNavigatorProps) => {
       setMonthOptions(sortedMonths);
     }
   }, [posts]);
-
-  // Toggle visibility based on scroll position
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > threshold) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    
-    // Check initial scroll position
-    handleScroll();
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [threshold]);
 
   // Scroll to the selected month section
   const scrollToMonth = (monthYear: string) => {
@@ -100,15 +79,18 @@ const MonthNavigator = ({ threshold = 300 }: MonthNavigatorProps) => {
     }
   };
 
-  return monthOptions.length > 0 ? (
+  if (monthOptions.length === 0) {
+    return null;
+  }
+
+  return (
     <div 
-      className={`fixed top-4 right-4 z-50 ${isVisible ? 'animate-fade-in' : 'opacity-0 pointer-events-none'}`}
+      className="fixed top-4 right-4 z-50 animate-fade-in"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
         transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-        transition: 'all 0.3s ease',
-        opacity: isVisible ? 1 : 0
+        transition: 'transform 0.3s ease'
       }}
     >
       <DropdownMenu>
@@ -144,7 +126,7 @@ const MonthNavigator = ({ threshold = 300 }: MonthNavigatorProps) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  ) : null;
+  );
 };
 
 export default MonthNavigator;
