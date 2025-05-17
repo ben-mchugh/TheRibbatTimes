@@ -871,31 +871,7 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
     >
       {/* Controls moved from fixed position */}
       
-      {/* Fixed buttons positioned to the right of the comments section */}
-      <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-2">
-        {/* Comments toggle button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowComments(!showComments)}
-          className={`bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md ${showComments ? 'opacity-100' : 'opacity-80'}`}
-          title={showComments ? "Hide comments" : "Show comments"}
-        >
-          <MessageSquare className="h-5 w-5" />
-        </Button>
-        
-        {/* Close button */}
-        <a href="/">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="bg-[#e8e8e8]/80 hover:bg-[#e8e8e8] text-[#444444] hover:text-[#222222] rounded-full w-10 h-10 flex items-center justify-center p-0 shadow-md"
-            title="Close"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </a>
-      </div>
+      {/* No longer using fixed positioning for buttons - they'll be in the comments header */}
       
       <div className="flex flex-col md:flex-row gap-6 flex-1 max-w-[1520px] mx-auto w-full">
         {/* Main content area */}
