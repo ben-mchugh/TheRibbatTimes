@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -34,6 +34,37 @@ interface EditorProps {
   content: string;
   onChange: (html: string) => void;
 }
+
+// Helper function to resize selected image
+const resizeSelectedImage = (editor: any, size: 'small' | 'medium' | 'large') => {
+  // Get all images in the editor
+  const images = document.querySelectorAll('.ProseMirror img');
+  
+  // If no images or editor is empty, return
+  if (!editor || images.length === 0) return;
+  
+  // Get the selected node
+  const { selection } = editor.state;
+  
+  // Define sizes based on width percentages
+  const sizes = {
+    small: '30%',
+    medium: '50%',
+    large: '100%'
+  };
+  
+  // Resize all selected images
+  images.forEach((img) => {
+    // Cast to HTMLImageElement to access style properties
+    const imgElement = img as HTMLImageElement;
+    // Apply the selected size to all images - this makes it work even if selection isn't precise
+    imgElement.style.width = sizes[size];
+    imgElement.style.height = 'auto';
+  });
+  
+  // Focus back to editor
+  editor.commands.focus();
+};
 
 const RichTextEditor = ({ content, onChange }: EditorProps) => {
   const editor = useEditor({
@@ -366,48 +397,90 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
             
             {/* Image insertion tool */}
             <div className="flex space-x-1 mr-4">
-              <Tooltip>
-                <TooltipTrigger asChild>
+              <Popover>
+                <PopoverTrigger asChild>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={() => {
-                      // Find the file input element and trigger a click
-                      const fileInput = document.getElementById('image-upload');
-                      if (fileInput) {
-                        fileInput.click();
-                      }
-                    }}
                     style={{ color: "#333333" }}
                   >
                     <ImageIcon className="h-4 w-4" />
-                    <input
-                      type="file"
-                      id="image-upload"
-                      accept="image/*"
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (e) => {
-                            const result = e.target?.result;
-                            if (result && typeof result === 'string') {
-                              // Insert the image at the current cursor position
-                              editor.chain().focus().setImage({ src: result }).run();
-                            }
-                          };
-                          reader.readAsDataURL(file);
-                          // Reset the input to allow selecting the same file again
-                          event.target.value = '';
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-4">
+                  <div className="flex flex-col gap-4">
+                    <h4 className="font-semibold text-center">Image Options</h4>
+                    
+                    {/* Upload button */}
+                    <Button 
+                      variant="outline"
+                      className="w-full" 
+                      onClick={() => {
+                        const fileInput = document.getElementById('image-upload');
+                        if (fileInput) {
+                          fileInput.click();
                         }
                       }}
-                      style={{ display: 'none' }}
-                    />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Insert Image</TooltipContent>
-              </Tooltip>
+                    >
+                      Upload Image
+                      <input
+                        type="file"
+                        id="image-upload"
+                        accept="image/*"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                              const result = e.target?.result;
+                              if (result && typeof result === 'string') {
+                                // Insert the image at the current cursor position
+                                editor.chain().focus().setImage({ src: result }).run();
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                            // Reset the input to allow selecting the same file again
+                            event.target.value = '';
+                          }
+                        }}
+                        style={{ display: 'none' }}
+                      />
+                    </Button>
+                    
+                    {/* Image size buttons */}
+                    <div className="flex flex-col gap-2">
+                      <p className="text-sm text-gray-500">Selected image size:</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => resizeSelectedImage(editor, 'small')}
+                          className="text-xs"
+                        >
+                          Small
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => resizeSelectedImage(editor, 'medium')}
+                          className="text-xs"
+                        >
+                          Medium
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => resizeSelectedImage(editor, 'large')}
+                          className="text-xs"
+                        >
+                          Large
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
             
             <div className="flex space-x-1">
