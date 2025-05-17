@@ -480,6 +480,7 @@ const RichTextEditor = ({ content, onChange }: EditorProps) => {
                           key={size}
                           className="py-1 px-2 text-center hover:bg-gray-100 rounded text-sm"
                           onClick={() => {
+                            setCurrentFontSize(size);
                             editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
                           }}
                         >
