@@ -176,16 +176,23 @@ const GoogleDocsCommentSection: React.FC<GoogleDocsCommentSectionProps> = ({
       }
     };
     
+    // Listen for deactivate comment events (from background clicks)
+    const handleDeactivateComment = () => {
+      setActiveCommentId(null);
+    };
+    
     const container = commentsRef.current;
     if (container) {
       container.addEventListener('forceFocusComment', handleForceFocus);
       container.addEventListener('activateComment', handleActivateComment);
+      container.addEventListener('deactivateComment', handleDeactivateComment);
     }
     
     return () => {
       if (container) {
         container.removeEventListener('forceFocusComment', handleForceFocus);
         container.removeEventListener('activateComment', handleActivateComment);
+        container.removeEventListener('deactivateComment', handleDeactivateComment);
       }
     };
   }, [alignCommentWithHighlight, setActiveCommentId]);

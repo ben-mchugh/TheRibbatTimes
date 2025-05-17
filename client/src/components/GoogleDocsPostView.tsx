@@ -740,7 +740,28 @@ const GoogleDocsPostView: React.FC<GoogleDocsPostViewProps> = ({ postId }) => {
   }
   
   return (
-    <div className="max-w-[1680px] mx-auto px-4 py-6 min-h-screen flex flex-col relative">
+    <div 
+      className="max-w-[1680px] mx-auto px-4 py-6 min-h-screen flex flex-col relative"
+      onClick={(e) => {
+        // Only handle direct clicks on this container, not bubbled events from children
+        if (e.target === e.currentTarget) {
+          // Clear focused comment
+          setFocusedCommentId(null);
+          
+          // Clear highlights from text
+          document.querySelectorAll('.selection-highlight').forEach(el => {
+            el.classList.remove('highlight-focus');
+          });
+          
+          // Clear active comment through a custom event
+          const commentsContainer = document.querySelector('.comments-container');
+          if (commentsContainer) {
+            const deactivateEvent = new CustomEvent('deactivateComment');
+            commentsContainer.dispatchEvent(deactivateEvent);
+          }
+        }
+      }}
+    >
       {/* Fixed position controls - positioned even lower as requested */}
       <div className="fixed top-32 right-4 z-40 flex flex-col gap-2">
         {/* Close button */}
