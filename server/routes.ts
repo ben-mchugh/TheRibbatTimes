@@ -218,8 +218,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const posts = await storage.getAllPosts();
       
+      console.log('All posts with draft status:', posts.map(p => ({ id: p.id, title: p.title, isDraft: p.isDraft })));
+      
+      // Filter out drafts for the main posts listing - ensure boolean comparison works
+      const publishedPosts = posts.filter(post => post.isDraft !== true);
+      
+      console.log('Published posts after filtering:', publishedPosts.map(p => ({ id: p.id, title: p.title, isDraft: p.isDraft })));
+      
       // Get author details and comment counts for each post
-      const postsWithAuthors = await Promise.all(posts.map(async (post) => {
+      const postsWithAuthors = await Promise.all(publishedPosts.map(async (post) => {
         const author = await storage.getUser(post.authorId);
         const comments = await storage.getCommentsByPostId(post.id);
         
@@ -285,12 +292,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const posts = await storage.getPostsByAuthor(userId);
       
+      console.log('User posts before processing:', posts.map(p => ({id: p.id, title: p.title, isDraft: p.isDraft})));
+      
       // Get author details and comment counts for each post
       const postsWithAuthors = await Promise.all(posts.map(async (post) => {
         const comments = await storage.getCommentsByPostId(post.id);
         
-        return {
+        // Ensure isDraft is properly normalized to a boolean
+        const normalizedPost = {
           ...post,
+          isDraft: post.isDraft === true, // Normalize to boolean
           author: {
             id: user.id,
             displayName: user.displayName,
@@ -300,6 +311,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           commentCount: comments.length
         };
+        
+        return normalizedPost;
       }));
       
       res.json(postsWithAuthors);
@@ -371,20 +384,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/posts', authenticateUser, async (req, res) => {
     try {
       const postData = req.body;
+      console.log('Creating post with data:', { 
+        title: postData.title, 
+        isDraft: postData.isDraft,
+        body_length: postData.content?.length || 0 
+      });
+      
       const validatedData = insertPostSchema.parse(postData);
+      
+      // Ensure we're storing a proper boolean for isDraft
+      const isDraftValue = postData.isDraft === true;
       
       // Create post with the current user as author
       const post = await storage.createPost({
         ...validatedData,
-        authorId: req.user.id
+        authorId: req.user.id,
+        isDraft: isDraftValue,
+        lastSavedAt: isDraftValue ? new Date() : null
       });
+      
+      console.log('Post created with isDraft:', isDraftValue);
       
       // Include author information in the response for immediate use in the UI
       const comments = await storage.getCommentsByPostId(post.id);
       
-      // Return complete post with author and comment count
+      // Return complete post with author and comment count, ensuring isDraft is a proper boolean
       res.status(201).json({
         ...post,
+        isDraft: isDraftValue,
         author: {
           id: req.user.id,
           displayName: req.user.displayName,
@@ -414,6 +441,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const postData = req.body;
+      
+      // Update lastSavedAt if this is a draft
+      if (postData.isDraft) {
+        postData.lastSavedAt = new Date();
+      }
+      
       const updatedPost = await storage.updatePost(postId, postData);
       
       // Get comments for the post
@@ -434,6 +467,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Update post error:', error);
       res.status(400).json({ message: 'Invalid post data' });
+    }
+  });
+
+  // Special endpoint for auto-saving drafts
+  app.post('/api/posts/:id/autosave', authenticateUser, async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const existingPost = await storage.getPost(postId);
+      
+      if (!existingPost) {
+        return res.status(404).json({ message: 'Post not found' });
+      }
+      
+      if (existingPost.authorId !== req.user.id) {
+        return res.status(403).json({ message: 'You do not have permission to edit this post' });
+      }
+      
+      const postData = req.body;
+      
+      console.log('Autosaving post:', postId, 'setting isDraft=true');
+      
+      // Always set draft flag and update lastSavedAt for autosaves
+      const updatedPost = await storage.updatePost(postId, {
+        ...postData,
+        isDraft: true,
+        lastSavedAt: new Date()
+      });
+      
+      res.json({
+        ...updatedPost,
+        isDraft: true, // Ensure it's explicitly set in the response
+        author: {
+          id: req.user.id,
+          displayName: req.user.displayName,
+          email: req.user.email,
+          photoURL: req.user.photoURL,
+          uid: req.user.uid
+        }
+      });
+    } catch (error) {
+      console.error('Autosave draft error:', error);
+      res.status(400).json({ message: 'Failed to save draft' });
+    }
+  });
+  
+  // Get drafts for the current user
+  app.get('/api/drafts', authenticateUser, async (req, res) => {
+    try {
+      const posts = await storage.getPostsByAuthor(req.user.id);
+      
+      // Filter to only include drafts
+      const drafts = posts.filter(post => post.isDraft);
+      
+      // Transform to include author info
+      const draftsWithAuthor = await Promise.all(drafts.map(async (draft) => {
+        const comments = await storage.getCommentsByPostId(draft.id);
+        
+        return {
+          ...draft,
+          author: {
+            id: req.user.id,
+            displayName: req.user.displayName,
+            email: req.user.email,
+            photoURL: req.user.photoURL,
+            uid: req.user.uid
+          },
+          commentCount: comments.length
+        };
+      }));
+      
+      res.json(draftsWithAuthor);
+    } catch (error) {
+      console.error('Get drafts error:', error);
+      res.status(500).json({ message: 'Failed to retrieve drafts' });
     }
   });
 

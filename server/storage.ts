@@ -252,15 +252,19 @@ export class MemStorage implements IStorage {
       });
   }
 
-  async createPost(postData: InsertPost & { authorId: number }): Promise<Post> {
+  async createPost(postData: InsertPost & { authorId: number, isDraft?: boolean }): Promise<Post> {
     const id = this.postId++;
     const now = new Date().toISOString();
     const post: Post = {
       ...postData,
       id,
+      isDraft: postData.isDraft === true, // Ensure explicit boolean
       createdAt: now,
       updatedAt: now
     };
+    
+    console.log(`Creating post with ID ${id}, title: "${post.title}", isDraft=${post.isDraft}`);
+    
     this.postsData.set(id, post);
     return post;
   }
@@ -269,11 +273,18 @@ export class MemStorage implements IStorage {
     const post = this.postsData.get(id);
     if (!post) return undefined;
 
+    // Handle the isDraft flag explicitly to ensure it's a proper boolean
+    const isDraftValue = postData.isDraft === true;
+    
     const updatedPost: Post = {
       ...post,
       ...postData,
+      isDraft: postData.isDraft !== undefined ? isDraftValue : post.isDraft,
       updatedAt: new Date().toISOString()
     };
+    
+    console.log(`Updating post ${id}, title: "${updatedPost.title}", isDraft=${updatedPost.isDraft}`);
+    
     this.postsData.set(id, updatedPost);
     return updatedPost;
   }

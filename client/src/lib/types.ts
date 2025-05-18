@@ -17,6 +17,8 @@ export interface Post {
   updatedAt: string;
   tags: string[];
   commentCount: number;
+  isDraft?: boolean;
+  lastSavedAt?: string; // Timestamp of when the draft was last saved
 }
 
 export interface Comment {

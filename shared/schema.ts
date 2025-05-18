@@ -38,6 +38,8 @@ export const posts = pgTable("posts", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   tags: text("tags").array(), // Array of tags
+  isDraft: boolean("is_draft").default(false), // Whether the post is a draft
+  lastSavedAt: timestamp("last_saved_at"), // When the draft was last auto-saved
 });
 
 export const insertPostSchema = createInsertSchema(posts).omit({
@@ -45,6 +47,7 @@ export const insertPostSchema = createInsertSchema(posts).omit({
   authorId: true,
   createdAt: true,
   updatedAt: true,
+  lastSavedAt: true,
 });
 
 // Comments table

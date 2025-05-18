@@ -9,7 +9,7 @@
  * - Environment variable configuration and validation
  * - Sign-out functionality
  */
-// Import functions
+
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
@@ -21,13 +21,12 @@ import {
   User
 } from "firebase/auth";
 
-// Set firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBP9AphbkcdxqF3pCp02VOSI-5-SzEqTdw",
-  authDomain: "the-ribbat-times.firebaseapp.com",
-  projectId: "the-ribbat-times",
-  storageBucket: "the-ribbat-times.firebasestorage.app",
-  appId: "1:794303435548:web:a0c9eb78083955225e20d9",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
+  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || ""}.firebaseapp.com`,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
+  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID || ""}.appspot.com`,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
 };
 
 console.log("Firebase config:", {
