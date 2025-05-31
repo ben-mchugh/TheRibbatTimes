@@ -3,6 +3,8 @@ import App from "./App";
 import "./index.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 
+import './firebase';
+
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider defaultTheme="dark" storageKey="ribbattimes-theme">
     <App />
